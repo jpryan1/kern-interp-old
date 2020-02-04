@@ -116,12 +116,11 @@ void run_experiment3() {
     std::unique_ptr<Boundary>(new Ex3Boundary());
   boundary->initialize(num_boundary_points, boundary_condition);
 
-  double current_ang1 = 0, current_ang2 = M_PI;
-  // double current_ang1 = -2.879, current_ang2 = 0.010;
-  // if (THREE_B) {
-  //   current_ang1 = 1.4;
-  //   current_ang2 = 3;
-  // }
+  double current_ang1 = -2.879, current_ang2 = 0.010;
+  if (THREE_B) {
+    current_ang1 = 1.4;
+    current_ang2 = 3;
+  }
   boundary->perturbation_parameters[0] = current_ang1;
   boundary->perturbation_parameters[1] = current_ang2;
   boundary->initialize(num_boundary_points, boundary_condition);
@@ -130,107 +129,102 @@ void run_experiment3() {
                            domain_dimension);
 
   std::vector<double> domain_points;
-
-  get_domain_points(200, &domain_points, quadtree.min,
-                    quadtree.max, quadtree.min,
-                    quadtree.max);
-
-  // domain_points.push_back(0.5 - DELTA_X);
-  // domain_points.push_back(0.5 + DELTA_X);
-  // if (!THREE_B) {
-  //   domain_points.push_back(0.5 + DELTA_X);
-  //   domain_points.push_back(0.5 + DELTA_X);
-  // }
+  domain_points.push_back(0.5 - DELTA_X);
+  domain_points.push_back(0.5 + DELTA_X);
+  if (!THREE_B) {
+    domain_points.push_back(0.5 + DELTA_X);
+    domain_points.push_back(0.5 + DELTA_X);
+  }
 
   Kernel kernel(solution_dimension, domain_dimension,
                 pde, boundary.get(), domain_points);
   ki_Mat solution = boundary_integral_solve(kernel,  *(boundary.get()),
                     &quadtree, id_tol, fact_threads, domain_points);
-  // double prev_gradient;
-  // if (THREE_B) {
-  //   prev_gradient = -solution.get(0, 0);
-  // } else {
-  //   prev_gradient = (solution.get(1, 0) - solution.get(0, 0))
-  //                   / (2 * DELTA_X);
-  // }
-
-
-  // for (int step = 0; step < FRAME_CAP; step++) {
-  //   double findiff1[4];
-  //   double samples1[4] = {current_ang1 - 2 * h, current_ang1 - h,
-  //                         current_ang1 + h, current_ang1 + 2 * h
-  //                        };
-  //   double findiff2[4];
-  //   double samples2[4] = {current_ang2 - 2 * h, current_ang2 - h,
-  //                         current_ang2 + h, current_ang2 + 2 * h
-  //                        };
-  //   get_fin_diff_vals(samples1, boundary.get(), 0, id_tol, fact_threads,
-  //                     boundary_condition, quadtree, kernel, domain_points,
-  //                     findiff1);
-  //   boundary->perturbation_parameters[0] = current_ang1;
-  //   get_fin_diff_vals(samples2, boundary.get(), 1, id_tol, fact_threads,
-  //                     boundary_condition, quadtree, kernel, domain_points,
-  //                     findiff2);
-  //   double grad1 = (findiff1[0] - 8 * findiff1[1] + 8 * findiff1[2]
-  //                   - findiff1[3]) / (12 * h);
-  //   double grad2 = (findiff2[0] - 8 * findiff2[1] + 8 * findiff2[2]
-  //                   - findiff2[3]) / (12 * h);
-  //   double alpha = start_alpha;
-  //   while (alpha > 0.01) {
-  //     double trial_ang1 = current_ang1 + alpha * grad1;
-  //     double trial_ang2 = current_ang2 + alpha * grad2;
-  //     enforce_separation(&trial_ang1, &trial_ang2);
-
-  //     boundary->perturbation_parameters[0] = trial_ang1;
-  //     boundary->perturbation_parameters[1] = trial_ang2;
-  //     boundary->initialize(num_boundary_points, boundary_condition);
-  //     quadtree.perturb(*boundary);
-  //     kernel.update_boundary(boundary.get());
-  //     ki_Mat solution = boundary_integral_solve(kernel, *(boundary.get()),
-  //                       &quadtree, id_tol, fact_threads, domain_points);
-
-  //     double gradient;
-  //     if (THREE_B) {
-  //       gradient = -solution.get(0, 0);
-  //     } else {
-  //       gradient = (solution.get(1, 0) - solution.get(0, 0))
-  //                  / (2 * DELTA_X);
-  //     }
-  //     if (prev_gradient < gradient) {
-  //       std::cout << "theta1: " << trial_ang1 << " theta2: " << trial_ang2 <<
-  //                 " theta3: "
-  //                 << gradient << std::endl;
-  //       prev_gradient = gradient;
-  //       current_ang1 = trial_ang1;
-  //       current_ang2 = trial_ang2;
-  //       break;
-  //     } else {
-  //       alpha *= alpha_decay;
-  //     }
-  //   }
-  //   if (alpha <= 0.01) {
-  //     std::cout << "Line search did not terminate" << std::endl;
-  //     exit(0);
-  //   }
-  // }
-
-  std::ofstream sol_out;
-  sol_out.open("output/data/ie_solver_solution.txt");
-  int points_index = 0;
-  for (int i = 0; i < solution.height(); i += 2) {
-    sol_out << domain_points[points_index] << "," <<
-            domain_points[points_index + 1] << ",";
-    points_index += 2;
-    sol_out << solution.get(i, 0) << "," << solution.get(i + 1, 0) << std::endl;
+  double prev_gradient;
+  if (THREE_B) {
+    prev_gradient = -solution.get(0, 0);
+  } else {
+    prev_gradient = (solution.get(1, 0) - solution.get(0, 0))
+                    / (2 * DELTA_X);
   }
-  sol_out.close();
-  std::ofstream bound_out;
-  bound_out.open("output/data/ie_solver_boundary.txt");
-  for (int i = 0; i < boundary->points.size(); i += 2) {
-    bound_out << boundary->points[i] << "," << boundary->points[i + 1]
-              << std::endl;
+
+
+  for (int step = 0; step < FRAME_CAP; step++) {
+    double findiff1[4];
+    double samples1[4] = {current_ang1 - 2 * h, current_ang1 - h,
+                          current_ang1 + h, current_ang1 + 2 * h
+                         };
+    double findiff2[4];
+    double samples2[4] = {current_ang2 - 2 * h, current_ang2 - h,
+                          current_ang2 + h, current_ang2 + 2 * h
+                         };
+    get_fin_diff_vals(samples1, boundary.get(), 0, id_tol, fact_threads,
+                      boundary_condition, quadtree, kernel, domain_points,
+                      findiff1);
+    boundary->perturbation_parameters[0] = current_ang1;
+    get_fin_diff_vals(samples2, boundary.get(), 1, id_tol, fact_threads,
+                      boundary_condition, quadtree, kernel, domain_points,
+                      findiff2);
+    double grad1 = (findiff1[0] - 8 * findiff1[1] + 8 * findiff1[2]
+                    - findiff1[3]) / (12 * h);
+    double grad2 = (findiff2[0] - 8 * findiff2[1] + 8 * findiff2[2]
+                    - findiff2[3]) / (12 * h);
+    double alpha = start_alpha;
+    while (alpha > 0.01) {
+      double trial_ang1 = current_ang1 + alpha * grad1;
+      double trial_ang2 = current_ang2 + alpha * grad2;
+      enforce_separation(&trial_ang1, &trial_ang2);
+
+      boundary->perturbation_parameters[0] = trial_ang1;
+      boundary->perturbation_parameters[1] = trial_ang2;
+      boundary->initialize(num_boundary_points, boundary_condition);
+      quadtree.perturb(*boundary);
+      kernel.update_boundary(boundary.get());
+      ki_Mat solution = boundary_integral_solve(kernel, *(boundary.get()),
+                        &quadtree, id_tol, fact_threads, domain_points);
+
+      double gradient;
+      if (THREE_B) {
+        gradient = -solution.get(0, 0);
+      } else {
+        gradient = (solution.get(1, 0) - solution.get(0, 0))
+                   / (2 * DELTA_X);
+      }
+      if (prev_gradient < gradient) {
+        std::cout << "theta1: " << trial_ang1 << " theta2: " << trial_ang2 <<
+                  " theta3: "
+                  << gradient << std::endl;
+        prev_gradient = gradient;
+        current_ang1 = trial_ang1;
+        current_ang2 = trial_ang2;
+        break;
+      } else {
+        alpha *= alpha_decay;
+      }
+    }
+    if (alpha <= 0.01) {
+      std::cout << "Line search did not terminate" << std::endl;
+      exit(0);
+    }
   }
-  bound_out.close();
+
+  // std::ofstream sol_out;
+  // sol_out.open("output/data/ie_solver_solution.txt");
+  // int points_index = 0;
+  // for (int i = 0; i < solution.height(); i += 2) {
+  //   sol_out << domain_points[points_index] << "," <<
+  //           domain_points[points_index + 1] << ",";
+  //   points_index += 2;
+  //   sol_out << solution.get(i, 0) << "," << solution.get(i + 1, 0) << std::endl;
+  // }
+  // sol_out.close();
+  // std::ofstream bound_out;
+  // bound_out.open("output/data/ie_solver_boundary.txt");
+  // for (int i = 0; i < boundary->points.size(); i += 2) {
+  //   bound_out << boundary->points[i] << "," << boundary->points[i + 1]
+  //             << std::endl;
+  // }
+  // bound_out.close();
 }
 
 }  // namespace kern_interp
