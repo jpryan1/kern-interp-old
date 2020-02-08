@@ -9,7 +9,7 @@ namespace kern_interp {
 
 
 void Boundary::set_boundary_values_size(BoundaryCondition bc) {
-  int num_points = weights.size();
+  int num_points = points.size() / 2;
   switch (bc) {
     case SINGLE_ELECTRON:
     case EX3A:

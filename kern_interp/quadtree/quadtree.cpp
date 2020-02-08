@@ -189,6 +189,7 @@ void QuadTree::recursive_add(QuadTreeNode* node, double x, double y,
   } else {
     // do we need one?
     // if this node is exploding and needs children
+
     if (node->is_leaf
         && node->dof_lists.original_box.size() > MAX_LEAF_DOFS) {
       node_subdivide(node);
@@ -278,10 +279,11 @@ void QuadTree::node_subdivide(QuadTreeNode* node) {
       }
     }
   }
-  for (QuadTreeNode* child : node->children)
+  for (QuadTreeNode* child : node->children) {
     if (child->dof_lists.original_box.size()  > MAX_LEAF_DOFS) {
       node_subdivide(child);
     }
+  }
 }
 
 

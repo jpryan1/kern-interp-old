@@ -2,6 +2,7 @@
 #include <string.h>
 #include <omp.h>
 #include <string>
+#include <cmath>
 #include <cassert>
 #include <iostream>
 #include <fstream>
@@ -428,8 +429,10 @@ void ki_Mat::LU_factorize(ki_Mat* K_LU, std::vector<lapack_int>* piv) const {
   *K_LU = *this;
   *piv = std::vector<lapack_int>(height_);
 
-  LAPACKE_dgetrf(LAPACK_COL_MAJOR, K_LU->height_, K_LU->width_, K_LU->mat,
-                 K_LU->lda_, &(*piv)[0]);
+  int status = LAPACKE_dgetrf(LAPACK_COL_MAJOR, K_LU->height_, K_LU->width_,
+                              K_LU->mat,
+                              K_LU->lda_, &(*piv)[0]);
+  assert(status == 0);
 }
 
 void ki_Mat::left_multiply_inverse(const ki_Mat& K, ki_Mat* U) const {
@@ -557,6 +560,14 @@ std::vector<double> ki_Mat::real_eigenvalues() {
   delete[] imags;
   delete[] eigs;
   return eigvs;
+}
+
+ki_Mat ki_Mat::rand_vec(int height) {
+  ki_Mat random(height, 1);
+  for (int i = 0; i < height; i++) {
+    random.set(i, 0, rand() / (0. + RAND_MAX));
+  }
+  return random;
 }
 
 

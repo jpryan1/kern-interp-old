@@ -179,7 +179,7 @@ void run_experiment3() {
       boundary->perturbation_parameters[1] = trial_ang2;
       boundary->initialize(num_boundary_points, boundary_condition);
       quadtree.perturb(*boundary);
-      kernel.update_boundary(boundary.get());
+      kernel.update_data(boundary.get());
       ki_Mat solution = boundary_integral_solve(kernel, *(boundary.get()),
                         &quadtree, id_tol, fact_threads, domain_points);
 
