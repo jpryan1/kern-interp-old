@@ -56,7 +56,7 @@ void run_experiment2() {
         + 0.3 * (rand() / (0. + RAND_MAX));
     boundary->initialize(num_boundary_points, BoundaryCondition::DEFAULT);
     quadtree.perturb(*boundary.get());
-    kernel.update_boundary(boundary.get());
+    kernel.update_data(boundary.get());
     solution = boundary_integral_solve(kernel,  *(boundary.get()), &quadtree,
                                        id_tol, fact_threads, domain_points);
   }

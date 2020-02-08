@@ -5,6 +5,7 @@ cc_library(
 	hdrs = [
 			"circle.h",
 			"annulus.h",
+			"uniformdist.h",
 			"donut.h",
 			"cubic_spline.h",
 			"ex1boundary.h",
@@ -15,6 +16,7 @@ cc_library(
 	srcs = [
 			"circle.cpp",
 			"annulus.cpp",
+			"uniformdist.cpp",
 			"donut.cpp",
 			"cubic_spline.cpp",
 			"boundary.cpp",

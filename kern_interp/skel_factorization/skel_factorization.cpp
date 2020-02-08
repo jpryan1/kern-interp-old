@@ -80,7 +80,9 @@ void SkelFactorization::decouple(const Kernel& kernel, QuadTreeNode* node) {
   node->X_rr = K_BN(r, r) - node->T.transpose() * K_BN(s, r)
                - K_BN_r_sn * node->T;
   ki_Mat K_BN_sn_r = K_BN(s, r) - K_BN(s, s) * node->T;
+
   node->X_rr.LU_factorize(&node->X_rr_lu, &node->X_rr_piv);
+
   node->X_rr_is_LU_factored = true;
   node->L = ki_Mat(sn.size(),  num_redundant);
   node->U = ki_Mat(num_redundant, sn.size());
@@ -140,7 +142,9 @@ void SkelFactorization::skeletonize(const Kernel& kernel, QuadTree* tree) {
   int skel_idx = 0;
 
   std::vector<int> allredundant;
-  for (int i = 0; i < kernel.boundary_weights.size()*kernel.solution_dimension;
+  for (int i = 0;
+       i < (kernel.boundary_points_.size() / kernel.domain_dimension)
+       *kernel.solution_dimension;
        i++) {
     if (skel_idx < sorted_allskel.size() && i == sorted_allskel[skel_idx]) {
       skel_idx++;
@@ -349,7 +353,7 @@ void SkelFactorization::solve(const QuadTree & quadtree, ki_Mat * x,
     for (int n = 0; n < current_level->nodes.size(); n++) {
       all_nodes.push_back(current_level->nodes[n]);
     }
-  }
+  }  
   for (int level = lvls - 1; level >= 0; level--) {
     QuadTreeLevel* current_level = quadtree.levels[level];
     #pragma omp parallel for num_threads(fact_threads)
@@ -377,12 +381,12 @@ void SkelFactorization::solve(const QuadTree & quadtree, ki_Mat * x,
 
     apply_diag_inv_matrix(current_node->X_rr_lu, current_node->X_rr_piv, x,
                           current_node->dof_lists.redundant);
-  }
+  }  
   std::vector<int> allskel = quadtree.root->dof_lists.active_box;
   if (allskel.size() > 0) {
     apply_diag_inv_matrix(quadtree.allskel_mat_lu, quadtree.allskel_mat_piv, x,
                           allskel);
-  }
+  }  
   for (int level = 0; level < lvls; level++) {
     QuadTreeLevel* current_level = quadtree.levels[level];
     #pragma omp parallel for num_threads(fact_threads)

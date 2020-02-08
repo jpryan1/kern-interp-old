@@ -19,14 +19,15 @@ namespace kern_interp {
 void run_experiment1() {
   double id_tol = 1e-6;
   Kernel::Pde pde = Kernel::Pde::STOKES;
-  int num_boundary_points = pow(2, 12);
-  int domain_size = 200;
+  int num_boundary_points = pow(2, 15);
+  int domain_size = 10;
   int domain_dimension = 2;
   int solution_dimension = 2;
   int fact_threads = 4;
   std::unique_ptr<Boundary> boundary =
     std::unique_ptr<Boundary>(new Ex1Boundary());
   boundary->initialize(num_boundary_points, BoundaryCondition::DEFAULT);
+  double start=omp_get_wtime();
 
   QuadTree quadtree;
   quadtree.initialize_tree(boundary.get(), solution_dimension,
@@ -39,7 +40,9 @@ void run_experiment1() {
                 pde, boundary.get(), domain_points);
   ki_Mat solution = boundary_integral_solve(kernel, *(boundary.get()),
                     &quadtree, id_tol, fact_threads, domain_points);
-
+  double end=omp_get_wtime();
+  std::cout<<solution.frob_norm()<<std::endl;
+  std::cout<<(end-start)<<std::endl;
   // std::ofstream sol_out;
   // sol_out.open("output/data/ie_solver_solution.txt");
   // int points_index = 0;

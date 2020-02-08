@@ -16,6 +16,7 @@ struct Kernel {
   enum Pde {
     LAPLACE,
     LAPLACE_NEUMANN,
+    GAUSS,
     STOKES
   };
   Kernel() {}
@@ -25,28 +26,27 @@ struct Kernel {
     solution_dimension(solution_dimension_),
     domain_dimension(domain_dimension_),
     pde(pde_),
-    boundary_points(boundary->points),
-    boundary_normals(boundary->normals),
-    boundary_weights(boundary->weights),
-    boundary_curvatures(boundary->curvatures),
+    boundary_points_(boundary->points),
+    boundary_normals_(boundary->normals),
+    boundary_weights_(boundary->weights),
+    boundary_curvatures_(boundary->curvatures),
     domain_points(domain_points_) {}
 
   int solution_dimension, domain_dimension;
   Kernel::Pde pde;
-  std::vector<double> boundary_points, boundary_normals,
-      boundary_weights, boundary_curvatures, domain_points;
-  void laplace(int mat_idx, ki_Mat* ret, double r1,
-               double r2, double sw, double sc,
-               double sn1, double sn2, double tn1, double tn2,
-               bool forward = false) const;
+  std::vector<double> boundary_points_, boundary_normals_,
+      boundary_weights_, boundary_curvatures_, domain_points;
+
+  void update_data(Boundary* boundary);
+
+  void one_d_kern(int mat_idx, ki_Mat* ret, double r1,
+                  double r2, double tn1, double tn2, double sn1, double sn2,
+                  double sw, double sc, bool forward = false) const;
+  void two_d_kern(int mat_idx, int tgt_parity, int src_parity,
+                  ki_Mat* ret, double r1, double r2, double tn1, double tn2,
+                  double sn1, double sn2, double sw, double sc,
+                  bool forward = false) const;
   ki_Mat operator()(const std::vector<int> & tgt_inds,
-                    const std::vector<int> & src_inds,
-                    bool forward = false) const;
-  void update_boundary(Boundary* boundary);
-  ki_Mat laplace_get(const std::vector<int> & tgt_inds,
-                     const std::vector<int> & src_inds,
-                     bool forward = false) const;
-  ki_Mat stokes_get(const std::vector<int> & tgt_inds,
                     const std::vector<int> & src_inds,
                     bool forward = false) const;
 
@@ -56,16 +56,11 @@ struct Kernel {
                        double r, const QuadTree * tree,
                        const std::vector<int> & box_inds) const;
 
-  ki_Mat laplace_proxy_get(const std::vector<double> & pxy_p,
-                           const std::vector<double> & pxy_n,
-                           double pxy_w,
-                           const std::vector<int> & box_inds) const;
-  ki_Mat stokes_proxy_get(const std::vector<double> & pxy_p,
-                          const std::vector<double> & pxy_n,
-                          double pxy_w,
-                          const std::vector<int> & box_inds)
-  const;
   ki_Mat forward() const;
+
+  inline double boundary_normals(int i) const;
+  inline double boundary_weights(int i) const;
+  inline double boundary_curvatures(int i) const;
 };  // struct
 
 

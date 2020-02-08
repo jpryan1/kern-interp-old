@@ -58,3 +58,22 @@ cc_binary(
         "-lgomp"]
 
 )
+
+cc_binary(
+  name = "covar",
+  srcs = ["covar.cpp"],
+  copts= ["-fopenmp",
+          "-std=c++14"],
+  deps = [
+      "//kern_interp:ki_mat",
+      "//kern_interp/skel_factorization",
+      "//kern_interp/quadtree",
+      "//kern_interp/boundaries",
+      "//kern_interp:linear_solve",
+      ],
+ linkopts = ["-llapacke",
+        "-llapack",
+        "-lblas",
+        "-lgomp"]
+
+)

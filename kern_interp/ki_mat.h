@@ -98,6 +98,8 @@ struct ki_Mat {
 
   int id(std::vector<int>* p, ki_Mat* Z, double tol) const;
   std::vector<double> real_eigenvalues();
+
+  static ki_Mat rand_vec(int height);
 };
 
 }  // namespace kern_interp
