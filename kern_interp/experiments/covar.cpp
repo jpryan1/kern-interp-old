@@ -12,6 +12,7 @@
 #include "kern_interp/kernel/kernel.h"
 #include "kern_interp/linear_solve.h"
 #include "kern_interp/boundaries/uniformdist.h"
+#include "kern_interp/boundaries/ex1boundary.h"
 #include "kern_interp/boundaries/circle.h"
 #include "kern_interp/boundaries/donut.h"
 
@@ -51,27 +52,9 @@ void run_covar_exp() {
 
   ki_Mat result = dense * mu;
   ki_Mat err = result - boundary->boundary_values;
-  std::cout << "Err " << (err.vec_two_norm() /
-                          boundary->boundary_values.vec_two_norm())
-            << std::endl;
-
-  double mindist = 3;
-  for (int i = 0; i < num_boundary_points; i++) {
-    for (int j = i + 1; j < num_boundary_points; j++) {
-      Vec2 bp1 = Vec2(boundary->points[2 * i], boundary->points[2 * i + 1]);
-      Vec2 bp2 = Vec2(boundary->points[2 * j], boundary->points[2 * j + 1]);
-      mindist = std::min(mindist, (bp1 - bp2).norm());
-
-    }
-  }
-  std::cout << "min dist " << mindist << std::endl;
-  std::ofstream bound_out;
-  bound_out.open("output/data/ie_solver_boundary.txt");
-  for (int i = 0; i < boundary->points.size(); i += 2) {
-    bound_out << boundary->points[i] << "," << boundary->points[i + 1]
-              << std::endl;
-  }
-  bound_out.close();
+  // std::cout << "Err " << (err.vec_two_norm() /
+  //                         boundary->boundary_values.vec_two_norm())
+  //           << std::endl;
 }
 
 }  // namespace kern_interp
