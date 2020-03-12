@@ -140,7 +140,7 @@ void QuadTree::get_descendent_neighbors(QuadTreeNode* big,
         break;
       }
     }
-    if (y < top && y < bottom) {
+    if (y < top && y > bottom) {
       if (fabs(x - left) < 1e-14) {
         big->neighbors.push_back(small);
         small->neighbors.push_back(big);
