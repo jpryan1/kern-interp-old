@@ -16,7 +16,7 @@ BOUNDARY_RES = 5
 ZOOM = 1
 TICK_LABEL_SIZE = 40
 TICKS = [0.2, 0.9, 1.6]
-OUTPUT_FILE = "ex1.eps"
+# OUTPUT_FILE = "ex1.eps"
 # config.num_boundary_points = pow(2, 12);
 # config.domain_size = 200;
 
@@ -134,9 +134,7 @@ cax = divider.append_axes("right", size="5%", pad=0.5)
 cbar= plt.colorbar(imsh, cax=cax, ticks=TICKS)
 cbar.ax.tick_params(labelsize=TICK_LABEL_SIZE)
 
-# circle = plt.Circle(((xr-xl)/2.,(yr-yl)/2.), 0.5, color='g', fill=True, linewidth=2,linestyle="--")
-# plt.gcf().gca().add_artist(circle)
-# plt.savefig("ex3.png") #, format="eps")
+
 xl, xr = ax.get_xlim()
 yl, yr = ax.get_ylim()
 l = min(xl,yl)-0.01

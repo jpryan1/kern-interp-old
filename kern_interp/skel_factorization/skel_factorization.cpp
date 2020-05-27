@@ -48,20 +48,6 @@ int SkelFactorization::id_compress(const Kernel& kernel,
   }
   node->dof_lists.set_rs_ranges(p, node->T.height(), node->T.width());
   node->dof_lists.set_skelnear_range();
-  // // Print everything
-  // std::cout << "new box" << std::endl;
-  // std::cout << "red:" << std::endl;
-  // for (int i = 0; i < node->dof_lists.redundant.size(); i++) {
-  //   std::cout << kernel.boundary_points_[2 * node->dof_lists.redundant[i]] <<
-  //             "," << kernel.boundary_points_[2 * node->dof_lists.redundant[i] + 1] <<
-  //             std::endl;
-  // }
-  // std::cout << "skel:" << std::endl;
-  // for (int i = 0; i < node->dof_lists.skel.size(); i++) {
-  //   std::cout << kernel.boundary_points_[2 * node->dof_lists.skel[i]] <<
-  //             "," << kernel.boundary_points_[2 * node->dof_lists.skel[i] + 1] <<
-  //             std::endl;
-  // }
 
   return node->T.width();
 }
@@ -82,6 +68,9 @@ void SkelFactorization::decouple(const Kernel& kernel, QuadTreeNode* node) {
   get_all_schur_updates(&update, BN, node);
 
   ki_Mat K_BN = kernel(BN, BN) - update;
+
+  // std::cout << "KBN cond is " << K_BN.condition_number() << std::endl;
+  // std::cout << "skel red is " << num_skel << " " << num_redundant << std::endl;
   // Generate various index ranges within BN
   std::vector<int> s, r, n, sn;
   for (int i = 0; i < num_skel; i++) {
@@ -96,6 +85,7 @@ void SkelFactorization::decouple(const Kernel& kernel, QuadTreeNode* node) {
                - K_BN_r_sn * node->T;
   ki_Mat K_BN_sn_r = K_BN(s, r) - K_BN(s, s) * node->T;
 
+  // std::cout << "Xrr cond is " << node->X_rr.condition_number() << std::endl;
   node->X_rr.LU_factorize(&node->X_rr_lu, &node->X_rr_piv);
 
   node->X_rr_is_LU_factored = true;
