@@ -21,6 +21,46 @@ cc_binary(
 
 
 cc_binary(
+  name = "spiral_channel",
+  srcs = ["spiral_channel.cpp"],
+  copts= ["-fopenmp",
+          "-std=c++14"],
+  deps = [
+      "//kern_interp:ki_mat",
+      "//kern_interp/skel_factorization",
+      "//kern_interp/quadtree",
+      "//kern_interp/boundaries",
+      "//kern_interp:linear_solve",
+      ],
+  linkopts = ["-llapacke",
+        "-llapack",
+        "-lblas",
+        "-lgomp"]
+
+)
+
+
+cc_binary(
+  name = "xrr_test",
+  srcs = ["xrr_test.cpp"],
+  copts= ["-fopenmp",
+          "-std=c++14"],
+  deps = [
+      "//kern_interp:ki_mat",
+      "//kern_interp/skel_factorization",
+      "//kern_interp/quadtree",
+      "//kern_interp/boundaries",
+      "//kern_interp:linear_solve",
+      ],
+  linkopts = ["-llapacke",
+        "-llapack",
+        "-lblas",
+        "-lgomp"]
+
+)
+
+
+cc_binary(
   name = "experiment_two",
   srcs = ["experiment_two.cpp"],
   copts= ["-fopenmp",

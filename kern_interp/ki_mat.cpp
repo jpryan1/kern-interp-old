@@ -10,6 +10,24 @@
 
 namespace kern_interp {
 
+
+
+double ki_Mat::condition_number() const {
+  // TODO(John) this should be done without using LU factorization if possible?
+  ki_Mat X_copy = *this;
+  std::vector<lapack_int> ipiv(height_);
+  memset(&ipiv[0], 0, height_ * sizeof(lapack_int));
+  double one_norm =  X_copy.one_norm();
+  LAPACKE_dgetrf(LAPACK_COL_MAJOR, X_copy.height_, X_copy.width_, X_copy.mat,
+                 X_copy.lda_, &ipiv[0]);
+  double rcond;
+  LAPACKE_dgecon(LAPACK_COL_MAJOR, '1', X_copy.height(), X_copy.mat,
+                 X_copy.lda_, one_norm, &rcond);
+  return 1.0 / rcond;
+}
+
+
+
 ki_Mat::ki_Mat() {
   mat       = NULL;
   lda_      = 0;

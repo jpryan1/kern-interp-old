@@ -10,18 +10,20 @@ void Annulus::initialize(int N, BoundaryCondition bc) {
   normals.clear();
   weights.clear();
   curvatures.clear();
+  holes.clear();
 
   if (holes.size() == 0) {
     Hole hole;
-    hole.center = Vec2(0.9, 0.5);
-    hole.radius = 0.2;
+    hole.center = Vec2(0.88, 0.61);
+    hole.radius = 0.1;
     holes.push_back(hole);
-    hole.center = Vec2(0.1, 0.5);
+    hole.center = Vec2(0.12, 0.39);
     holes.push_back(hole);
   }
 
-  int hole_nodes = N / 5;
+  int hole_nodes = N / 20;
   int num_points = N + hole_nodes * holes.size();
+
   for (int i = 0; i < N; i++) {
     double ang = i * 2.0 * M_PI / N;
     double x = 0.5 + cos(ang);
@@ -33,7 +35,7 @@ void Annulus::initialize(int N, BoundaryCondition bc) {
     curvatures.push_back(1);
     weights.push_back(2 * M_PI / N);
   }
-
+  num_outer_nodes = N;
   for (int hole_idx = 0; hole_idx < holes.size(); hole_idx++) {
     Hole hole = holes[hole_idx];
     int start_idx = N + hole_nodes * hole_idx;
@@ -50,7 +52,6 @@ void Annulus::initialize(int N, BoundaryCondition bc) {
       weights.push_back((2 * hole.radius * M_PI) / (end_idx - start_idx));
     }
   }
-
   if (bc == BoundaryCondition::DEFAULT) {
     boundary_values = ki_Mat(num_points, 1);
     apply_boundary_condition(0, N, ALL_ZEROS);
@@ -58,7 +59,7 @@ void Annulus::initialize(int N, BoundaryCondition bc) {
     apply_boundary_condition(N + hole_nodes, N + 2 * hole_nodes, ALL_NEG_ONES);
   } else {
     set_boundary_values_size(bc);
-    apply_boundary_condition(0, num_points, bc);
+    apply_boundary_condition(0, weights.size(), bc);
   }
 }
 
