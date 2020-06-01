@@ -5,32 +5,17 @@ import matplotlib
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 import matplotlib.pyplot as plt
 
-# Ex Spiral
+# Ex 1
 is_channel_plot = False
 ARROW_LENGTH = 0.4
 BORDER_WIDTH = 8
 HEAD_WIDTH = 3
-QUIVER_RES_X = 2
-QUIVER_RES_Y = 2
+QUIVER_RES_X = 10
+QUIVER_RES_Y = 10
 BOUNDARY_RES = 5
 ZOOM = 1
-TICK_LABEL_SIZE = 40
-TICKS = [0.2, 0.9, 1.6]
-# OUTPUT_FILE = "ex1.eps"
-# config.num_boundary_points = pow(2, 12);
-# config.domain_size = 200;
-
-
-# Ex 1
-# is_channel_plot = False
-# ARROW_LENGTH = 0.4
-# BORDER_WIDTH = 8
-# HEAD_WIDTH = 3
-# QUIVER_RES_X = 10
-# QUIVER_RES_Y = 10
-# BOUNDARY_RES = 5
-# ZOOM = 1
-# TICK_LABEL_SIZE = 40
+TICK_LABEL_SIZE = 25
+TICKS=[0., 1e-13, 2e-13]
 # TICKS = [0.2, 0.9, 1.6]
 # OUTPUT_FILE = "ex1.eps"
 # config.num_boundary_points = pow(2, 12);
@@ -129,7 +114,7 @@ for i in range(solution_dim):
 solution_grid = np.ma.masked_where(solution_grid == MASKED_VALUE, solution_grid)
 imsh = ax.imshow(solution_grid,
 	extent=[min_sol_x, max_sol_x, min_sol_y, max_sol_y], origin="lower", \
-	cmap=CMAP, interpolation="bilinear") # for ex3a: , vmin=-1.5, vmax=1.5)
+	cmap=CMAP, interpolation="bilinear", vmin=0., vmax=2e-13) # for ex3a: , vmin=-1.5, vmax=1.5)
 if(is_stokes):
 	quiver_scale = (10 / ARROW_LENGTH ) * ZOOM
 	ax.quiver(X,Y,U,V, color="white",scale=quiver_scale, headwidth=HEAD_WIDTH)
@@ -147,8 +132,9 @@ for i in range(0,len(boundary_lines)-BOUNDARY_RES,BOUNDARY_RES):
 
 divider = make_axes_locatable(ax)
 cax = divider.append_axes("right", size="5%", pad=0.5)
-cbar= plt.colorbar(imsh, cax=cax, ticks=TICKS)
+cbar= plt.colorbar(imsh, cax=cax, ticks=TICKS, )
 cbar.ax.tick_params(labelsize=TICK_LABEL_SIZE)
+cbar.ax.set_yticklabels([r"$0$", r"$1.0\times10^{-13}$", r"$2.0\times 10^{-13}$" ])
 
 
 xl, xr = ax.get_xlim()
@@ -164,5 +150,5 @@ if(is_channel_plot):
 else:
 	ax.set_ylim((l - (r+l)/2.)/ZOOM + (r+l)/2., (r - (r+l)/2.)/ZOOM + (r+l)/2.)
 
-# plt.savefig(OUTPUT_FILE, bbox_inches="tight", format="eps")
+plt.savefig("err_plot.eps", bbox_inches="tight", format="eps")
 plt.show()

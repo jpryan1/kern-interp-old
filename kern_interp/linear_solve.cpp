@@ -193,5 +193,113 @@ void get_domain_points(int domain_size, std::vector<double>* points,
 }
 
 
+double solve_err(const Kernel& kernel, Boundary* boundary, double id_tol) {
+  int num_threads = 4;
+
+  QuadTree quadtree;
+  quadtree.initialize_tree(boundary, kernel.solution_dimension,
+                           kernel.domain_dimension);
+
+  SkelFactorization skel_factorization(id_tol, num_threads);
+
+  double max = 0.;
+  ki_Mat dense;
+
+  if (boundary->holes.size() > 0
+      && kernel.pde != Kernel::Pde::LAPLACE_NEUMANN) {
+    ki_Mat U = initialize_U_mat(kernel.pde, boundary->holes, boundary->points);
+    ki_Mat Psi = initialize_Psi_mat(kernel.pde, boundary->holes, *boundary);
+    quadtree.U = U;
+    quadtree.Psi = Psi;
+    skel_factorization.skeletonize(kernel, &quadtree);
+
+    ki_Mat mu, alpha;
+    linear_solve(skel_factorization, quadtree, boundary->boundary_values, &mu,
+                 &alpha);
+    ki_Mat stacked(mu.height() + alpha.height(), 1);
+    stacked.set_submatrix(0, mu.height(), 0, 1, mu);
+    stacked.set_submatrix(mu.height(), stacked.height(), 0, 1, alpha);
+
+    std::vector<int> all_dofs;
+    for (int i = 0; i < kernel.solution_dimension * boundary->weights.size();
+         i++) {
+      all_dofs.push_back(i);
+    }
+    ki_Mat kern = kernel(all_dofs, all_dofs);
+    int hole_factor = kernel.solution_dimension == 2 ? 3 : 1;
+    int added = hole_factor * boundary->holes.size();
+    dense = ki_Mat(all_dofs.size() + added, all_dofs.size() + added);
+    ki_Mat ident(added, added);
+    ident.eye(added);
+    dense.set_submatrix(0, all_dofs.size(), 0, all_dofs.size(), kern);
+    dense.set_submatrix(0, all_dofs.size(), all_dofs.size(), dense.width(), U);
+    dense.set_submatrix(all_dofs.size(), dense.height(),
+                        0, all_dofs.size(), Psi);
+    dense.set_submatrix(all_dofs.size(), dense.height(),
+                        all_dofs.size(), dense.width(), -ident);
+
+    ki_Mat fzero_prime = dense * stacked;
+
+    ki_Mat err1 = (fzero_prime(0, mu.height(), 0, 1)
+                   - boundary->boundary_values);
+    ki_Mat err2 = (fzero_prime(mu.height(), fzero_prime.height(), 0, 1));
+
+    double err = sqrt(pow(err1.vec_two_norm(), 2) + pow(err1.vec_two_norm(), 2));
+
+    return err / boundary->boundary_values.vec_two_norm();
+  } else {
+    skel_factorization.skeletonize(kernel, &quadtree);
+    ki_Mat mu;
+    linear_solve(skel_factorization, quadtree, boundary->boundary_values, &mu);
+    std::vector<int> all_dofs;
+    for (int i = 0; i < kernel.solution_dimension * boundary->weights.size();
+         i++) {
+      all_dofs.push_back(i);
+    }
+
+    ki_Mat err = (kernel(all_dofs, all_dofs) * mu) - boundary->boundary_values;
+    return err.vec_two_norm() / boundary->boundary_values.vec_two_norm();
+  }
+}
+
+
+
+ki_Mat stokes_true_sol(const std::vector<double>& domain_points,
+                       Boundary * boundary, double c1, double c2) {
+  double diff_norm;
+  double norm_of_true;
+
+  ki_Mat truth(domain_points.size(), 1);
+
+  for (int i = 0; i < domain_points.size(); i += 2) {
+    double x0 = domain_points[i];
+    double x1 = domain_points[i + 1];
+    Vec2 x(x0, x1);
+    if (!boundary->is_in_domain(x)) {
+      truth.set(i, 0, 0.0);
+      truth.set(i + 1, 0, 0.0);
+      continue;
+    }
+
+    Vec2 center(0.5, 0.5);
+    Vec2 r = x - center;
+    Vec2 true_vec = Vec2(-r.a[1], r.a[0]);
+    switch (boundary->holes.size()) {
+      case 0:  // circle
+        true_vec = true_vec * (r.norm() / true_vec.norm()) * 4.;
+        break;
+      case 1:  // donut
+      default:
+        double p = (c1 / r.norm()) + c2 * r.norm();
+        true_vec = true_vec * (1. / true_vec.norm()) * p;
+        break;
+    }
+    truth.set(i, 0, true_vec.a[0]);
+    truth.set(i + 1, 0, true_vec.a[1]);
+  }
+
+  return truth;
+}
+
 
 }  // namespace kern_interp

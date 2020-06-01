@@ -18,6 +18,9 @@ class SpiralChannel : public CubicBoundary {
   std::unique_ptr<Boundary> clone() const override {
     return std::make_unique<SpiralChannel>(*this);
   }
+
+  Vec2 hole_center;
+  double hole_rad;
 };
 
 }  // namespace kern_interp

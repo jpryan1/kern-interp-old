@@ -24,74 +24,9 @@ namespace kern_interp {
 
 
 void check_solve_err(const Kernel& kernel, Boundary* boundary) {
-  int num_threads = 4;
   double id_tol = 1e-6;
 
-  QuadTree quadtree;
-  quadtree.initialize_tree(boundary, kernel.solution_dimension,
-                           kernel.domain_dimension);
-
-  SkelFactorization skel_factorization(id_tol, num_threads);
-
-  double max = 0.;
-  ki_Mat dense;
-
-  if (boundary->holes.size() > 0
-      && kernel.pde != Kernel::Pde::LAPLACE_NEUMANN) {
-    ki_Mat U = initialize_U_mat(kernel.pde, boundary->holes, boundary->points);
-    ki_Mat Psi = initialize_Psi_mat(kernel.pde, boundary->holes, *boundary);
-    quadtree.U = U;
-    quadtree.Psi = Psi;
-    skel_factorization.skeletonize(kernel, &quadtree);
-
-    ki_Mat mu, alpha;
-    linear_solve(skel_factorization, quadtree, boundary->boundary_values, &mu,
-                 &alpha);
-    ki_Mat stacked(mu.height() + alpha.height(), 1);
-    stacked.set_submatrix(0, mu.height(), 0, 1, mu);
-    stacked.set_submatrix(mu.height(), stacked.height(), 0, 1, alpha);
-
-    std::vector<int> all_dofs;
-    for (int i = 0; i < kernel.solution_dimension * boundary->weights.size();
-         i++) {
-      all_dofs.push_back(i);
-    }
-    ki_Mat kern = kernel(all_dofs, all_dofs);
-    int hole_factor = kernel.solution_dimension == 2 ? 3 : 1;
-    int added = hole_factor * boundary->holes.size();
-    dense = ki_Mat(all_dofs.size() + added, all_dofs.size() + added);
-    ki_Mat ident(added, added);
-    ident.eye(added);
-    dense.set_submatrix(0, all_dofs.size(), 0, all_dofs.size(), kern);
-    dense.set_submatrix(0, all_dofs.size(), all_dofs.size(), dense.width(), U);
-    dense.set_submatrix(all_dofs.size(), dense.height(),
-                        0, all_dofs.size(), Psi);
-    dense.set_submatrix(all_dofs.size(), dense.height(),
-                        all_dofs.size(), dense.width(), -ident);
-
-    ki_Mat fzero_prime = dense * stacked;
-
-    ki_Mat err1 = (fzero_prime(0, mu.height(), 0, 1)
-                   - boundary->boundary_values);
-    ki_Mat err2 = (fzero_prime(mu.height(), fzero_prime.height(), 0, 1));
-
-    double err = sqrt(pow(err1.vec_two_norm(), 2) + pow(err1.vec_two_norm(), 2));
-    
-    EXPECT_LE(err / boundary->boundary_values.vec_two_norm(), 10 * id_tol);
-  } else {
-    skel_factorization.skeletonize(kernel, &quadtree);
-    ki_Mat mu;
-    linear_solve(skel_factorization, quadtree, boundary->boundary_values, &mu);
-    std::vector<int> all_dofs;
-    for (int i = 0; i < kernel.solution_dimension * boundary->weights.size();
-         i++) {
-      all_dofs.push_back(i);
-    }
-
-    ki_Mat err = (kernel(all_dofs, all_dofs) * mu) - boundary->boundary_values;
-    EXPECT_LE(err.vec_two_norm() / boundary->boundary_values.vec_two_norm(),
-              10 * id_tol);
-  }
+  EXPECT_LE(solve_err(kernel, boundary, id_tol), 10 * id_tol);
 }
 
 
@@ -356,39 +291,6 @@ double laplace_neumann_error(const ki_Mat& domain,
 }
 
 
-double stokes_error(const ki_Mat& domain,
-                    const std::vector<double>& domain_points,
-                    Boundary * boundary) {
-  double diff_norm;
-  double norm_of_true;
-  for (int i = 0; i < domain_points.size(); i += 2) {
-    double x0 = domain_points[i];
-    double x1 = domain_points[i + 1];
-    Vec2 x(x0, x1);
-    if (!boundary->is_in_domain(x)) {
-      continue;
-    }
-    Vec2 center(0.5, 0.5);
-    Vec2 r = x - center;
-    Vec2 sol = Vec2(domain.get(i, 0), domain.get(i + 1, 0));
-    Vec2 truth = Vec2(-r.a[1], r.a[0]);
-    switch (boundary->holes.size()) {
-      case 0:  // circle
-        truth = truth * (r.norm() / truth.norm()) * 4.;
-        break;
-      case 1:  // donut
-      default:
-        double p = (-1. / r.norm()) + 2 * r.norm();
-        truth = truth * (1. / truth.norm()) * p;
-        break;
-    }
-    diff_norm += pow((sol - truth).norm(), 2);
-    norm_of_true += pow(truth.norm(), 2);
-  }
-  return sqrt(diff_norm) / sqrt(norm_of_true);
-}
-
-
 TEST(IeSolverTest, LaplaceCircleAnalyticAgreementElectron) {
   srand(0);
   std::unique_ptr<Boundary> boundary =
@@ -433,6 +335,19 @@ TEST(IeSolverTest, LaplaceNeumannDonutAnalyticAgreement) {
   std::unique_ptr<Boundary> boundary =
     std::unique_ptr<Boundary>(new Donut());
   boundary->initialize(pow(2, 12),  BoundaryCondition::DEFAULT);
+
+  //TODO(John) fix this hack
+  int hole_nodes = pow(2, 12) / 5;
+  int num_points = pow(2, 12) + hole_nodes * 1;
+
+  boundary->boundary_values = ki_Mat(num_points, 1);
+  for (int i = 0; i < pow(2, 12); i++) {
+     boundary->boundary_values.set(i, 0, 1);
+  }
+  for (int i = pow(2, 12); i < num_points; i++) {
+     boundary->boundary_values.set(i, 0, -2.);
+  }
+
   QuadTree quadtree;
   quadtree.initialize_tree(boundary.get(), 1, 2);
   std::vector<double> domain_points;
@@ -464,7 +379,9 @@ TEST(IeSolverTest, StokesCircleAnalyticAgreementTangent) {
   ki_Mat sol = boundary_integral_solve(kernel, *(boundary.get()), &quadtree,
                                        1e-13,
                                        4, domain_points);
-  double err = stokes_error(sol, domain_points, boundary.get());
+  ki_Mat stokes_sol = stokes_true_sol(domain_points, boundary.get(), -1, 2);
+
+  double err = (stokes_sol - sol).vec_two_norm() / stokes_sol.vec_two_norm();
   EXPECT_LE(err, 10 * 1e-13);
 }
 
@@ -483,7 +400,9 @@ TEST(IeSolverTest, StokesDonutAnalyticAgreementTangent) {
   ki_Mat sol = boundary_integral_solve(kernel, *(boundary.get()), &quadtree,
                                        1e-13,
                                        4, domain_points);
-  double err = stokes_error(sol, domain_points, boundary.get());
+  ki_Mat stokes_sol = stokes_true_sol(domain_points, boundary.get(), -1, 2);
+
+  double err = (stokes_sol - sol).vec_two_norm() / stokes_sol.vec_two_norm();
   EXPECT_LE(err, 10 * 1e-13);
 }
 
@@ -500,10 +419,10 @@ TEST(IeSolverTest, Ex3UpdateLosesNoAcc) {
   std::unique_ptr<Boundary> boundary =
     std::unique_ptr<Boundary>(new Ex3Boundary());
   boundary->initialize(num_boundary_points,
-                        BoundaryCondition::EX3B);
+                       BoundaryCondition::EX3B);
   QuadTree quadtree;
   quadtree.initialize_tree(boundary.get(), solution_dimension,
-                            domain_dimension);
+                           domain_dimension);
   std::vector<double> domain_points;
   get_domain_points(domain_size, &domain_points, quadtree.min,
                     quadtree.max, quadtree.min,
@@ -525,7 +444,7 @@ TEST(IeSolverTest, Ex3UpdateLosesNoAcc) {
     QuadTree fresh;
     fresh.initialize_tree(boundary.get(), 2,  2);
     ki_Mat new_sol = boundary_integral_solve(kernel, *(boundary.get()), &fresh,
-                      id_tol, fact_threads, domain_points);
+                     id_tol, fact_threads, domain_points);
 
     ASSERT_LE((new_sol - solution).vec_two_norm() / new_sol.vec_two_norm(),
               20 * id_tol);

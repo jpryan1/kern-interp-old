@@ -50,12 +50,14 @@ void Donut::initialize(int N, BoundaryCondition bc) {
   }
 
   if (bc == BoundaryCondition::DEFAULT) {
-    boundary_values = ki_Mat(num_points, 1);
+    boundary_values = ki_Mat(num_points * 2, 1);
     for (int i = 0; i < N; i++) {
-      boundary_values.set(i, 0, 1);
+      boundary_values.set(2 * i, 0, -3 * normals[2 * i + 1]);
+      boundary_values.set(2 * i + 1, 0, 3 * normals[2 * i]);
     }
     for (int i = N; i < num_points; i++) {
-      boundary_values.set(i, 0, -1. / holes[0].radius);
+      boundary_values.set(2 * i, 0, normals[2 * i + 1]);
+      boundary_values.set(2 * i + 1, 0, -normals[2 * i]);
     }
   } else {
     set_boundary_values_size(bc);

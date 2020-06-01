@@ -117,3 +117,67 @@ cc_binary(
         "-lgomp"]
 
 )
+
+
+
+cc_binary(
+  name = "linalg_acc",
+  srcs = ["linalg_acc.cpp"],
+  copts= ["-fopenmp",
+          "-std=c++14"],
+  deps = [
+      "//kern_interp:ki_mat",
+      "//kern_interp/skel_factorization",
+      "//kern_interp/quadtree",
+      "//kern_interp/boundaries",
+      "//kern_interp:linear_solve",
+      ],
+  linkopts = ["-llapacke",
+        "-llapack",
+        "-lblas",
+        "-lgomp"]
+
+)
+
+
+
+cc_binary(
+  name = "pde_acc",
+  srcs = ["pde_acc.cpp"],
+  copts= ["-fopenmp",
+          "-std=c++14"],
+  deps = [
+      "//kern_interp:ki_mat",
+      "//kern_interp/skel_factorization",
+      "//kern_interp/quadtree",
+      "//kern_interp/boundaries",
+      "//kern_interp:linear_solve",
+      ],
+  linkopts = ["-llapacke",
+        "-llapack",
+        "-lblas",
+        "-lgomp"]
+
+)
+
+
+
+cc_binary(
+  name = "update_acc",
+  srcs = ["update_acc.cpp"],
+  copts= ["-fopenmp",
+          "-std=c++14"],
+  deps = [
+      "//kern_interp:ki_mat",
+      "//kern_interp/skel_factorization",
+      "//kern_interp/quadtree",
+      "//kern_interp/boundaries",
+      "//kern_interp:linear_solve",
+      ],
+  linkopts = ["-llapacke",
+        "-llapack",
+        "-lblas",
+        "-lgomp"]
+
+)
+
