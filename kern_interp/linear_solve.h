@@ -34,7 +34,10 @@ void schur_solve(const SkelFactorization & skel_factorization,
                  const ki_Mat & f, const ki_Mat & K_domain,
                  const ki_Mat & U_forward,  ki_Mat * solution);
 
+double solve_err(const Kernel& kernel, Boundary* boundary, double id_tol);
 
+ki_Mat stokes_true_sol(const std::vector<double>& domain_points,
+                    Boundary * boundary, double c1, double c2);
 }  // namespace kern_interp
 
 #endif  // KERN_INTERP_LINEAR_SOLVE_H_
