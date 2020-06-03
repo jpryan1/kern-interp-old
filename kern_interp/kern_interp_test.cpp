@@ -41,6 +41,18 @@ TEST(IeSolverTest, LaplaceCircleBackwardError) {
 }
 
 
+TEST(IeSolverTest, Ex1Residual) {
+  srand(0);
+  std::unique_ptr<Boundary> boundary =
+    std::unique_ptr<Boundary>(new Annulus());
+  boundary->initialize(pow(2, 12),  BoundaryCondition::TANGENT_VEC);
+  Kernel kernel(2, 2, Kernel::Pde::STOKES, boundary.get(),
+                std::vector <double>());
+  check_solve_err(kernel, boundary.get());
+}
+
+
+
 TEST(IeSolverTest, LaplaceNeumannCircleBackwardError) {
   srand(0);
   std::unique_ptr<Boundary> boundary =
@@ -129,104 +141,104 @@ TEST(IeSolverTest, StokesAnnulusBackwardError) {
   check_solve_err(kernel, boundary.get());
 }
 
-TEST(IeSolverTest, BigLaplaceCircleBackwardError) {
-  srand(0);
-  std::unique_ptr<Boundary> boundary =
-    std::unique_ptr<Boundary>(new Circle());
-  boundary->initialize(pow(2, 13),  BoundaryCondition::SINGLE_ELECTRON);
-  Kernel kernel(1, 2, Kernel::Pde::LAPLACE, boundary.get(),
-                std::vector <double>());
-  check_solve_err(kernel, boundary.get());
-}
+// TEST(IeSolverTest, BigLaplaceCircleBackwardError) {
+//   srand(0);
+//   std::unique_ptr<Boundary> boundary =
+//     std::unique_ptr<Boundary>(new Circle());
+//   boundary->initialize(pow(2, 13),  BoundaryCondition::SINGLE_ELECTRON);
+//   Kernel kernel(1, 2, Kernel::Pde::LAPLACE, boundary.get(),
+//                 std::vector <double>());
+//   check_solve_err(kernel, boundary.get());
+// }
 
 
-TEST(IeSolverTest, BigLaplaceNeumannCircleBackwardError) {
-  srand(0);
-  std::unique_ptr<Boundary> boundary =
-    std::unique_ptr<Boundary>(new Circle());
-  boundary->initialize(pow(2, 13),  BoundaryCondition::ALL_ONES);
-  Kernel kernel(1, 2, Kernel::Pde::LAPLACE_NEUMANN, boundary.get(),
-                std::vector <double>());
-  check_solve_err(kernel, boundary.get());
-}
+// TEST(IeSolverTest, BigLaplaceNeumannCircleBackwardError) {
+//   srand(0);
+//   std::unique_ptr<Boundary> boundary =
+//     std::unique_ptr<Boundary>(new Circle());
+//   boundary->initialize(pow(2, 13),  BoundaryCondition::ALL_ONES);
+//   Kernel kernel(1, 2, Kernel::Pde::LAPLACE_NEUMANN, boundary.get(),
+//                 std::vector <double>());
+//   check_solve_err(kernel, boundary.get());
+// }
 
 
-TEST(IeSolverTest, BigStokesCircleBackwardError) {
-  srand(0);
-  std::unique_ptr<Boundary> boundary =
-    std::unique_ptr<Boundary>(new Circle());
-  boundary->initialize(pow(2, 13),  BoundaryCondition::TANGENT_VEC);
-  Kernel kernel(2, 2, Kernel::Pde::STOKES, boundary.get(),
-                std::vector <double>());
-  check_solve_err(kernel, boundary.get());
-}
+// TEST(IeSolverTest, BigStokesCircleBackwardError) {
+//   srand(0);
+//   std::unique_ptr<Boundary> boundary =
+//     std::unique_ptr<Boundary>(new Circle());
+//   boundary->initialize(pow(2, 13),  BoundaryCondition::TANGENT_VEC);
+//   Kernel kernel(2, 2, Kernel::Pde::STOKES, boundary.get(),
+//                 std::vector <double>());
+//   check_solve_err(kernel, boundary.get());
+// }
 
 
-TEST(IeSolverTest, BigLaplaceStarfishBackwardError) {
-  srand(0);
-  std::unique_ptr<Boundary> boundary =
-    std::unique_ptr<Boundary>(new CubicSpline());
-  boundary->initialize(pow(2, 13),  BoundaryCondition::SINGLE_ELECTRON);
-  Kernel kernel(1, 2, Kernel::Pde::LAPLACE, boundary.get(),
-                std::vector <double>());
-  check_solve_err(kernel, boundary.get());
-}
+// TEST(IeSolverTest, BigLaplaceStarfishBackwardError) {
+//   srand(0);
+//   std::unique_ptr<Boundary> boundary =
+//     std::unique_ptr<Boundary>(new CubicSpline());
+//   boundary->initialize(pow(2, 13),  BoundaryCondition::SINGLE_ELECTRON);
+//   Kernel kernel(1, 2, Kernel::Pde::LAPLACE, boundary.get(),
+//                 std::vector <double>());
+//   check_solve_err(kernel, boundary.get());
+// }
 
 
-TEST(IeSolverTest, BigLaplaceNeumannStarfishBackwardError) {
-  srand(0);
-  std::unique_ptr<Boundary> boundary =
-    std::unique_ptr<Boundary>(new CubicSpline());
-  boundary->initialize(pow(2, 13),  BoundaryCondition::ALL_ONES);
-  Kernel kernel(1, 2, Kernel::Pde::LAPLACE_NEUMANN, boundary.get(),
-                std::vector <double>());
-  check_solve_err(kernel, boundary.get());
-}
+// TEST(IeSolverTest, BigLaplaceNeumannStarfishBackwardError) {
+//   srand(0);
+//   std::unique_ptr<Boundary> boundary =
+//     std::unique_ptr<Boundary>(new CubicSpline());
+//   boundary->initialize(pow(2, 13),  BoundaryCondition::ALL_ONES);
+//   Kernel kernel(1, 2, Kernel::Pde::LAPLACE_NEUMANN, boundary.get(),
+//                 std::vector <double>());
+//   check_solve_err(kernel, boundary.get());
+// }
 
 
-TEST(IeSolverTest, BigStokesStarfishBackwardError) {
-  srand(0);
-  std::unique_ptr<Boundary> boundary =
-    std::unique_ptr<Boundary>(new CubicSpline());
-  boundary->initialize(pow(2, 13),  BoundaryCondition::TANGENT_VEC);
-  Kernel kernel(2, 2, Kernel::Pde::STOKES, boundary.get(),
-                std::vector <double>());
-  check_solve_err(kernel, boundary.get());
-}
+// TEST(IeSolverTest, BigStokesStarfishBackwardError) {
+//   srand(0);
+//   std::unique_ptr<Boundary> boundary =
+//     std::unique_ptr<Boundary>(new CubicSpline());
+//   boundary->initialize(pow(2, 13),  BoundaryCondition::TANGENT_VEC);
+//   Kernel kernel(2, 2, Kernel::Pde::STOKES, boundary.get(),
+//                 std::vector <double>());
+//   check_solve_err(kernel, boundary.get());
+// }
 
 
 
-TEST(IeSolverTest, BigLaplaceAnnulusBackwardError) {
-  srand(0);
-  std::unique_ptr<Boundary> boundary =
-    std::unique_ptr<Boundary>(new Annulus());
-  boundary->initialize(pow(2, 13),  BoundaryCondition::SINGLE_ELECTRON);
-  Kernel kernel(1, 2, Kernel::Pde::LAPLACE, boundary.get(),
-                std::vector <double>());
-  check_solve_err(kernel, boundary.get());
-}
+// TEST(IeSolverTest, BigLaplaceAnnulusBackwardError) {
+//   srand(0);
+//   std::unique_ptr<Boundary> boundary =
+//     std::unique_ptr<Boundary>(new Annulus());
+//   boundary->initialize(pow(2, 13),  BoundaryCondition::SINGLE_ELECTRON);
+//   Kernel kernel(1, 2, Kernel::Pde::LAPLACE, boundary.get(),
+//                 std::vector <double>());
+//   check_solve_err(kernel, boundary.get());
+// }
 
 
-TEST(IeSolverTest, BigLaplaceNeumannAnnulusBackwardError) {
-  srand(0);
-  std::unique_ptr<Boundary> boundary =
-    std::unique_ptr<Boundary>(new Annulus());
-  boundary->initialize(pow(2, 13),  BoundaryCondition::DEFAULT);
-  Kernel kernel(1, 2, Kernel::Pde::LAPLACE_NEUMANN, boundary.get(),
-                std::vector <double>());
-  check_solve_err(kernel, boundary.get());
-}
+// TEST(IeSolverTest, BigLaplaceNeumannAnnulusBackwardError) {
+//   srand(0);
+//   std::unique_ptr<Boundary> boundary =
+//     std::unique_ptr<Boundary>(new Annulus());
+//   boundary->initialize(pow(2, 13),  BoundaryCondition::DEFAULT);
+//   Kernel kernel(1, 2, Kernel::Pde::LAPLACE_NEUMANN, boundary.get(),
+//                 std::vector <double>());
+//   check_solve_err(kernel, boundary.get());
+// }
 
 
-TEST(IeSolverTest, BigStokesAnnulusBackwardError) {
-  srand(0);
-  std::unique_ptr<Boundary> boundary =
-    std::unique_ptr<Boundary>(new Annulus());
-  boundary->initialize(pow(2, 13),  BoundaryCondition::TANGENT_VEC);
-  Kernel kernel(2, 2, Kernel::Pde::STOKES, boundary.get(),
-                std::vector <double>());
-  check_solve_err(kernel, boundary.get());
-}
+// TEST(IeSolverTest, BigStokesAnnulusBackwardError) {
+//   srand(0);
+//   std::unique_ptr<Boundary> boundary =
+//     std::unique_ptr<Boundary>(new Annulus());
+//   boundary->initialize(pow(2, 13),  BoundaryCondition::TANGENT_VEC);
+//   Kernel kernel(2, 2, Kernel::Pde::STOKES, boundary.get(),
+//                 std::vector <double>());
+//   check_solve_err(kernel, boundary.get());
+// }
 
 
 double laplace_error(const ki_Mat& domain,

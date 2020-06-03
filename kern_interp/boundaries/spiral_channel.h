@@ -10,6 +10,7 @@ namespace kern_interp {
 
 class SpiralChannel : public CubicBoundary {
  public:
+
   void initialize(int N, BoundaryCondition bc) override;
 
   void get_spline_points(std::vector<double>* outer_x0_spline_points,
@@ -18,7 +19,13 @@ class SpiralChannel : public CubicBoundary {
   std::unique_ptr<Boundary> clone() const override {
     return std::make_unique<SpiralChannel>(*this);
   }
-
+  SpiralChannel() {
+    num_turns = 6;
+  }
+  explicit SpiralChannel(int num) {
+    num_turns = num;
+  }
+  int num_turns;
   Vec2 hole_center;
   double hole_rad;
 };

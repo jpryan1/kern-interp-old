@@ -85,7 +85,8 @@ void SkelFactorization::decouple(const Kernel& kernel, QuadTreeNode* node) {
                - K_BN_r_sn * node->T;
   ki_Mat K_BN_sn_r = K_BN(s, r) - K_BN(s, s) * node->T;
 
-  // std::cout << "Xrr cond is " << node->X_rr.condition_number() << std::endl;
+  double cond = node->X_rr.condition_number();
+  if (cond > 100000) std::cout << "Xrr cond is " << cond << std::endl;
   node->X_rr.LU_factorize(&node->X_rr_lu, &node->X_rr_piv);
 
   node->X_rr_is_LU_factored = true;
@@ -129,6 +130,8 @@ void SkelFactorization::skeletonize(const Kernel& kernel, QuadTree* tree) {
   }
 
   if (tree->U.width() == 0) {
+    double cond = tree->allskel_mat.condition_number();
+    if (cond > 100000) std::cout << "allskel cond is " << cond << std::endl;
     tree->allskel_mat.LU_factorize(&tree->allskel_mat_lu,
                                    &tree->allskel_mat_piv);
     return;
@@ -248,6 +251,8 @@ void SkelFactorization::skeletonize(const Kernel& kernel, QuadTree* tree) {
   S.set_submatrix(allskel.size(), S.height(), allskel.size(), S.width(),
                   - ident - (modified_Psi(0, modified_Psi.height(),
                                           allredundant) * Dinv_C_nonzero));
+  double cond = S.condition_number();
+  if (cond > 100000) std::cout << "S cond is " << cond << std::endl;
   S.LU_factorize(&tree->S_LU, &tree->S_piv);
 }
 
