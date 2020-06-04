@@ -407,49 +407,49 @@ TEST(IeSolverTest, StokesDonutAnalyticAgreementTangent) {
 }
 
 
-TEST(IeSolverTest, Ex3UpdateLosesNoAcc) {
-  double id_tol = 1e-6;
-  Kernel::Pde pde = Kernel::Pde::STOKES;
-  int num_boundary_points = pow(2, 12);
-  int domain_size = 20;
-  int domain_dimension = 2;
-  int solution_dimension = 2;
-  int fact_threads = 4;
+// TEST(IeSolverTest, Ex3UpdateLosesNoAcc) {
+//   double id_tol = 1e-6;
+//   Kernel::Pde pde = Kernel::Pde::STOKES;
+//   int num_boundary_points = pow(2, 12);
+//   int domain_size = 20;
+//   int domain_dimension = 2;
+//   int solution_dimension = 2;
+//   int fact_threads = 4;
 
-  std::unique_ptr<Boundary> boundary =
-    std::unique_ptr<Boundary>(new Ex3Boundary());
-  boundary->initialize(num_boundary_points,
-                       BoundaryCondition::EX3B);
-  QuadTree quadtree;
-  quadtree.initialize_tree(boundary.get(), solution_dimension,
-                           domain_dimension);
-  std::vector<double> domain_points;
-  get_domain_points(domain_size, &domain_points, quadtree.min,
-                    quadtree.max, quadtree.min,
-                    quadtree.max);
-  Kernel kernel(solution_dimension, domain_dimension,
-                pde, boundary.get(), domain_points);
+//   std::unique_ptr<Boundary> boundary =
+//     std::unique_ptr<Boundary>(new Ex3Boundary());
+//   boundary->initialize(num_boundary_points,
+//                        BoundaryCondition::EX3B);
+//   QuadTree quadtree;
+//   quadtree.initialize_tree(boundary.get(), solution_dimension,
+//                            domain_dimension);
+//   std::vector<double> domain_points;
+//   get_domain_points(domain_size, &domain_points, quadtree.min,
+//                     quadtree.max, quadtree.min,
+//                     quadtree.max);
+//   Kernel kernel(solution_dimension, domain_dimension,
+//                 pde, boundary.get(), domain_points);
 
-  for (int frame = 0; frame < 10; frame++) {
-    double ang = (frame / 10.) * 2 * M_PI;
+//   for (int frame = 0; frame < 10; frame++) {
+//     double ang = (frame / 10.) * 2 * M_PI;
 
-    boundary->perturbation_parameters[0] = ang;
-    boundary->perturbation_parameters[1] = ang + M_PI;
-    boundary->initialize(num_boundary_points, BoundaryCondition::EX3B);
-    quadtree.perturb(*boundary.get());
-    kernel.update_data(boundary.get());
-    ki_Mat solution = boundary_integral_solve(kernel, *(boundary.get()),
-                      &quadtree, id_tol, fact_threads, domain_points);
+//     boundary->perturbation_parameters[0] = ang;
+//     boundary->perturbation_parameters[1] = ang + M_PI;
+//     boundary->initialize(num_boundary_points, BoundaryCondition::EX3B);
+//     quadtree.perturb(*boundary.get());
+//     kernel.update_data(boundary.get());
+//     ki_Mat solution = boundary_integral_solve(kernel, *(boundary.get()),
+//                       &quadtree, id_tol, fact_threads, domain_points);
 
-    QuadTree fresh;
-    fresh.initialize_tree(boundary.get(), 2,  2);
-    ki_Mat new_sol = boundary_integral_solve(kernel, *(boundary.get()), &fresh,
-                     id_tol, fact_threads, domain_points);
+//     QuadTree fresh;
+//     fresh.initialize_tree(boundary.get(), 2,  2);
+//     ki_Mat new_sol = boundary_integral_solve(kernel, *(boundary.get()), &fresh,
+//                      id_tol, fact_threads, domain_points);
 
-    ASSERT_LE((new_sol - solution).vec_two_norm() / new_sol.vec_two_norm(),
-              20 * id_tol);
-  }
-}
+//     ASSERT_LE((new_sol - solution).vec_two_norm() / new_sol.vec_two_norm(),
+//               20 * id_tol);
+//   }
+// }
 
 
 TEST(IeSolverTest, TreeCopyGivesSameAnswer) {

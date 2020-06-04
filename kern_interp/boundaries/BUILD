@@ -4,6 +4,7 @@ cc_library(
 	name = "boundaries",
 	hdrs = [
 			"circle.h",
+			#"sphere.h",
 			"annulus.h",
 			"uniformdist.h",
 			"donut.h",
@@ -16,6 +17,7 @@ cc_library(
 	copts= ["-std=c++14"],
 	srcs = [
 			"circle.cpp",
+		#	"sphere.cpp",
 			"annulus.cpp",
 			"uniformdist.cpp",
 			"donut.cpp",

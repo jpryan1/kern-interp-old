@@ -46,17 +46,19 @@ struct QuadTreeNode {
   bool is_leaf, X_rr_is_LU_factored = false, compressed = false;
   double side_length;
   QuadTreeNode* parent;
-  QuadTreeNode* children[4];
+  std::vector<QuadTreeNode*> children;
+  // QuadTreeNode* children[4];
   std::vector<QuadTreeNode*> neighbors;
   InteractionLists dof_lists;
   // For inverse operator
   ki_Mat T, L, U, X_rr, schur_update, X_rr_lu;
   std::vector<lapack_int> X_rr_piv;
   // format is {BL, TL, TR, BR}
-  double corners[8];
+  // double corners[8];
+
+  std::vector<double> center;
   QuadTreeNode() {
     is_leaf = true;
-    for (int i = 0; i < 4; i++) children[i] = NULL;
   }
 };
 
@@ -85,7 +87,7 @@ class QuadTree {
   void initialize_tree(Boundary* boundary, int solution_dimension_,
                        int domain_dimension_);
   void compute_neighbor_lists();
-  void recursive_add(QuadTreeNode* node, double x, double y,
+  void recursive_add(QuadTreeNode* node, std::vector<double> pt,
                      int mat_ind);
   void get_descendent_neighbors(QuadTreeNode* big, QuadTreeNode* small);
   void node_subdivide(QuadTreeNode* node);

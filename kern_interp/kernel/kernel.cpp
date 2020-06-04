@@ -139,8 +139,9 @@ ki_Mat Kernel::operator()(const std::vector<int>& tgt_inds,
 
 ki_Mat Kernel::get_id_mat(const QuadTree* tree,
                           const QuadTreeNode* node) const {
-  double cntr_x = node->corners[0] + node->side_length / 2.0;
-  double cntr_y = node->corners[1] + node->side_length / 2.0;
+
+  double cntr_x = node->center[0];
+  double cntr_y = node->center[1];
 
   std::vector<int> active_box = node->dof_lists.active_box;
   // Grab all points inside the proxy circle which are outside the box
