@@ -501,9 +501,6 @@ void SkelFactorization::multiply_connected_solve(const QuadTree & quadtree,
   #pragma omp parallel for num_threads(fact_threads)
   for (int n = 0; n < all_nodes.size(); n++) {
     QuadTreeNode* current_node = all_nodes[n];
-    std::cout << current_node->center[0] << " " << current_node->center[1] <<
-              std::endl;
-
     if (current_node->dof_lists.redundant.size() == 0) continue;
     if (!current_node->compressed) {
       continue;
