@@ -12,7 +12,7 @@
 
 namespace kern_interp {
 
-typedef std::pair<double, double> pair;
+// typedef std::pair<double, double> pair;
 
 QuadTree::~QuadTree() {
   for (QuadTreeLevel* level : levels) {
@@ -99,19 +99,6 @@ void QuadTree::initialize_tree(Boundary* boundary,
   for (int i = 0; i < domain_dimension; i++) {
     root->center.push_back((tree_min + tree_max) / 2.0);
   }
-
-  // bl
-  // root->corners[0] = tree_min;
-  // root->corners[1] = tree_min;
-  // // tl
-  // root->corners[2] = tree_min;
-  // root->corners[3] = tree_max;
-  // // tr
-  // root->corners[4] = tree_max;
-  // root->corners[5] = tree_max;
-  // // br
-  // root->corners[6] = tree_max;
-  // root->corners[7] = tree_min;
   root->side_length = tree_max - tree_min;
   QuadTreeLevel* level_one = new QuadTreeLevel();
   level_one->nodes.push_back(root);
@@ -146,40 +133,6 @@ void QuadTree::get_descendent_neighbors(QuadTreeNode* big,
     big->neighbors.push_back(small);
     small->neighbors.push_back(big);
   }
-  // double top = big->corners[3];
-  // double bottom = big->corners[1];
-  // double left = big->corners[0];
-  // double right = big->corners[4];
-  // for (int i = 0; i < 8; i += 2) {
-  //   double x = small->corners[i];
-  //   double y = small->corners[i + 1];
-  //   // note: in theory, the equalities should be exact (i think), but to be
-  //   // overcareful we will allow for machine error
-  //   if (x > left && x < right) {
-  //       if (fabs(y - top) < 1e-14) {
-  //         big->neighbors.push_back(small);
-  //         small->neighbors.push_back(big);
-  //         break;
-  //       }
-  //       if (fabs(y - bottom) < 1e-14) {
-  //         big->neighbors.push_back(small);
-  //         small->neighbors.push_back(big);
-  //         break;
-  //       }
-  //     }
-  //   if (y < top && y > bottom) {
-  //     if (fabs(x - left) < 1e-14) {
-  //       big->neighbors.push_back(small);
-  //       small->neighbors.push_back(big);
-  //       break;
-  //     }
-  //     if (fabs(x - right) < 1e-14) {
-  //       big->neighbors.push_back(small);
-  //       small->neighbors.push_back(big);
-  //       break;
-  //     }
-  //   }
-  // }
   for (QuadTreeNode* child : small->children) {
     if (child != nullptr) {
       get_descendent_neighbors(big, child);
@@ -195,21 +148,6 @@ void QuadTree::recursive_add(QuadTreeNode* node, std::vector<double> pt,
     node->dof_lists.original_box.push_back(solution_dimension * point_ind + i);
   }
   // // figure out which child
-  // double midx = ((node->corners[6] - node->corners[0]) / 2.0)
-  //               + node->corners[0];
-  // double midy = ((node->corners[3] - node->corners[1]) / 2.0)
-  //               + node->corners[1];
-  // QuadTreeNode* child;
-  // if (x < midx && y < midy) {
-  //   child = node->children[0];
-  // } else if (x < midx && y >= midy) {
-  //   child = node->children[1];
-  // } else if (x >= midx && y < midy) {
-  //   child = node->children[3];
-  // } else {
-  //   child = node->children[2];
-  // }
-  // // does that child exist?
   if (!node->is_leaf) {
     int child_idx = 0;
     for (int i = 0; i < domain_dimension; i++) {
@@ -236,34 +174,6 @@ void QuadTree::recursive_add(QuadTreeNode* node, std::vector<double> pt,
 void QuadTree::node_subdivide(QuadTreeNode* node) {
   assert(node != nullptr && "node_subdivide fails on null node.");
   node->is_leaf = false;
-
-  // double midx = ((node->corners[6] - node->corners[0]) / 2.0)
-  //               + node->corners[0];
-  // double midy = ((node->corners[3] - node->corners[1]) / 2.0)
-  //               + node->corners[1];
-
-  // for (int i = 0; i < 4; i++) {
-  //   node->children[i] = new QuadTreeNode();
-  //   for (int j = 0; j < 8; j++) {
-  //     node->children[i]->corners[j] = node->corners[j];
-  //   }
-  // }
-  // node->children[0]->corners[3] = midy;
-  // node->children[0]->corners[4] = midx;
-  // node->children[0]->corners[5] = midy;
-  // node->children[0]->corners[6] = midx;
-  // node->children[1]->corners[1] = midy;
-  // node->children[1]->corners[4] = midx;
-  // node->children[1]->corners[6] = midx;
-  // node->children[1]->corners[7] = midy;
-  // node->children[2]->corners[0] = midx;
-  // node->children[2]->corners[1] = midy;
-  // node->children[2]->corners[2] = midx;
-  // node->children[2]->corners[7] = midy;
-  // node->children[3]->corners[0] = midx;
-  // node->children[3]->corners[2] = midx;
-  // node->children[3]->corners[3] = midy;
-  // node->children[3]->corners[5] = midy;
   for (int child_idx = 0; child_idx < pow(2, domain_dimension); child_idx++) {
     std::vector<double> child_center;
     int tmp = child_idx;
@@ -318,23 +228,6 @@ void QuadTree::node_subdivide(QuadTreeNode* node) {
     for (int i = 0; i < solution_dimension; i++) {
       node->children[child_idx]->dof_lists.original_box.push_back(matrix_index + i);
     }
-    // if (x < midx && y < midy) {
-    //   for (int i = 0; i < solution_dimension; i++) {
-    //     node->children[0]->dof_lists.original_box.push_back(matrix_index + i);
-    //   }
-    // } else if (x < midx && y >= midy) {
-    //   for (int i = 0; i < solution_dimension; i++) {
-    //     node->children[1]->dof_lists.original_box.push_back(matrix_index + i);
-    //   }
-    // } else if (x >= midx && y < midy) {
-    //   for (int i = 0; i < solution_dimension; i++) {
-    //     node->children[3]->dof_lists.original_box.push_back(matrix_index + i);
-    //   }
-    // } else {
-    //   for (int i = 0; i < solution_dimension; i++) {
-    //     node->children[2]->dof_lists.original_box.push_back(matrix_index + i);
-    //   }
-    // }
   }
   for (QuadTreeNode* child : node->children) {
     if (child->dof_lists.original_box.size()  > MAX_LEAF_DOFS) {
@@ -408,215 +301,217 @@ void QuadTree::consolidate_node(QuadTreeNode* node) {
       }
     }
   }
-  for (int i = 0; i < 4; i++) {
-    node->children[i] = nullptr;
-  }
+  node->children.clear();
   node->is_leaf = true;
 }
 
 
 void QuadTree::perturb(const Boundary & perturbed_boundary) {
-  std::cout << "NOT MADE DIM IND YET" << std::endl;
-  // // 1) create mapping, storing vectors of additions/deletions
-  // // 2) go to every node, marking those with additions and deletions
-  // // these are vectors of point indices (p_0, p_1, etc)
-  // std::vector<double> additions;
-  // std::vector<double> deletions;
+  // 1) create mapping, storing vectors of additions/deletions
+  // 2) go to every node, marking those with additions and deletions
+  // these are vectors of point indices (p_0, p_1, etc)
+  std::vector<double> additions;
+  std::vector<double> deletions;
 
-  // std::vector<double> old_points = boundary_points;
-  // std::vector<double> new_points = perturbed_boundary.points;
-  // // now create mapping of new_points to their point index in the new vec
-  // std::unordered_map<pair, int, boost::hash<pair>> point_to_new_index;
+  std::vector<double> old_points = boundary_points;
+  std::vector<double> new_points = perturbed_boundary.points;
+  // now create mapping of new_points to their point index in the new vec
+  std::unordered_map<std::vector<double>, int, boost::hash<std::vector<double>>>
+  point_to_new_index;
+  for (int i = 0; i < new_points.size(); i += domain_dimension) {
+    std::vector<double> new_point;
+    for (int j = 0; j < domain_dimension; j++) {
+      new_point.push_back(new_points[i + j]);
+    }
+    point_to_new_index[new_point] = i / domain_dimension;
+  }
 
-  // for (int i = 0; i < new_points.size(); i += 2) {
-  //   pair new_point(new_points[i], new_points[i + 1]);
-  //   point_to_new_index[new_point] = i / 2;
-  // }
+  std::vector<bool> found_in_old(new_points.size() / domain_dimension);
+  for (int i = 0; i < found_in_old.size(); i++) {
+    found_in_old[i] = false;
+  }
+  // Mapping from point index in old points vec to point index in new points vec
+  std::unordered_map<int, int> old_index_to_new_index;
+  for (int i = 0; i < old_points.size(); i += domain_dimension) {
+    std::vector<double> old_point;
+    for (int j = 0; j < domain_dimension; j++) {
+      old_point.push_back(old_points[i + j]);
+    }
+    // Is this point also in the new points vec?
+    std::unordered_map<std::vector<double>, int, boost::hash<std::vector<double>>>::const_iterator
+    element =
+      point_to_new_index.find(old_point);
+    if (element != point_to_new_index.end()) {
+      old_index_to_new_index[i / domain_dimension] = element->second;
+      found_in_old[element->second] = true;
+    } else {
+      // If it's in the old vec but not the new vec, it was deleted
+      deletions.push_back(i / domain_dimension);
+    }
+  }
+  for (int i = 0; i < found_in_old.size(); i++) {
+    if (!found_in_old[i]) {
+      additions.push_back(i);
+    }
+  }
 
-  // std::vector<bool> found_in_old(new_points.size() / 2);
-  // for (int i = 0; i < found_in_old.size(); i++) {
-  //   found_in_old[i] = false;
-  // }
-  // // Mapping from point index in old points vec to point index in new points vec
-  // std::unordered_map<int, int> old_index_to_new_index;
-  // for (int i = 0; i < old_points.size(); i += 2) {
-  //   pair old_point(old_points[i], old_points[i + 1]);
-  //   // Is this point also in the new points vec?
-  //   std::unordered_map<pair, int, boost::hash<pair>>::const_iterator element =
-  //         point_to_new_index.find(old_point);
-  //   if (element != point_to_new_index.end()) {
-  //     old_index_to_new_index[i / 2] = element->second;
-  //     found_in_old[element->second] = true;
-  //   } else {
-  //     // If it's in the old vec but not the new vec, it was deleted
-  //     deletions.push_back(i / 2);
-  //   }
-  // }
-  // for (int i = 0; i < found_in_old.size(); i++) {
-  //   if (!found_in_old[i]) {
-  //     additions.push_back(i);
-  //   }
-  // }
+  // go through all leaf original box vectors and apply mapping.
+  // (if there is a deletion it will be processed later)
+  // each node will be one of three things
+  //   1) unmarked, in which case the below is a perfectly good mapping
+  //   2) marked non-leaf, the below is irrelevant, everything will be dumped
+  //   3) marked leaf, only the leaf portion of the below is relevant.
+  for (QuadTreeLevel* level : levels) {
+    for (QuadTreeNode* node : level->nodes) {
+      std::vector<int> ob, ab, s, r, sn, n;
+      if (node->is_leaf) {
+        for (int idx : node->dof_lists.original_box) {
+          int point_index = idx / solution_dimension;
+          std::unordered_map<int, int>::const_iterator element =
+            old_index_to_new_index.find(point_index);
+          if (element != old_index_to_new_index.end()) {
+            ob.push_back(solution_dimension * element->second
+                         + idx % solution_dimension);
+          }
+        }
+        node->dof_lists.original_box = ob;
+      }
+      for (int idx : node->dof_lists.active_box) {
+        int point_index = idx / solution_dimension;
+        std::unordered_map<int, int>::const_iterator element =
+          old_index_to_new_index.find(point_index);
+        if (element != old_index_to_new_index.end()) {
+          ab.push_back(solution_dimension * element->second
+                       + idx % solution_dimension);
+        }
+      }
+      for (int idx : node->dof_lists.skel) {
+        int point_index = idx / solution_dimension;
+        std::unordered_map<int, int>::const_iterator element =
+          old_index_to_new_index.find(point_index);
+        if (element != old_index_to_new_index.end()) {
+          s.push_back(solution_dimension * element->second
+                      + idx % solution_dimension);
+        }
+      }
+      for (int idx : node->dof_lists.redundant) {
+        int point_index = idx / solution_dimension;
+        std::unordered_map<int, int>::const_iterator element =
+          old_index_to_new_index.find(point_index);
+        if (element != old_index_to_new_index.end()) {
+          r.push_back(solution_dimension * element->second
+                      + idx % solution_dimension);
+        }
+      }
+      for (int idx : node->dof_lists.skelnear) {
+        int point_index = idx / solution_dimension;
+        std::unordered_map<int, int>::const_iterator element =
+          old_index_to_new_index.find(point_index);
+        if (element != old_index_to_new_index.end()) {
+          sn.push_back(solution_dimension * element->second
+                       + idx % solution_dimension);
+        }
+      }
+      node->dof_lists.active_box = ab;
+      node->dof_lists.skel = s;
+      node->dof_lists.skelnear = sn;
+      node->dof_lists.redundant = r;
+    }
+  }
 
-  // // go through all leaf original box vectors and apply mapping.
-  // // (if there is a deletion it will be processed later)
-  // // each node will be one of three things
-  // //   1) unmarked, in which case the below is a perfectly good mapping
-  // //   2) marked non-leaf, the below is irrelevant, everything will be dumped
-  // //   3) marked leaf, only the leaf portion of the below is relevant.
-  // for (QuadTreeLevel* level : levels) {
-  //   for (QuadTreeNode* node : level->nodes) {
-  //     std::vector<int> ob, ab, s, r, sn, n;
-  //     if (node->is_leaf) {
-  //       for (int idx : node->dof_lists.original_box) {
-  //         int point_index = idx / solution_dimension;
-  //         std::unordered_map<int, int>::const_iterator element =
-  //           old_index_to_new_index.find(point_index);
-  //         if (element != old_index_to_new_index.end()) {
-  //           ob.push_back(solution_dimension * element->second
-  //                        + idx % solution_dimension);
-  //         }
-  //       }
-  //       node->dof_lists.original_box = ob;
-  //     }
-  //     for (int idx : node->dof_lists.active_box) {
-  //       int point_index = idx / solution_dimension;
-  //       std::unordered_map<int, int>::const_iterator element =
-  //         old_index_to_new_index.find(point_index);
-  //       if (element != old_index_to_new_index.end()) {
-  //         ab.push_back(solution_dimension * element->second
-  //                      + idx % solution_dimension);
-  //       }
-  //     }
-  //     for (int idx : node->dof_lists.skel) {
-  //       int point_index = idx / solution_dimension;
-  //       std::unordered_map<int, int>::const_iterator element =
-  //         old_index_to_new_index.find(point_index);
-  //       if (element != old_index_to_new_index.end()) {
-  //         s.push_back(solution_dimension * element->second
-  //                     + idx % solution_dimension);
-  //       }
-  //     }
-  //     for (int idx : node->dof_lists.redundant) {
-  //       int point_index = idx / solution_dimension;
-  //       std::unordered_map<int, int>::const_iterator element =
-  //         old_index_to_new_index.find(point_index);
-  //       if (element != old_index_to_new_index.end()) {
-  //         r.push_back(solution_dimension * element->second
-  //                     + idx % solution_dimension);
-  //       }
-  //     }
-  //     for (int idx : node->dof_lists.skelnear) {
-  //       int point_index = idx / solution_dimension;
-  //       std::unordered_map<int, int>::const_iterator element =
-  //         old_index_to_new_index.find(point_index);
-  //       if (element != old_index_to_new_index.end()) {
-  //         sn.push_back(solution_dimension * element->second
-  //                      + idx % solution_dimension);
-  //       }
-  //     }
-  //     node->dof_lists.active_box = ab;
-  //     node->dof_lists.skel = s;
-  //     node->dof_lists.skelnear = sn;
-  //     node->dof_lists.redundant = r;
-  //   }
-  // }
+  // go through all additions, find their leaves, make addition and call mark
+  // function
+  std::vector<QuadTreeNode*> maybe_bursting;
+  for (int i = 0; i < additions.size(); i++) {
+    // double newx = new_points[2 * additions[i]];
+    // double newy = new_points[2 * additions[i] + 1];
+    std::vector<double> newpt;
+    for (int j = 0; j < domain_dimension; j++) {
+      newpt.push_back(new_points[domain_dimension * additions[i] + j]);
+    }
+    QuadTreeNode* current = root;
+    while (!current->is_leaf) {
+      int child_idx = 0;
+      for (int j = 0; j < domain_dimension; j++) {
+        if (newpt[j] >= current->center[j]) {
+          child_idx += pow(2, domain_dimension - j - 1);
+        }
+      }
+      current = current->children[child_idx];
 
-  // // go through all additions, find their leaves, make addition and call mark
-  // // function
-  // std::vector<QuadTreeNode*> maybe_bursting;
-  // for (int i = 0; i < additions.size(); i++) {
-  //   double newx = new_points[2 * additions[i]];
-  //   double newy = new_points[2 * additions[i] + 1];
-  //   QuadTreeNode* current = root;
-  //   while (!current->is_leaf) {
-  //     double midx = ((current->corners[6] - current->corners[0]) / 2.0)
-  //                   + current->corners[0];
-  //     double midy = ((current->corners[3] - current->corners[1]) / 2.0)
-  //                   + current->corners[1];
-  //     if (newx < midx && newy < midy) {
-  //       current = current->children[0];
-  //     } else if (newx < midx && newy >= midy) {
-  //       current = current->children[1];
-  //     } else if (newx >= midx && newy < midy) {
-  //       current = current->children[3];
-  //     } else {
-  //       current = current->children[2];
-  //     }
-  //   }
-  //   for (int j = 0; j < solution_dimension; j++) {
-  //     current->dof_lists.original_box.push_back(solution_dimension
-  //         * additions[i] + j);
-  //   }
-  //   maybe_bursting.push_back(current);
-  //   mark_neighbors_and_parents(current);
-  // }
+    }
+    for (int j = 0; j < solution_dimension; j++) {
+      current->dof_lists.original_box.push_back(solution_dimension
+          * additions[i] + j);
+    }
+    maybe_bursting.push_back(current);
+    mark_neighbors_and_parents(current);
+  }
 
-  // for (QuadTreeLevel* level : levels) {
-  //   for (QuadTreeNode* node : level->nodes) {
-  //     if (node->is_leaf) {
-  //       node->dofs_below = node->dof_lists.original_box.size();
-  //     } else {
-  //       node->dofs_below = 0;
-  //     }
-  //   }
-  // }
-  // for (int l = levels.size() - 1; l >= 1; l--) {
-  //   QuadTreeLevel* level = levels[l];
-  //   for (QuadTreeNode* node : level->nodes) {
-  //     node->parent->dofs_below += node->dofs_below;
-  //   }
-  // }
+  for (QuadTreeLevel* level : levels) {
+    for (QuadTreeNode* node : level->nodes) {
+      if (node->is_leaf) {
+        node->dofs_below = node->dof_lists.original_box.size();
+      } else {
+        node->dofs_below = 0;
+      }
+    }
+  }
+  for (int l = levels.size() - 1; l >= 1; l--) {
+    QuadTreeLevel* level = levels[l];
+    for (QuadTreeNode* node : level->nodes) {
+      node->parent->dofs_below += node->dofs_below;
+    }
+  }
 
-  // // go through all deletions, find their leaves, make deletion and call mark
-  // // function
-  // std::unordered_map<QuadTreeNode*, bool> sparse;
+  // go through all deletions, find their leaves, make deletion and call mark
+  // function
+  std::unordered_map<QuadTreeNode*, bool> sparse;
 
-  // for (int i = 0; i < deletions.size(); i++) {
-  //   double oldx = old_points[2 * deletions[i]];
-  //   double oldy = old_points[2 * deletions[i] + 1];
-  //   QuadTreeNode* current = root;
-  //   bool path_marked = false;
-  //   while (!current->is_leaf) {
-  //     if (current->dofs_below < MAX_LEAF_DOFS && !path_marked) {
-  //       path_marked = true;
-  //       sparse[current] = true;
-  //     }
-  //     double midx = ((current->corners[6] - current->corners[0]) / 2.0)
-  //                   + current->corners[0];
-  //     double midy = ((current->corners[3] - current->corners[1]) / 2.0)
-  //                   + current->corners[1];
-  //     if (oldx < midx && oldy < midy) {
-  //       current = current->children[0];
-  //     } else if (oldx < midx && oldy >= midy) {
-  //       current = current->children[1];
-  //     } else if (oldx >= midx && oldy < midy) {
-  //       current = current->children[3];
-  //     } else {
-  //       current = current->children[2];
-  //     }
-  //   }
-  //   mark_neighbors_and_parents(current);
-  // }
+  for (int i = 0; i < deletions.size(); i++) {
+    QuadTreeNode* current = root;
+    bool path_marked = false;
 
-  // this->boundary_points = perturbed_boundary.points;
-  // // If any nodes are bursting now, subdivide them.
-  // for (QuadTreeNode* node : maybe_bursting) {
-  //   if (node->is_leaf
-  //       && node->dof_lists.original_box.size() > MAX_LEAF_DOFS) {
-  //     node_subdivide(node);
-  //   }
-  // }
-  // // If we can consolidate nodes into their parent, do that.
-  // for (auto it = sparse.begin(); it != sparse.end(); ++it) {
-  //   consolidate_node(it->first);
-  // }
-  // for (QuadTreeLevel* level : levels) {
-  //   for (QuadTreeNode* node : level->nodes) {
-  //     node->neighbors.clear();
-  //   }
-  // }
-  // compute_neighbor_lists();
+    std::vector<double> oldpt;
+    for (int j = 0; j < domain_dimension; j++) {
+      oldpt.push_back(old_points[domain_dimension * deletions[i] + j]);
+    }
+
+    while (!current->is_leaf) {
+      if (current->dofs_below < MAX_LEAF_DOFS && !path_marked) {
+        path_marked = true;
+        sparse[current] = true;
+      }
+
+      int child_idx = 0;
+      for (int j = 0; j < domain_dimension; j++) {
+        if (oldpt[j] >= current->center[j]) {
+          child_idx += pow(2, domain_dimension - j - 1);
+        }
+      }
+      current = current->children[child_idx];
+    }
+    mark_neighbors_and_parents(current);
+  }
+
+  this->boundary_points = perturbed_boundary.points;
+  // If any nodes are bursting now, subdivide them.
+  for (QuadTreeNode* node : maybe_bursting) {
+    if (node->is_leaf
+        && node->dof_lists.original_box.size() > MAX_LEAF_DOFS) {
+      node_subdivide(node);
+    }
+  }
+  // If we can consolidate nodes into their parent, do that.
+  for (auto it = sparse.begin(); it != sparse.end(); ++it) {
+    consolidate_node(it->first);
+  }
+  for (QuadTreeLevel* level : levels) {
+    for (QuadTreeNode* node : level->nodes) {
+      node->neighbors.clear();
+    }
+  }
+  compute_neighbor_lists();
 }
 
 
@@ -697,7 +592,7 @@ void QuadTree::copy_into(QuadTree* new_tree) const {
       new_level->nodes.push_back(old_to_new[old_level->nodes[n]]);
     }
     new_tree->levels.push_back(new_level);
-  } 
+  }
 }
 
 
