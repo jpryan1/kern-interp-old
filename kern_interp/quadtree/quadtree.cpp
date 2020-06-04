@@ -269,10 +269,10 @@ void QuadTree::node_subdivide(QuadTreeNode* node) {
     int tmp = child_idx;
     for (int d = 0; d < domain_dimension; d++) {
       if (tmp >= pow(2, domain_dimension - d - 1)) {
-        child_center.push_back(node->center[d] + (node->side_length / 2.));
+        child_center.push_back(node->center[d] + (node->side_length / 4.));
         tmp -= pow(2, domain_dimension - d - 1);
       } else {
-        child_center.push_back(node->center[d] - (node->side_length / 2.));
+        child_center.push_back(node->center[d] - (node->side_length / 4.));
       }
     }
     assert(tmp == 0);
