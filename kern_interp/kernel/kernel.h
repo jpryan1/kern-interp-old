@@ -52,9 +52,13 @@ struct Kernel {
 
   ki_Mat get_id_mat(const QuadTree * tree,
                     const QuadTreeNode * node) const;
-  ki_Mat get_proxy_mat(double cntr_x, double cntr_y,
+  ki_Mat get_proxy_mat(std::vector<double> center,
                        double r, const QuadTree * tree,
                        const std::vector<int> & box_inds) const;
+
+  ki_Mat get_proxy_mat3d(std::vector<double> center,
+                         double r, const QuadTree * tree,
+                         const std::vector<int> & box_inds) const;
 
   ki_Mat forward() const;
 
