@@ -19,21 +19,19 @@ namespace kern_interp {
 void run_experiment1() {
   double id_tol = 1e-6;
   Kernel::Pde pde = Kernel::Pde::STOKES;
-  int num_boundary_points = pow(2, 12);
-  int domain_size = 200;
+  int num_boundary_points = pow(2, 10);
+  int domain_size = 100;
   int domain_dimension = 2;
   int solution_dimension = 2;
-  int fact_threads = 4;
+  int fact_threads = 1;
   std::unique_ptr<Boundary> boundary =
     std::unique_ptr<Boundary>(new Ex1Boundary());
   boundary->initialize(num_boundary_points, BoundaryCondition::DEFAULT);
   double start = omp_get_wtime();
 
   QuadTree quadtree;
-  std::cout << "before init" << std::endl;
   quadtree.initialize_tree(boundary.get(), solution_dimension,
                            domain_dimension);
-  std::cout << "after init" << std::endl;
   std::vector<double> domain_points;
   get_domain_points(domain_size, &domain_points, quadtree.min,
                     quadtree.max, quadtree.min,
