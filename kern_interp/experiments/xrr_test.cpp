@@ -62,18 +62,18 @@ void run_xrr_test() {
   }
   bound_out.close();
 
-  std::ofstream tree_out;
-  tree_out.open("output/data/ie_solver_tree.txt");
-  if (tree_out.is_open()) {
-    for (QuadTreeLevel* level : quadtree.levels) {
-      for (QuadTreeNode* node : level->nodes) {
-        tree_out << node->corners[0] << "," << node->corners[1] << ","
-                 << node->side_length << "," << "-1" << ","   <<
-                 node->dof_lists.original_box.size() << std::endl;
-      }
-    }
-    tree_out.close();
-  }
+  // std::ofstream tree_out;
+  // tree_out.open("output/data/ie_solver_tree.txt");
+  // if (tree_out.is_open()) {
+  //   for (QuadTreeLevel* level : quadtree.levels) {
+  //     for (QuadTreeNode* node : level->nodes) {
+  //       tree_out << node->corners[0] << "," << node->corners[1] << ","
+  //                << node->side_length << "," << "-1" << ","   <<
+  //                node->dof_lists.original_box.size() << std::endl;
+  //     }
+  //   }
+  //   tree_out.close();
+  // }
 }
 
 }  // namespace kern_interp
