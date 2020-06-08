@@ -4,13 +4,13 @@
 
 #include <vector>
 #include <memory>
-#include "kern_interp/vec2.h"
+#include "kern_interp/pointvec.h"
 #include "kern_interp/ki_mat.h"
 
 namespace kern_interp {
 
 struct Hole {
-  Vec2 center;
+  PointVec center;
   double radius;
   int num_nodes;
 };
@@ -29,6 +29,7 @@ enum BoundaryCondition {
   HORIZONTAL_VEC,
   EX3A,
   EX3B,
+  ELECTRON_3D,
   DEFAULT  // This is special, means use BC inherent to experiment/function.
 };
 
@@ -47,7 +48,7 @@ class Boundary {
                                 int end_idx,
                                 BoundaryCondition bc);
   virtual void initialize(int n, BoundaryCondition bc) = 0;
-  virtual bool is_in_domain(const Vec2& a) const = 0;
+  virtual bool is_in_domain(const PointVec& a) const = 0;
 };
 
 
@@ -67,7 +68,7 @@ class CubicBoundary : public Boundary {
   void find_real_roots_of_cubic(const std::vector<double>& y_cubic,
                                 std::vector<double>* t_vals);
   int num_right_intersections(double x, double y, int index);
-  bool is_in_domain(const Vec2& a) const override;
+  bool is_in_domain(const PointVec& a) const override;
 };
 
 }  // namespace kern_interp

@@ -7,5 +7,6 @@ cc_library(
 	srcs = ["kernel.cpp"],
 	deps = ["//kern_interp:ki_mat",
           "//kern_interp/boundaries",
-					"//kern_interp/quadtree"]
+					"//kern_interp/quadtree",
+          "//kern_interp:legendre"]
 )

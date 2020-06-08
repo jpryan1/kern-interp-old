@@ -84,7 +84,7 @@ void SpiralChannel::get_spline_points(std::vector<double>* x0_points,
     (*x1_points)[i]  = ((*x1_points)[i] - ymin) / (ymax - ymin);
   }
 
-  hole_center = Vec2((-xmin)/(xmax - xmin),( -0.5-ymin) / (ymax - ymin));
+  hole_center = PointVec((-xmin)/(xmax - xmin),( -0.5-ymin) / (ymax - ymin));
   hole_rad = 0.25 / (std::max(ymax - ymin, xmax - xmin));
   // std::cout << "total " << x0_points->size() << std::endl;
   // for (int i = 0; i < x0_points->size(); i++) {

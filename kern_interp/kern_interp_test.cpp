@@ -237,7 +237,7 @@ double laplace_error(const ki_Mat& domain,
   for (int i = 0; i < domain_points.size(); i += 2) {
     double x0 = domain_points[i];
     double x1 = domain_points[i + 1];
-    Vec2 x(x0, x1);
+    PointVec x(x0, x1);
     if (!boundary->is_in_domain(x)) {
       continue;
     }
@@ -260,7 +260,7 @@ double laplace_neumann_error(const ki_Mat& domain,
   for (int i = 0; i < domain_points.size(); i += 2) {
     double x0 = domain_points[i];
     double x1 = domain_points[i + 1];
-    Vec2 x(x0, x1);
+    PointVec x(x0, x1);
     if (boundary->is_in_domain(x)) {
       res.push_back(domain.get(i / 2, 0));
       double r = sqrt(pow(x0 - 0.5, 2) + pow(x1 - 0.5, 2));

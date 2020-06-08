@@ -53,7 +53,7 @@ void Ex2Boundary::initialize(int N, BoundaryCondition bc) {
   circle.num_nodes =  NUM_CIRCLE_POINTS;
   for (int i = 0; i <= 7; i++) {
     double x = -0.7 + (i / 3.);
-    circle.center = Vec2(x, perturbation_parameters[i]);
+    circle.center = PointVec(x, perturbation_parameters[i]);
     holes.push_back(circle);
   }
 

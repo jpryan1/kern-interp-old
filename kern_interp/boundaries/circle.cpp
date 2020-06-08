@@ -31,7 +31,7 @@ void Circle::initialize(int N, BoundaryCondition bc) {
   }
 }
 
-bool Circle::is_in_domain(const Vec2& a) const {
+bool Circle::is_in_domain(const PointVec& a) const {
   double x = a.a[0] - 0.5;
   double y = a.a[1] - 0.5;
   double eps = 1e-2;

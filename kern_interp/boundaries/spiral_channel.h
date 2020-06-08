@@ -19,7 +19,7 @@ class SpiralChannel : public CubicBoundary {
     return std::make_unique<SpiralChannel>(*this);
   }
 
-  Vec2 hole_center;
+  PointVec hole_center;
   double hole_rad;
 };
 

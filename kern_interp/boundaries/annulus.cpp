@@ -14,10 +14,10 @@ void Annulus::initialize(int N, BoundaryCondition bc) {
 
   if (holes.size() == 0) {
     Hole hole;
-    hole.center = Vec2(0.88, 0.61);
+    hole.center = PointVec(0.88, 0.61);
     hole.radius = 0.1;
     holes.push_back(hole);
-    hole.center = Vec2(0.12, 0.39);
+    hole.center = PointVec(0.12, 0.39);
     holes.push_back(hole);
   }
 
@@ -64,7 +64,7 @@ void Annulus::initialize(int N, BoundaryCondition bc) {
 }
 
 
-bool Annulus::is_in_domain(const Vec2& a) const {
+bool Annulus::is_in_domain(const PointVec& a) const {
   double x = a.a[0] - 0.5;
   double y = a.a[1] - 0.5;
   double eps = 1e-2;
@@ -72,7 +72,7 @@ bool Annulus::is_in_domain(const Vec2& a) const {
   double dist = sqrt(pow(x, 2) + pow(y, 2));
   if (dist + eps > 1) return false;
   for (Hole hole : holes) {
-    Vec2 r = a - hole.center;
+    PointVec r = a - hole.center;
     if (r.norm() - eps < hole.radius) return false;
   }
   return true;

@@ -298,20 +298,23 @@ ki_Mat Kernel::get_proxy_mat3d(std::vector<double> center,
 
   // each row is a pxy point, cols are box dofs
   std::vector<double> pxy_p, pxy_n, pxy_w;
-  for (int i = 0; i < 128; i++) {
-    double theta = 2 * M_PI * i * (1.0 / 128.0);
-    for (int j = 0; j < 64; j++) {   // modify this for annulus proxy
-      double phi = M_PI * j * (1.0 / 64.0);
+
+  for (int i = 0; i < pxy_thetas.size(); i++) {
+    double theta = pxy_thetas[i];
+    for (int j = 0; j < pxy_phis.size(); j++) {   // modify this for annulus proxy
+      double phi = pxy_phis[j];
       pxy_p.push_back(center[0] + r * sin(phi) * cos(theta));
       pxy_p.push_back(center[1] + r * sin(phi) * sin(theta));
       pxy_p.push_back(center[2] + r * cos(phi));
       pxy_n.push_back(sin(phi) * cos(theta));
       pxy_n.push_back(sin(phi) * sin(theta));
       pxy_n.push_back(cos(phi));
-      pxy_w.push_back(pow(r, 2) * sin(phi) * 2 * M_PI * M_PI / (128 * 64.0));
+      pxy_w.push_back(pow(r, 2) *pxy_phi_weights[j]*pxy_theta_weights[i]);
     }
   }
-  int lda = solution_dimension * pxy_p.size();
+
+  int lda = solution_dimension * domain_dimension * pxy_w.size();
+
   ki_Mat ret(lda, box_inds.size());
   for (int j = 0; j < box_inds.size(); j++) {
     int box_ind = box_inds[j];
@@ -320,7 +323,7 @@ ki_Mat Kernel::get_proxy_mat3d(std::vector<double> center,
     std::vector<double> bp, bn;
     for (int d = 0; d < domain_dimension; d++) {
       bp.push_back(boundary_points_[j_points_vec_index + d]);
-      bn.push_back(boundary_normals[j_points_vec_index + d]);
+      bn.push_back(boundary_normals(j_points_vec_index + d));
     }
     double bw =  boundary_weights(j_point_index);
     for (int i = 0; i < pxy_p.size(); i += domain_dimension) {
@@ -330,6 +333,14 @@ ki_Mat Kernel::get_proxy_mat3d(std::vector<double> center,
         pn.push_back(pxy_n[i + d]);
       }
       double r[2] = {pp[0] - bp[0], pp[1] - bp[1]};
+
+      
+      // box to pxy
+      one_d_kern((i / 2) + lda * j, &ret, r[0], r[1],  pn[0], pn[1],
+                 bn[0], bn[1], bw,  0);
+      // pxy to box
+      one_d_kern((pxy_p.size() / 2) + (i / 2) + lda * j, &ret,
+                 -r[0], -r[1],  bn[0], bn[1], pn[0], pn[1], pxy_w, 0);
       // get kernel (both ways) based on the above.
     }
   }

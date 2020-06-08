@@ -14,18 +14,27 @@ cc_library(
 
 
 cc_library(
-	name = "ki_mat",
-	hdrs = ["ki_mat.h"],
-	srcs = ["ki_mat.cpp",
-		],
-	deps = [":vec2"],
+  name = "ki_mat",
+  hdrs = ["ki_mat.h"],
+  srcs = ["ki_mat.cpp",
+    ],
+  deps = [":pointvec"],
+)
+
+
+
+cc_library(
+  name = "legendre",
+  hdrs = ["legendre.h"],
+  srcs = ["legendre.cpp",
+    ],
 )
 
 
 cc_library(
-	name = "vec2",
-	hdrs = ["vec2.h"],
-	srcs = ["vec2.cpp"],
+	name = "pointvec",
+	hdrs = ["pointvec.h"],
+	srcs = ["pointvec.cpp"],
 )
 
 

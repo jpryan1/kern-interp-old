@@ -61,14 +61,14 @@ void Ex3Boundary::initialize(int N, BoundaryCondition bc) {
   double ang1 = perturbation_parameters[0];
   double x1 =  0.2 * cos(ang1) * (sin(5 * ang1) + 4);
   double y1 =  0.2 * sin(ang1) * (sin(5 * ang1) + 4);
-  star1.center = Vec2(0.5 + x1, 0.5 + y1);
+  star1.center = PointVec(0.5 + x1, 0.5 + y1);
   star1.radius = 0.3;
   star1.num_nodes =  STAR_NUM_SPLINE_POINTS * STAR_NODES_PER_SPLINE;
   holes.push_back(star1);
   double ang2 = perturbation_parameters[1];
   double x2 =  0.2 * cos(ang2) * (sin(5 * ang2) + 4);
   double y2 =  0.2 * sin(ang2) * (sin(5 * ang2) + 4);
-  star2.center = Vec2(0.5 + x2, 0.5 + y2);
+  star2.center = PointVec(0.5 + x2, 0.5 + y2);
   star2.radius = 0.3;
   star2.num_nodes =  STAR_NUM_SPLINE_POINTS * STAR_NODES_PER_SPLINE;
   holes.push_back(star2);
