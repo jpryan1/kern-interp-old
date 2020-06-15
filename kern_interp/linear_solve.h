@@ -24,6 +24,8 @@ ki_Mat initialize_Psi_mat(const Kernel::Pde pde,
                           const std::vector<Hole>& holes, const Boundary& boundary);
 void get_domain_points(int domain_size, std::vector<double>* points,
                        double x_min, double x_max, double y_min, double y_max);
+void get_domain_points3d(int domain_size, std::vector<double>* points,
+                       double min, double max);
 void linear_solve(const SkelFactorization& skel_factorization,
                   const QuadTree& quadtree, const ki_Mat& f, ki_Mat* mu,
                   ki_Mat* alpha = nullptr);

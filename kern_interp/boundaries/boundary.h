@@ -30,6 +30,7 @@ enum BoundaryCondition {
   EX3A,
   EX3B,
   ELECTRON_3D,
+  STOKES_3D,
   DEFAULT  // This is special, means use BC inherent to experiment/function.
 };
 

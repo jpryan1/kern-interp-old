@@ -128,9 +128,12 @@ void schur_solve(const SkelFactorization & skel_factorization,
                  const ki_Mat & Psi,
                  const ki_Mat & f, const ki_Mat & K_domain,
                  const ki_Mat & U_forward,  ki_Mat * solution) {
-  ki_Mat mu;
+  ki_Mat mu(f.height(), 1);
   if (U.width() == 0) {
+    double start = omp_get_wtime();
     linear_solve(skel_factorization, quadtree, f, &mu);
+    double end = omp_get_wtime();
+    std::cout<<"solve "<<end-start<<std::endl;
     *solution = K_domain * mu;
   } else {
     ki_Mat alpha;
@@ -146,7 +149,6 @@ ki_Mat boundary_integral_solve(const Kernel& kernel, const Boundary& boundary,
                                const std::vector<double>& domain_points) {
   // Consider making init instead of constructor for readability
   SkelFactorization skel_factorization(id_tol, fact_threads);
-
   ki_Mat K_domain = kernel.forward();
 
   ki_Mat f = boundary.boundary_values;
@@ -161,21 +163,34 @@ ki_Mat boundary_integral_solve(const Kernel& kernel, const Boundary& boundary,
                          kernel.solution_dimension, 1);
   quadtree->U = U;
   quadtree->Psi = Psi;
+
+  double start = omp_get_wtime();
   skel_factorization.skeletonize(kernel, quadtree);
+  double end = omp_get_wtime();
+  std::cout<<"skel "<<end-start<<std::endl;
 
   schur_solve(skel_factorization, *quadtree, U, Psi, f, K_domain,
               U_forward, &domain_solution);
-  for (int i = 0; i < kernel.domain_points.size(); i += 2) {
-    PointVec point = PointVec(kernel.domain_points[i], kernel.domain_points[i + 1]);
+
+
+  for (int i = 0; i < kernel.domain_points.size(); i += kernel.domain_dimension) {
+    std::vector<double> vec;
+    for(int j=0; j< kernel.domain_dimension; j++){
+      vec.push_back(kernel.domain_points[i+j]);
+    }
+    PointVec point(vec);
+
     if (!boundary.is_in_domain(point)) {
       if (kernel.solution_dimension == 2) {
+        //NOT DOMAIN DIM INDP
         domain_solution.set(i, 0, 0.);
         domain_solution.set(i + 1, 0, 0.);
       } else {
-        domain_solution.set(i / 2, 0, 0.);
+        domain_solution.set(i / kernel.domain_dimension, 0, 0.);
       }
     }
   }
+  
   return domain_solution;
 }
 
@@ -188,6 +203,22 @@ void get_domain_points(int domain_size, std::vector<double>* points,
       double y = y_min + ((j + 0.0) / (domain_size - 1)) * (y_max - y_min);
       points->push_back(x);
       points->push_back(y);
+    }
+  }
+}
+
+void get_domain_points3d(int domain_size, std::vector<double>* points,
+                       double min, double max){
+  for (int i = 0; i < domain_size; i++) {
+    double x = min + ((i + 0.0) / (domain_size - 1)) * (max - min);
+    for (int j = 0; j < domain_size; j++) {
+      double y = min + ((j + 0.0) / (domain_size - 1)) * (max - min);
+      for (int k = 0; k < domain_size; k++) {
+        double z = min + ((k + 0.0) / (domain_size - 1)) * (max - min);
+        points->push_back(x);
+        points->push_back(y);
+        points->push_back(z);
+      }
     }
   }
 }

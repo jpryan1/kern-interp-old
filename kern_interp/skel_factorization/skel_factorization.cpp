@@ -31,6 +31,7 @@ SkelFactorization::SkelFactorization(double id_tol, int fact_threads) {
 
 int SkelFactorization::id_compress(const Kernel& kernel,
                                    const QuadTree* tree, QuadTreeNode* node) {
+
   assert(node != nullptr && "InterpolativeDecomposition fails on null node.");
   assert(node->dof_lists.active_box.size() > 0 &&
          "Num of DOFs must be positive in InterpolativeDecomposition.");
@@ -40,9 +41,8 @@ int SkelFactorization::id_compress(const Kernel& kernel,
     return 0;
   }
   std::vector<int> p;
-
   int numskel = pxy.id(&p, &node->T, id_tol);
-
+// std::cout<<"numskel "<<numskel<<std::endl;
   if (numskel == 0) {
     return 0;
   }
@@ -54,6 +54,7 @@ int SkelFactorization::id_compress(const Kernel& kernel,
 
 
 void SkelFactorization::decouple(const Kernel& kernel, QuadTreeNode* node) {
+
   // height of Z is number of skeleton columns
   int num_redundant = node->T.width();
   int num_skel      = node->T.height();
@@ -66,7 +67,6 @@ void SkelFactorization::decouple(const Kernel& kernel, QuadTreeNode* node) {
   // Note that BN has all currently deactivated DoFs removed.
   ki_Mat update(BN.size(), BN.size());
   get_all_schur_updates(&update, BN, node);
-
   ki_Mat K_BN = kernel(BN, BN) - update;
 
   // std::cout << "KBN cond is " << K_BN.condition_number() << std::endl;
@@ -77,6 +77,7 @@ void SkelFactorization::decouple(const Kernel& kernel, QuadTreeNode* node) {
     s.push_back(node->dof_lists.permutation[i]);
     sn.push_back(node->dof_lists.permutation[i]);
   }
+
   for (int i = 0; i < num_redundant; i++) {
     r.push_back(node->dof_lists.permutation[i + num_skel]);
   }
@@ -85,8 +86,8 @@ void SkelFactorization::decouple(const Kernel& kernel, QuadTreeNode* node) {
                - K_BN_r_sn * node->T;
   ki_Mat K_BN_sn_r = K_BN(s, r) - K_BN(s, s) * node->T;
 
-  double cond = node->X_rr.condition_number();
-  if (cond > 100000) std::cout << "Xrr cond is " << cond << std::endl;
+  // double cond = node->X_rr.condition_number();
+  // if (cond > 100000) std::cout << "Xrr cond is " << cond << std::endl;
   node->X_rr.LU_factorize(&node->X_rr_lu, &node->X_rr_piv);
 
   node->X_rr_is_LU_factored = true;
@@ -96,22 +97,33 @@ void SkelFactorization::decouple(const Kernel& kernel, QuadTreeNode* node) {
   node->X_rr_lu.left_multiply_inverse(K_BN_r_sn, node->X_rr_piv,  &node->U);
   node->schur_update = node->L * K_BN_r_sn;
   node->compressed = true;
+
 }
 
 
 void SkelFactorization::skeletonize(const Kernel& kernel, QuadTree* tree) {
   int node_counter = 0;
   int lvls = tree->levels.size();
-  for (int level = lvls - 1; level >  0; level--) {
+
+  double start, end;
+  start = omp_get_wtime();
+  for (int level = lvls - 1; level >  1; level--) {
+    end = omp_get_wtime();
+    std::cout<<"level "<<level<<" "<<(end-start)<<std::endl;
+    start=end;
     tree->remove_inactive_dofs_at_level(level);
     QuadTreeLevel* current_level = tree->levels[level];
     #pragma omp parallel for num_threads(fact_threads)
     for (int n = 0; n < current_level->nodes.size(); n++) {
+
+      // std::cout<<"node "<<n<<std::endl;
       QuadTreeNode* current_node = current_level->nodes[n];
+      // std::cout<<"active size "<<current_node->dof_lists.active_box.size()<<std::endl;
       if (current_node->compressed || current_node->dof_lists.active_box.size()
           < MIN_DOFS_TO_COMPRESS) {
         continue;
       }
+
       if (id_compress(kernel, tree, current_node) == 0) {
         continue;
       }
@@ -119,21 +131,44 @@ void SkelFactorization::skeletonize(const Kernel& kernel, QuadTree* tree) {
       node_counter++;
     }
   }
+  end = omp_get_wtime();
+  std::cout<<"last level "<<(end-start)<<std::endl;
   // If the above breaks due to a cap, we need to manually propagate active
   // boxes up the tree.
   tree->remove_inactive_dofs_at_all_boxes();
   std::vector<int> allskel = tree->root->dof_lists.active_box;
+  std::cout<<"all skel size"<<allskel.size() <<std::endl;
+
+
   if (allskel.size() > 0) {
+
     ki_Mat allskel_updates = ki_Mat(allskel.size(), allskel.size());
+double getupds = omp_get_wtime();
+
     get_all_schur_updates(&allskel_updates, allskel, tree->root);
+     double getupde = omp_get_wtime();
+  std::cout<<"update "<<getupde-getupds<<std::endl;
+
     tree->allskel_mat = kernel(allskel, allskel) - allskel_updates;
+    double getupdk = omp_get_wtime();
+    std::cout<<"kern call "<<(getupdk-getupde)<<std::endl;
   }
 
+
+  // std::cout<<"top 5x5 mat"<<std::endl;
+  // for(int i=0; i<5; i++){
+  //   for(int j=0; j<5; j++){
+  //     std::cout<<tree->allskel_mat.get(i,j)<<" ";
+  //   }std::cout<<std::endl;
+  // }
   if (tree->U.width() == 0) {
-    double cond = tree->allskel_mat.condition_number();
-    if (cond > 100000) std::cout << "allskel cond is " << cond << std::endl;
+    // double cond = tree->allskel_mat.condition_number();
+    // if (cond > 100000) std::cout << "allskel cond is " << cond << std::endl;
+    double asi_start = omp_get_wtime();
     tree->allskel_mat.LU_factorize(&tree->allskel_mat_lu,
                                    &tree->allskel_mat_piv);
+    double asi_end = omp_get_wtime();
+    std::cout<<"allskelinv takes "<<asi_end-asi_start<<std::endl;
     return;
   }
 
@@ -251,8 +286,8 @@ void SkelFactorization::skeletonize(const Kernel& kernel, QuadTree* tree) {
   S.set_submatrix(allskel.size(), S.height(), allskel.size(), S.width(),
                   - ident - (modified_Psi(0, modified_Psi.height(),
                                           allredundant) * Dinv_C_nonzero));
-  double cond = S.condition_number();
-  if (cond > 100000) std::cout << "S cond is " << cond << std::endl;
+  // double cond = S.condition_number();
+  // if (cond > 100000) std::cout << "S cond is " << cond << std::endl;
   S.LU_factorize(&tree->S_LU, &tree->S_piv);
 }
 
@@ -566,3 +601,4 @@ void SkelFactorization::multiply_connected_solve(const QuadTree & quadtree,
 
 
 }  // namespace kern_interp
+

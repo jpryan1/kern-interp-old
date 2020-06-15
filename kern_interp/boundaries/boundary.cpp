@@ -31,6 +31,9 @@ void Boundary::set_boundary_values_size(BoundaryCondition bc) {
     case NO_SLIP:
       boundary_values = ki_Mat(2 * num_points, 1);
       break;
+    case STOKES_3D:
+      boundary_values = ki_Mat(3 * num_points, 1);
+      break;
     case DEFAULT: {
       std::cout << "DEFAULT BoundaryCondition enum not to be given " <<
                 "directly to set_boundary_value_size function." << std::endl;
@@ -114,6 +117,12 @@ void Boundary::apply_boundary_condition(int start_point_idx, int end_point_idx,
                         + pow(points[3 * point_idx + 1] + 2, 2)
                         + pow(points[3 * point_idx + 2] + 2, 2));
         boundary_values.set(point_idx, 0, -1.0 / (4 * M_PI * r));
+        break;
+      }      
+      case STOKES_3D: {
+        boundary_values.set(3*point_idx, 0, 1);
+        boundary_values.set(3*point_idx+1, 0, 0);
+        boundary_values.set(3*point_idx+2, 0, 0);
         break;
       }
 
