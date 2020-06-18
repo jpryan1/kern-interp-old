@@ -4,7 +4,6 @@
 
 #include <vector>
 #include <unordered_map>
-#include <boost/functional/hash.hpp>
 
 #include "kern_interp/boundaries/boundary.h"
 #include "kern_interp/ki_mat.h"
@@ -23,6 +22,18 @@ struct Kernel {
     GAUSS,
     STOKES
   };
+
+
+  int solution_dimension, domain_dimension;
+  Kernel::Pde pde;
+  std::vector<double> boundary_points_, boundary_normals_,
+      boundary_weights_, boundary_curvatures_, domain_points;
+
+  std::vector<double> pxy_thetas, pxy_theta_weights, pxy_phis, pxy_phi_weights;
+  std::vector<double> boundary_diags;
+  std::vector<ki_Mat> boundary_diag_tensors;
+
+
   Kernel() {}
   Kernel(int solution_dimension_, int domain_dimension_,
          Kernel::Pde pde_, Boundary* boundary,
@@ -53,19 +64,7 @@ struct Kernel {
         pxy_phi_weights.push_back(phi_weights[j]*sin(phi));
     }
   }
-
-  int solution_dimension, domain_dimension;
-  Kernel::Pde pde;
-  std::vector<double> boundary_points_, boundary_normals_,
-      boundary_weights_, boundary_curvatures_, domain_points;
-
-  std::vector<double> pxy_thetas, pxy_theta_weights, pxy_phis, pxy_phi_weights;
-  std::vector<double> boundary_diags;
-  std::vector<ki_Mat> boundary_diag_tensors;
   
-  std::unordered_map<std::vector<double>, double, boost::hash<std::vector<double>>> pt_to_diag_entry=std::unordered_map<std::vector<double>, double, boost::hash<std::vector<double>>>();
-  double kern_integral_3d(double phi_left, double phi_right, double theta_left, double theta_right, double phi, double theta) const;
-
   void compute_diag_entries_3dlaplace(Boundary* boundary);
   void compute_diag_entries_3dstokes(Boundary* boundary);
 
@@ -78,6 +77,13 @@ struct Kernel {
                   ki_Mat* ret, double r1, double r2, double tn1, double tn2,
                   double sn1, double sn2, double sw, double sc,
                   bool forward = false) const;
+  void three_d_laplace(int mat_idx, ki_Mat* ret, double r1, double r2, double r3,
+                       double diag, double sn1, double sn2, double sn3, 
+                        double sw ) const;
+  void three_d_stokes(int mat_idx, int tgt_parity, int src_parity,
+                        ki_Mat* ret, double r1, double r2, double r3, const ki_Mat& diag,
+                        double tn1, double tn2, double tn3, double sn1, double sn2, double sn3,
+                        double sw) const;
 
   ki_Mat operator()(const std::vector<int> & tgt_inds,
                     const std::vector<int> & src_inds,
@@ -89,13 +95,7 @@ struct Kernel {
                        double r, const QuadTree * tree,
                        const std::vector<int> & box_inds) const;
 
-  void three_d_laplace(int mat_idx, ki_Mat* ret, double r1, double r2, double r3,
-                       double diag, double sn1, double sn2, double sn3, 
-                        double sw ) const;
- void three_d_stokes(int mat_idx, int tgt_parity, int src_parity,
-                        ki_Mat* ret, double r1, double r2, double r3, const ki_Mat& diag,
-                        double tn1, double tn2, double tn3, double sn1, double sn2, double sn3,
-                        double sw) const;
+ 
   ki_Mat op3d(const std::vector<int>& tgt_inds,
                           const std::vector<int>& src_inds, bool forward) const;
   ki_Mat get_proxy_mat3d(std::vector<double> center,

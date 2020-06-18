@@ -17,40 +17,84 @@ namespace kern_interp {
 
 ki_Mat initialize_U_mat(const Kernel::Pde pde,
                         const std::vector<Hole>& holes,
-                        const std::vector<double>& tgt_points) {
+                        const std::vector<double>& tgt_points, int domain_dimension) {
   ki_Mat U;
   if (holes.size() == 0) return ki_Mat(0, 0);
   switch (pde) {
     case Kernel::Pde::LAPLACE: {
-      U = ki_Mat(tgt_points.size() / 2, holes.size());
-      for (int i = 0; i < tgt_points.size(); i += 2) {
-        for (int hole_idx = 0; hole_idx < holes.size(); hole_idx++) {
-          Hole hole = holes[hole_idx];
-          PointVec r = PointVec(tgt_points[i], tgt_points[i + 1]) - hole.center;
-          U.set(i / 2, hole_idx, log(r.norm()));
+
+      if(domain_dimension == 3){
+        U = ki_Mat(tgt_points.size() / 3, holes.size());
+        for (int i = 0; i < tgt_points.size(); i += 3) {
+          for (int hole_idx = 0; hole_idx < holes.size(); hole_idx++) {
+            Hole hole = holes[hole_idx];
+            PointVec r = PointVec(tgt_points[i], tgt_points[i + 1], tgt_points[i+2]) - hole.center;
+            U.set(i / 3, hole_idx, 1.0/(r.norm()));
+            if(r.norm()==0){
+              std::cout<<"r is 0 with pt center "<<tgt_points[i]<< tgt_points[i + 1]<<tgt_points[i+2]<<std::endl;
+            }
+          }
+        }
+      }else{
+        U = ki_Mat(tgt_points.size() / 2, holes.size());
+        for (int i = 0; i < tgt_points.size(); i += 2) {
+          for (int hole_idx = 0; hole_idx < holes.size(); hole_idx++) {
+            Hole hole = holes[hole_idx];
+            PointVec r = PointVec(tgt_points[i], tgt_points[i + 1]) - hole.center;
+            U.set(i / 2, hole_idx, log(r.norm()));
+          }
         }
       }
       break;
     }
     case Kernel::Pde::STOKES: {
-      U = ki_Mat(tgt_points.size(), 3 * holes.size());
-      for (int i = 0; i < tgt_points.size(); i += 2) {
-        for (int hole_idx = 0; hole_idx < holes.size(); hole_idx++) {
-          Hole hole = holes[hole_idx];
-          PointVec r = PointVec(tgt_points[i], tgt_points[i + 1]) - hole.center;
-          double scale = 1.0 / (4 * M_PI);
-          U.set(i, 3 * hole_idx, scale *
-                (log(1 / r.norm()) +
-                 (1.0 / pow(r.norm(), 2)) * r.a[0] * r.a[0]));
-          U.set(i + 1, 3 * hole_idx, scale *
-                ((1.0 / pow(r.norm(), 2)) * r.a[1] * r.a[0]));
-          U.set(i, 3 * hole_idx + 1, scale *
-                ((1.0 / pow(r.norm(), 2)) * r.a[0] * r.a[1]));
-          U.set(i + 1, 3 * hole_idx + 1, scale *
-                (log(1 / r.norm()) +
-                 (1.0 / pow(r.norm(), 2)) * r.a[1] * r.a[1]));
-          U.set(i, 3 * hole_idx + 2, r.a[1] * (scale / pow(r.norm(), 2)));
-          U.set(i + 1, 3 * hole_idx + 2, -r.a[0] * (scale / pow(r.norm(), 2)));
+
+      if(domain_dimension == 3){
+
+        U = ki_Mat(tgt_points.size(), 6 * holes.size());
+        for (int i = 0; i < tgt_points.size(); i += 3) {
+          for (int hole_idx = 0; hole_idx < holes.size(); hole_idx++) {
+            Hole hole = holes[hole_idx];
+            PointVec r = PointVec(tgt_points[i], tgt_points[i + 1],tgt_points[i + 2]) - hole.center;
+          
+            for(int p = 0; p<3; p++){
+              for(int s=0; s<3; s++){
+                int kron = (p==s ? 1 : 0);
+                U.set(i+p, 6*hole_idx+s, (1.0/(8.0*M_PI)) 
+                                          * ((kron/r.norm()) 
+                                            + (r.a[p]*r.a[s]/pow(r.norm(), 3))));
+              }
+            }
+            //Cross product matrix
+            double rotscale = (-1.0/(8.0*M_PI*pow(r.norm(),3)));
+            U.set(i, 6*hole_idx + 4, rotscale*(-r.a[2]));
+            U.set(i, 6*hole_idx + 5, rotscale*(r.a[1]));
+            U.set(i+1, 6*hole_idx + 3, rotscale*(r.a[2]));
+            U.set(i+1, 6*hole_idx + 5, rotscale*(-r.a[0]));
+            U.set(i+2, 6*hole_idx + 3, rotscale*(-r.a[1]));
+            U.set(i+2, 6*hole_idx + 4, rotscale*(r.a[0]));
+          }
+        }
+      }else{
+        U = ki_Mat(tgt_points.size(), 3 * holes.size());
+        for (int i = 0; i < tgt_points.size(); i += 2) {
+          for (int hole_idx = 0; hole_idx < holes.size(); hole_idx++) {
+            Hole hole = holes[hole_idx];
+            PointVec r = PointVec(tgt_points[i], tgt_points[i + 1]) - hole.center;
+            double scale = 1.0 / (4 * M_PI);
+            U.set(i, 3 * hole_idx, scale *
+                  (log(1 / r.norm()) +
+                   (1.0 / pow(r.norm(), 2)) * r.a[0] * r.a[0]));
+            U.set(i + 1, 3 * hole_idx, scale *
+                  ((1.0 / pow(r.norm(), 2)) * r.a[1] * r.a[0]));
+            U.set(i, 3 * hole_idx + 1, scale *
+                  ((1.0 / pow(r.norm(), 2)) * r.a[0] * r.a[1]));
+            U.set(i + 1, 3 * hole_idx + 1, scale *
+                  (log(1 / r.norm()) +
+                   (1.0 / pow(r.norm(), 2)) * r.a[1] * r.a[1]));
+            U.set(i, 3 * hole_idx + 2, r.a[1] * (scale / pow(r.norm(), 2)));
+            U.set(i + 1, 3 * hole_idx + 2, -r.a[0] * (scale / pow(r.norm(), 2)));
+          }
         }
       }
       break;
@@ -66,36 +110,80 @@ ki_Mat initialize_U_mat(const Kernel::Pde pde,
 
 ki_Mat initialize_Psi_mat(const Kernel::Pde pde,
                           const std::vector<Hole>& holes,
-                          const Boundary& boundary) {
+                          const Boundary& boundary, int domain_dimension) {
   if (holes.size() == 0) return ki_Mat(0, 0);
   ki_Mat Psi;
   switch (pde) {
     case Kernel::Pde::LAPLACE: {
-      Psi = ki_Mat(holes.size(), boundary.points.size() / 2);
-      for (int i = 0; i < boundary.points.size(); i += 2) {
-        PointVec x = PointVec(boundary.points[i], boundary.points[i + 1]);
-        for (int hole_idx = 0; hole_idx < holes.size(); hole_idx++) {
-          Hole hole = holes[hole_idx];
-          if ((x - hole.center).norm() < hole.radius + 1e-8) {
-            Psi.set(hole_idx, i / 2, boundary.weights[i / 2]);
-            break;
+      if(domain_dimension == 3){
+        Psi = ki_Mat(holes.size(), boundary.points.size() / 3);
+        for (int i = 0; i < boundary.points.size(); i += 3) {
+          PointVec x = PointVec(boundary.points[i], boundary.points[i + 1], boundary.points[i + 2]);
+          for (int hole_idx = 0; hole_idx < holes.size(); hole_idx++) {
+            Hole hole = holes[hole_idx];
+            if ((x - hole.center).norm() < hole.radius + 1e-8) {
+              Psi.set(hole_idx, i / 3, boundary.weights[i / 3]);
+              break;
+            }
+          }
+        }
+      }
+      else{
+        Psi = ki_Mat(holes.size(), boundary.points.size() / 2);
+        for (int i = 0; i < boundary.points.size(); i += 2) {
+          PointVec x = PointVec(boundary.points[i], boundary.points[i + 1]);
+          for (int hole_idx = 0; hole_idx < holes.size(); hole_idx++) {
+            Hole hole = holes[hole_idx];
+            if ((x - hole.center).norm() < hole.radius + 1e-8) {
+              Psi.set(hole_idx, i / 2, boundary.weights[i / 2]);
+              break;
+            }
           }
         }
       }
       break;
     }
     case Kernel::Pde::STOKES: {
-      Psi = ki_Mat(3 * holes.size(), boundary.points.size());
-      for (int i = 0; i < boundary.points.size(); i += 2) {
-        PointVec x = PointVec(boundary.points[i], boundary.points[i + 1]);
-        for (int hole_idx = 0; hole_idx < holes.size(); hole_idx++) {
-          Hole hole = holes[hole_idx];
-          if ((x - hole.center).norm() < hole.radius + 1e-8) {
-            Psi.set(3 * hole_idx, i, boundary.weights[i / 2]);
-            Psi.set(3 * hole_idx + 1, i + 1, boundary.weights[i / 2]);
-            Psi.set(3 * hole_idx + 2, i, boundary.weights[i / 2]*x.a[1]);
-            Psi.set(3 * hole_idx + 2, i + 1, -boundary.weights[i / 2]*x.a[0]);
-            break;
+      if(domain_dimension==3){
+
+        Psi = ki_Mat(6 * holes.size(), boundary.points.size());
+        for (int i = 0; i < boundary.points.size(); i += 3) {
+          PointVec x = PointVec(boundary.points[i], boundary.points[i + 1], boundary.points[i + 2]);
+          
+          for (int hole_idx = 0; hole_idx < holes.size(); hole_idx++) {
+            Hole hole = holes[hole_idx];
+            PointVec r = x-hole.center;
+            if (r.norm() < hole.radius + 1e-8) {
+
+              Psi.set(6 * hole_idx, i, boundary.weights[i / 3]);
+              Psi.set(6 * hole_idx + 1, i + 1, boundary.weights[i / 3]);
+              Psi.set(6 * hole_idx + 2, i + 2, boundary.weights[i / 3]);
+
+              Psi.set(6*hole_idx + 4, i, -boundary.weights[i / 3]*(-r.a[2]));
+              Psi.set(6*hole_idx + 5, i, -boundary.weights[i / 3]*(r.a[1]));
+              Psi.set(6*hole_idx + 3, i+1, -boundary.weights[i / 3]*(r.a[2]));
+              Psi.set(6*hole_idx + 5, i+1, -boundary.weights[i / 3]*(-r.a[0]));
+              Psi.set(6*hole_idx + 3, i+2, -boundary.weights[i / 3]*(-r.a[1]));
+              Psi.set(6*hole_idx + 4, i+2, -boundary.weights[i / 3]*(r.a[0]));
+
+              break;
+            }
+          }
+        }
+
+      }else{
+        Psi = ki_Mat(3 * holes.size(), boundary.points.size());
+        for (int i = 0; i < boundary.points.size(); i += 2) {
+          PointVec x = PointVec(boundary.points[i], boundary.points[i + 1]);
+          for (int hole_idx = 0; hole_idx < holes.size(); hole_idx++) {
+            Hole hole = holes[hole_idx];
+            if ((x - hole.center).norm() < hole.radius + 1e-8) {
+              Psi.set(3 * hole_idx, i, boundary.weights[i / 2]);
+              Psi.set(3 * hole_idx + 1, i + 1, boundary.weights[i / 2]);
+              Psi.set(3 * hole_idx + 2, i, boundary.weights[i / 2]*x.a[1]);
+              Psi.set(3 * hole_idx + 2, i + 1, -boundary.weights[i / 2]*x.a[0]);
+              break;
+            }
           }
         }
       }
@@ -153,11 +241,11 @@ ki_Mat boundary_integral_solve(const Kernel& kernel, const Boundary& boundary,
 
   ki_Mat f = boundary.boundary_values;
 
-  ki_Mat U = initialize_U_mat(kernel.pde, boundary.holes, boundary.points);
+  ki_Mat U = initialize_U_mat(kernel.pde, boundary.holes, boundary.points, kernel.domain_dimension);
   ki_Mat Psi = initialize_Psi_mat(kernel.pde, boundary.holes,
-                                  boundary);
+                                  boundary, kernel.domain_dimension);
   ki_Mat U_forward = initialize_U_mat(kernel.pde, boundary.holes,
-                                      kernel.domain_points);
+                                      kernel.domain_points, kernel.domain_dimension);
 
   ki_Mat domain_solution((kernel.domain_points.size() / 2)*
                          kernel.solution_dimension, 1);
@@ -181,12 +269,9 @@ ki_Mat boundary_integral_solve(const Kernel& kernel, const Boundary& boundary,
     PointVec point(vec);
 
     if (!boundary.is_in_domain(point)) {
-      if (kernel.solution_dimension == 2) {
-        //NOT DOMAIN DIM INDP
-        domain_solution.set(i, 0, 0.);
-        domain_solution.set(i + 1, 0, 0.);
-      } else {
-        domain_solution.set(i / kernel.domain_dimension, 0, 0.);
+      int pt_idx = i/kernel.domain_dimension;
+      for(int j=0; j<kernel.solution_dimension; j++){
+        domain_solution.set(kernel.solution_dimension*pt_idx+j, 0, 0.);
       }
     }
   }
@@ -238,8 +323,8 @@ double solve_err(const Kernel& kernel, Boundary* boundary, double id_tol) {
 
   if (boundary->holes.size() > 0
       && kernel.pde != Kernel::Pde::LAPLACE_NEUMANN) {
-    ki_Mat U = initialize_U_mat(kernel.pde, boundary->holes, boundary->points);
-    ki_Mat Psi = initialize_Psi_mat(kernel.pde, boundary->holes, *boundary);
+    ki_Mat U = initialize_U_mat(kernel.pde, boundary->holes, boundary->points, kernel.domain_dimension);
+    ki_Mat Psi = initialize_Psi_mat(kernel.pde, boundary->holes, *boundary, kernel.domain_dimension);
     quadtree.U = U;
     quadtree.Psi = Psi;
     skel_factorization.skeletonize(kernel, &quadtree);
@@ -288,7 +373,11 @@ double solve_err(const Kernel& kernel, Boundary* boundary, double id_tol) {
       all_dofs.push_back(i);
     }
 
-    ki_Mat err = (kernel(all_dofs, all_dofs) * mu) - boundary->boundary_values;
+    double start = omp_get_wtime();
+    ki_Mat bigK = kernel(all_dofs, all_dofs);
+    double end = omp_get_wtime();
+    std::cout<<"Big kern call took "<<(end-start)<<std::endl;
+    ki_Mat err = (bigK * mu) - boundary->boundary_values;
     return err.vec_two_norm() / boundary->boundary_values.vec_two_norm();
   }
 }
@@ -330,6 +419,31 @@ ki_Mat stokes_true_sol(const std::vector<double>& domain_points,
   }
 
   return truth;
+}
+
+
+double stokes_err_3d(const ki_Mat& domain,
+                     const std::vector<double>& domain_points,
+                     Boundary * boundary){
+
+  ki_Mat truth(domain_points.size(), 1);
+  for (int i = 0; i < domain_points.size(); i += 3) {
+    double x0 = domain_points[i];
+    double x1 = domain_points[i + 1];
+    double x2 = domain_points[i + 2];
+    PointVec x(x0, x1, x2);
+    if (!boundary->is_in_domain(x)) {
+      truth.set(i, 0, 0.0);
+      truth.set(i + 1, 0, 0.0);
+      truth.set(i + 2, 0, 0.0);
+      continue;
+    }
+    truth.set(i, 0, 1);
+    truth.set(i + 1, 0, 2);
+    truth.set(i + 2, 0, 3);
+  }
+
+  return (domain-truth).vec_two_norm()/truth.vec_two_norm();
 }
 
 

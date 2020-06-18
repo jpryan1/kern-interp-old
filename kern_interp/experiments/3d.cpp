@@ -17,34 +17,38 @@ namespace kern_interp {
 
 
 void run_3d() {
-  double id_tol = 1e-3;
-  Kernel::Pde pde = Kernel::Pde::LAPLACE;
-  int num_circumf_points = pow(2, 7);
-  int domain_size = 3;
-  int domain_dimension = 3;
-  int solution_dimension = 1;
-  int fact_threads = 4;
+  // double start = omp_get_wtime();
+  srand(0);
   std::unique_ptr<Boundary> boundary =
     std::unique_ptr<Boundary>(new Sphere());
-  boundary->initialize(num_circumf_points, BoundaryCondition::ELECTRON_3D);
+  boundary->initialize(96,  BoundaryCondition::STOKES_3D);
 
-
-  // double start = omp_get_wtime();
   QuadTree quadtree;
-  quadtree.initialize_tree(boundary.get(), solution_dimension,
-                           domain_dimension);
-
-  std::vector<double> domain_points;
-  get_domain_points3d(domain_size, &domain_points, quadtree.min,
+  quadtree.initialize_tree(boundary.get(), 3, 3);
+  std::vector<double> old_domain_points, domain_points;
+  get_domain_points3d(10, &old_domain_points, quadtree.min,
                     quadtree.max);
-  Kernel kernel(solution_dimension, domain_dimension,
-                pde, boundary.get(), domain_points);
-  kernel.compute_diag_entries_3dlaplace(boundary.get());
-  ki_Mat solution = boundary_integral_solve(kernel, *(boundary.get()),
-                    &quadtree, id_tol, fact_threads, domain_points);
-  
-  // double end = omp_get_wtime();
-  // std::cout << "Elapsed: " << (end - start) << std::endl;
+
+  for(int i=0; i<old_domain_points.size(); i+=3){
+    if(boundary->is_in_domain(PointVec(old_domain_points[i],
+                                      old_domain_points[i+1],
+                                      old_domain_points[i+2] ))){
+      domain_points.push_back(old_domain_points[i]);
+      domain_points.push_back(old_domain_points[i+1]);
+      domain_points.push_back(old_domain_points[i+2]);
+    }
+
+  }
+
+  Kernel kernel(3, 3, Kernel::Pde::STOKES, boundary.get(), domain_points);
+  double cstart=omp_get_wtime();
+  kernel.compute_diag_entries_3dstokes(boundary.get());
+  double cend=omp_get_wtime();
+  std::cout<<"computer diag "<<(cend-cstart)<<std::endl;
+  ki_Mat sol = boundary_integral_solve(kernel, *(boundary.get()), &quadtree,
+                                       1e-3, 4, domain_points);
+
+
 }
 
 }  // namespace kern_interp
