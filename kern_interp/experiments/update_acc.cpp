@@ -68,6 +68,7 @@ void run_spiral_channel() {
 
 int main(int argc, char** argv) {
   srand(0);
+    openblas_set_num_threads(1);
   kern_interp::run_spiral_channel();
   return 0;
 }

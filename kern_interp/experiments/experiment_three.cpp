@@ -233,6 +233,8 @@ void run_experiment3() {
 int main(int argc, char** argv) {
   srand(0);
   omp_set_nested(1);
+    openblas_set_num_threads(1);
+
   kern_interp::run_experiment3();
   return 0;
 }

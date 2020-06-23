@@ -52,6 +52,7 @@ cc_test(
       "@gtest//:gtest_main"
     ],
   	linkopts = ["-llapacke",
+  	        "-lopenblas",
 			"-llapack",
 			"-lblas",
 			"-lgomp"]

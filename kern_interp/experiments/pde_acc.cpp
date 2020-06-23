@@ -94,6 +94,8 @@ void run_pde_acc() {
 
 int main(int argc, char** argv) {
   srand(0);
+    openblas_set_num_threads(1);
+
   kern_interp::run_pde_acc();
   return 0;
 }

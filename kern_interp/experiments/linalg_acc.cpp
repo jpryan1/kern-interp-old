@@ -42,6 +42,8 @@ void run_linalg_acc() {
 
 int main(int argc, char** argv) {
   srand(0);
+    openblas_set_num_threads(1);
+
   kern_interp::run_linalg_acc();
   return 0;
 }

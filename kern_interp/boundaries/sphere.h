@@ -9,7 +9,7 @@ namespace kern_interp {
 
 class Sphere : public Boundary {
  public:
-  double r = 0.5;
+  double r = 1.0;
   void initialize(int N, BoundaryCondition bc) override;
   bool is_in_domain(const PointVec& a) const override;
   std::unique_ptr<Boundary> clone() const override {
