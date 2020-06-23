@@ -32,203 +32,203 @@ void check_solve_err(const Kernel& kernel, Boundary* boundary) {
 }
 
 
-// TEST(IeSolverTest, LaplaceCircleBackwardError) {
-//   srand(0);
-//   std::unique_ptr<Boundary> boundary =
-//     std::unique_ptr<Boundary>(new Circle());
-//   boundary->initialize(pow(2, 10),  BoundaryCondition::SINGLE_ELECTRON);
-//   Kernel kernel(1, 2, Kernel::Pde::LAPLACE, boundary.get(),
-//                 std::vector <double>());
-//   check_solve_err(kernel, boundary.get());
-// }
+TEST(IeSolverTest, LaplaceCircleBackwardError) {
+  srand(0);
+  std::unique_ptr<Boundary> boundary =
+    std::unique_ptr<Boundary>(new Circle());
+  boundary->initialize(pow(2, 10),  BoundaryCondition::SINGLE_ELECTRON);
+  Kernel kernel(1, 2, Kernel::Pde::LAPLACE, boundary.get(),
+                std::vector <double>());
+  check_solve_err(kernel, boundary.get());
+}
 
 
-// TEST(IeSolverTest, LaplaceNeumannCircleBackwardError) {
-//   srand(0);
-//   std::unique_ptr<Boundary> boundary =
-//     std::unique_ptr<Boundary>(new Circle());
-//   boundary->initialize(pow(2, 10),  BoundaryCondition::ALL_ONES);
-//   Kernel kernel(1, 2, Kernel::Pde::LAPLACE_NEUMANN, boundary.get(),
-//                 std::vector <double>());
-//   check_solve_err(kernel, boundary.get());
-// }
+TEST(IeSolverTest, LaplaceNeumannCircleBackwardError) {
+  srand(0);
+  std::unique_ptr<Boundary> boundary =
+    std::unique_ptr<Boundary>(new Circle());
+  boundary->initialize(pow(2, 10),  BoundaryCondition::ALL_ONES);
+  Kernel kernel(1, 2, Kernel::Pde::LAPLACE_NEUMANN, boundary.get(),
+                std::vector <double>());
+  check_solve_err(kernel, boundary.get());
+}
 
 
-// TEST(IeSolverTest, StokesCircleBackwardError) {
-//   srand(0);
-//   std::unique_ptr<Boundary> boundary =
-//     std::unique_ptr<Boundary>(new Circle());
-//   boundary->initialize(pow(2, 10),  BoundaryCondition::TANGENT_VEC);
-//   Kernel kernel(2, 2, Kernel::Pde::STOKES, boundary.get(),
-//                 std::vector <double>());
-//   check_solve_err(kernel, boundary.get());
-// }
+TEST(IeSolverTest, StokesCircleBackwardError) {
+  srand(0);
+  std::unique_ptr<Boundary> boundary =
+    std::unique_ptr<Boundary>(new Circle());
+  boundary->initialize(pow(2, 10),  BoundaryCondition::TANGENT_VEC);
+  Kernel kernel(2, 2, Kernel::Pde::STOKES, boundary.get(),
+                std::vector <double>());
+  check_solve_err(kernel, boundary.get());
+}
 
 
-// TEST(IeSolverTest, LaplaceStarfishBackwardError) {
-//   srand(0);
-//   std::unique_ptr<Boundary> boundary =
-//     std::unique_ptr<Boundary>(new CubicSpline());
-//   boundary->initialize(pow(2, 10),  BoundaryCondition::SINGLE_ELECTRON);
-//   Kernel kernel(1, 2, Kernel::Pde::LAPLACE, boundary.get(),
-//                 std::vector <double>());
-//   check_solve_err(kernel, boundary.get());
-// }
+TEST(IeSolverTest, LaplaceStarfishBackwardError) {
+  srand(0);
+  std::unique_ptr<Boundary> boundary =
+    std::unique_ptr<Boundary>(new CubicSpline());
+  boundary->initialize(pow(2, 10),  BoundaryCondition::SINGLE_ELECTRON);
+  Kernel kernel(1, 2, Kernel::Pde::LAPLACE, boundary.get(),
+                std::vector <double>());
+  check_solve_err(kernel, boundary.get());
+}
 
 
-// TEST(IeSolverTest, LaplaceNeumannStarfishBackwardError) {
-//   srand(0);
-//   std::unique_ptr<Boundary> boundary =
-//     std::unique_ptr<Boundary>(new CubicSpline());
-//   boundary->initialize(pow(2, 10),  BoundaryCondition::ALL_ONES);
-//   Kernel kernel(1, 2, Kernel::Pde::LAPLACE_NEUMANN, boundary.get(),
-//                 std::vector <double>());
-//   check_solve_err(kernel, boundary.get());
-// }
+TEST(IeSolverTest, LaplaceNeumannStarfishBackwardError) {
+  srand(0);
+  std::unique_ptr<Boundary> boundary =
+    std::unique_ptr<Boundary>(new CubicSpline());
+  boundary->initialize(pow(2, 10),  BoundaryCondition::ALL_ONES);
+  Kernel kernel(1, 2, Kernel::Pde::LAPLACE_NEUMANN, boundary.get(),
+                std::vector <double>());
+  check_solve_err(kernel, boundary.get());
+}
 
 
-// TEST(IeSolverTest, StokesStarfishBackwardError) {
-//   srand(0);
-//   std::unique_ptr<Boundary> boundary =
-//     std::unique_ptr<Boundary>(new CubicSpline());
-//   boundary->initialize(pow(2, 10),  BoundaryCondition::TANGENT_VEC);
-//   Kernel kernel(2, 2, Kernel::Pde::STOKES, boundary.get(),
-//                 std::vector <double>());
-//   check_solve_err(kernel, boundary.get());
-// }
-
-
-
-// TEST(IeSolverTest, LaplaceAnnulusBackwardError) {
-//   srand(0);
-//   std::unique_ptr<Boundary> boundary =
-//     std::unique_ptr<Boundary>(new Annulus());
-//   boundary->initialize(pow(2, 10),  BoundaryCondition::SINGLE_ELECTRON);
-//   Kernel kernel(1, 2, Kernel::Pde::LAPLACE, boundary.get(),
-//                 std::vector <double>());
-//   check_solve_err(kernel, boundary.get());
-// }
-
-
-// TEST(IeSolverTest, LaplaceNeumannAnnulusBackwardError) {
-//   srand(0);
-//   std::unique_ptr<Boundary> boundary =
-//     std::unique_ptr<Boundary>(new Annulus());
-//   boundary->initialize(pow(2, 10),  BoundaryCondition::DEFAULT);
-//   Kernel kernel(1, 2, Kernel::Pde::LAPLACE_NEUMANN, boundary.get(),
-//                 std::vector <double>());
-//   check_solve_err(kernel, boundary.get());
-// }
-
-
-// TEST(IeSolverTest, StokesAnnulusBackwardError) {
-//   srand(0);
-//   std::unique_ptr<Boundary> boundary =
-//     std::unique_ptr<Boundary>(new Annulus());
-//   boundary->initialize(pow(2, 10),  BoundaryCondition::TANGENT_VEC);
-//   Kernel kernel(2, 2, Kernel::Pde::STOKES, boundary.get(),
-//                 std::vector <double>());
-//   check_solve_err(kernel, boundary.get());
-// }
-
-// TEST(IeSolverTest, BigLaplaceCircleBackwardError) {
-//   srand(0);
-//   std::unique_ptr<Boundary> boundary =
-//     std::unique_ptr<Boundary>(new Circle());
-//   boundary->initialize(pow(2, 13),  BoundaryCondition::SINGLE_ELECTRON);
-//   Kernel kernel(1, 2, Kernel::Pde::LAPLACE, boundary.get(),
-//                 std::vector <double>());
-//   check_solve_err(kernel, boundary.get());
-// }
-
-
-// TEST(IeSolverTest, BigLaplaceNeumannCircleBackwardError) {
-//   srand(0);
-//   std::unique_ptr<Boundary> boundary =
-//     std::unique_ptr<Boundary>(new Circle());
-//   boundary->initialize(pow(2, 13),  BoundaryCondition::ALL_ONES);
-//   Kernel kernel(1, 2, Kernel::Pde::LAPLACE_NEUMANN, boundary.get(),
-//                 std::vector <double>());
-//   check_solve_err(kernel, boundary.get());
-// }
-
-
-// TEST(IeSolverTest, BigStokesCircleBackwardError) {
-//   srand(0);
-//   std::unique_ptr<Boundary> boundary =
-//     std::unique_ptr<Boundary>(new Circle());
-//   boundary->initialize(pow(2, 13),  BoundaryCondition::TANGENT_VEC);
-//   Kernel kernel(2, 2, Kernel::Pde::STOKES, boundary.get(),
-//                 std::vector <double>());
-//   check_solve_err(kernel, boundary.get());
-// }
-
-
-// TEST(IeSolverTest, BigLaplaceStarfishBackwardError) {
-//   srand(0);
-//   std::unique_ptr<Boundary> boundary =
-//     std::unique_ptr<Boundary>(new CubicSpline());
-//   boundary->initialize(pow(2, 13),  BoundaryCondition::SINGLE_ELECTRON);
-//   Kernel kernel(1, 2, Kernel::Pde::LAPLACE, boundary.get(),
-//                 std::vector <double>());
-//   check_solve_err(kernel, boundary.get());
-// }
-
-
-// TEST(IeSolverTest, BigLaplaceNeumannStarfishBackwardError) {
-//   srand(0);
-//   std::unique_ptr<Boundary> boundary =
-//     std::unique_ptr<Boundary>(new CubicSpline());
-//   boundary->initialize(pow(2, 13),  BoundaryCondition::ALL_ONES);
-//   Kernel kernel(1, 2, Kernel::Pde::LAPLACE_NEUMANN, boundary.get(),
-//                 std::vector <double>());
-//   check_solve_err(kernel, boundary.get());
-// }
-
-
-// TEST(IeSolverTest, BigStokesStarfishBackwardError) {
-//   srand(0);
-//   std::unique_ptr<Boundary> boundary =
-//     std::unique_ptr<Boundary>(new CubicSpline());
-//   boundary->initialize(pow(2, 13),  BoundaryCondition::TANGENT_VEC);
-//   Kernel kernel(2, 2, Kernel::Pde::STOKES, boundary.get(),
-//                 std::vector <double>());
-//   check_solve_err(kernel, boundary.get());
-// }
+TEST(IeSolverTest, StokesStarfishBackwardError) {
+  srand(0);
+  std::unique_ptr<Boundary> boundary =
+    std::unique_ptr<Boundary>(new CubicSpline());
+  boundary->initialize(pow(2, 10),  BoundaryCondition::TANGENT_VEC);
+  Kernel kernel(2, 2, Kernel::Pde::STOKES, boundary.get(),
+                std::vector <double>());
+  check_solve_err(kernel, boundary.get());
+}
 
 
 
-// TEST(IeSolverTest, BigLaplaceAnnulusBackwardError) {
-//   srand(0);
-//   std::unique_ptr<Boundary> boundary =
-//     std::unique_ptr<Boundary>(new Annulus());
-//   boundary->initialize(pow(2, 13),  BoundaryCondition::SINGLE_ELECTRON);
-//   Kernel kernel(1, 2, Kernel::Pde::LAPLACE, boundary.get(),
-//                 std::vector <double>());
-//   check_solve_err(kernel, boundary.get());
-// }
+TEST(IeSolverTest, LaplaceAnnulusBackwardError) {
+  srand(0);
+  std::unique_ptr<Boundary> boundary =
+    std::unique_ptr<Boundary>(new Annulus());
+  boundary->initialize(pow(2, 10),  BoundaryCondition::SINGLE_ELECTRON);
+  Kernel kernel(1, 2, Kernel::Pde::LAPLACE, boundary.get(),
+                std::vector <double>());
+  check_solve_err(kernel, boundary.get());
+}
 
 
-// TEST(IeSolverTest, BigLaplaceNeumannAnnulusBackwardError) {
-//   srand(0);
-//   std::unique_ptr<Boundary> boundary =
-//     std::unique_ptr<Boundary>(new Annulus());
-//   boundary->initialize(pow(2, 13),  BoundaryCondition::DEFAULT);
-//   Kernel kernel(1, 2, Kernel::Pde::LAPLACE_NEUMANN, boundary.get(),
-//                 std::vector <double>());
-//   check_solve_err(kernel, boundary.get());
-// }
+TEST(IeSolverTest, LaplaceNeumannAnnulusBackwardError) {
+  srand(0);
+  std::unique_ptr<Boundary> boundary =
+    std::unique_ptr<Boundary>(new Annulus());
+  boundary->initialize(pow(2, 10),  BoundaryCondition::DEFAULT);
+  Kernel kernel(1, 2, Kernel::Pde::LAPLACE_NEUMANN, boundary.get(),
+                std::vector <double>());
+  check_solve_err(kernel, boundary.get());
+}
 
 
-// TEST(IeSolverTest, BigStokesAnnulusBackwardError) {
-//   srand(0);
-//   std::unique_ptr<Boundary> boundary =
-//     std::unique_ptr<Boundary>(new Annulus());
-//   boundary->initialize(pow(2, 13),  BoundaryCondition::TANGENT_VEC);
-//   Kernel kernel(2, 2, Kernel::Pde::STOKES, boundary.get(),
-//                 std::vector <double>());
-//   check_solve_err(kernel, boundary.get());
-// }
+TEST(IeSolverTest, StokesAnnulusBackwardError) {
+  srand(0);
+  std::unique_ptr<Boundary> boundary =
+    std::unique_ptr<Boundary>(new Annulus());
+  boundary->initialize(pow(2, 10),  BoundaryCondition::TANGENT_VEC);
+  Kernel kernel(2, 2, Kernel::Pde::STOKES, boundary.get(),
+                std::vector <double>());
+  check_solve_err(kernel, boundary.get());
+}
+
+TEST(IeSolverTest, BigLaplaceCircleBackwardError) {
+  srand(0);
+  std::unique_ptr<Boundary> boundary =
+    std::unique_ptr<Boundary>(new Circle());
+  boundary->initialize(pow(2, 13),  BoundaryCondition::SINGLE_ELECTRON);
+  Kernel kernel(1, 2, Kernel::Pde::LAPLACE, boundary.get(),
+                std::vector <double>());
+  check_solve_err(kernel, boundary.get());
+}
+
+
+TEST(IeSolverTest, BigLaplaceNeumannCircleBackwardError) {
+  srand(0);
+  std::unique_ptr<Boundary> boundary =
+    std::unique_ptr<Boundary>(new Circle());
+  boundary->initialize(pow(2, 13),  BoundaryCondition::ALL_ONES);
+  Kernel kernel(1, 2, Kernel::Pde::LAPLACE_NEUMANN, boundary.get(),
+                std::vector <double>());
+  check_solve_err(kernel, boundary.get());
+}
+
+
+TEST(IeSolverTest, BigStokesCircleBackwardError) {
+  srand(0);
+  std::unique_ptr<Boundary> boundary =
+    std::unique_ptr<Boundary>(new Circle());
+  boundary->initialize(pow(2, 13),  BoundaryCondition::TANGENT_VEC);
+  Kernel kernel(2, 2, Kernel::Pde::STOKES, boundary.get(),
+                std::vector <double>());
+  check_solve_err(kernel, boundary.get());
+}
+
+
+TEST(IeSolverTest, BigLaplaceStarfishBackwardError) {
+  srand(0);
+  std::unique_ptr<Boundary> boundary =
+    std::unique_ptr<Boundary>(new CubicSpline());
+  boundary->initialize(pow(2, 13),  BoundaryCondition::SINGLE_ELECTRON);
+  Kernel kernel(1, 2, Kernel::Pde::LAPLACE, boundary.get(),
+                std::vector <double>());
+  check_solve_err(kernel, boundary.get());
+}
+
+
+TEST(IeSolverTest, BigLaplaceNeumannStarfishBackwardError) {
+  srand(0);
+  std::unique_ptr<Boundary> boundary =
+    std::unique_ptr<Boundary>(new CubicSpline());
+  boundary->initialize(pow(2, 13),  BoundaryCondition::ALL_ONES);
+  Kernel kernel(1, 2, Kernel::Pde::LAPLACE_NEUMANN, boundary.get(),
+                std::vector <double>());
+  check_solve_err(kernel, boundary.get());
+}
+
+
+TEST(IeSolverTest, BigStokesStarfishBackwardError) {
+  srand(0);
+  std::unique_ptr<Boundary> boundary =
+    std::unique_ptr<Boundary>(new CubicSpline());
+  boundary->initialize(pow(2, 13),  BoundaryCondition::TANGENT_VEC);
+  Kernel kernel(2, 2, Kernel::Pde::STOKES, boundary.get(),
+                std::vector <double>());
+  check_solve_err(kernel, boundary.get());
+}
+
+
+
+TEST(IeSolverTest, BigLaplaceAnnulusBackwardError) {
+  srand(0);
+  std::unique_ptr<Boundary> boundary =
+    std::unique_ptr<Boundary>(new Annulus());
+  boundary->initialize(pow(2, 13),  BoundaryCondition::SINGLE_ELECTRON);
+  Kernel kernel(1, 2, Kernel::Pde::LAPLACE, boundary.get(),
+                std::vector <double>());
+  check_solve_err(kernel, boundary.get());
+}
+
+
+TEST(IeSolverTest, BigLaplaceNeumannAnnulusBackwardError) {
+  srand(0);
+  std::unique_ptr<Boundary> boundary =
+    std::unique_ptr<Boundary>(new Annulus());
+  boundary->initialize(pow(2, 13),  BoundaryCondition::DEFAULT);
+  Kernel kernel(1, 2, Kernel::Pde::LAPLACE_NEUMANN, boundary.get(),
+                std::vector <double>());
+  check_solve_err(kernel, boundary.get());
+}
+
+
+TEST(IeSolverTest, BigStokesAnnulusBackwardError) {
+  srand(0);
+  std::unique_ptr<Boundary> boundary =
+    std::unique_ptr<Boundary>(new Annulus());
+  boundary->initialize(pow(2, 13),  BoundaryCondition::TANGENT_VEC);
+  Kernel kernel(2, 2, Kernel::Pde::STOKES, boundary.get(),
+                std::vector <double>());
+  check_solve_err(kernel, boundary.get());
+}
 
 
 double laplace_error(const ki_Mat& domain,
@@ -253,27 +253,27 @@ double laplace_error(const ki_Mat& domain,
 }
 
 
-// double laplace_error3d(const ki_Mat& domain,
-//                      const std::vector<double>& domain_points,
-//                      Boundary * boundary) {
-//   double diff_norm = 0;
-//   double norm_of_true = 0;
-//   for (int i = 0; i < domain_points.size(); i += 3) {
-//     double x0 = domain_points[i];
-//     double x1 = domain_points[i + 1];
-//     double x2 = domain_points[i + 2];
-//     PointVec x(x0, x1, x2);
-//     if (!boundary->is_in_domain(x)) {
-//       continue;
-//     }
-//     double potential = -1.0/(4.0*M_PI*sqrt(pow(x0 + 3, 2) + pow(x1 + 2, 2) + pow(x2 + 2, 2)));
+double laplace_error3d(const ki_Mat& domain,
+                     const std::vector<double>& domain_points,
+                     Boundary * boundary) {
+  double diff_norm = 0;
+  double norm_of_true = 0;
+  for (int i = 0; i < domain_points.size(); i += 3) {
+    double x0 = domain_points[i];
+    double x1 = domain_points[i + 1];
+    double x2 = domain_points[i + 2];
+    PointVec x(x0, x1, x2);
+    if (!boundary->is_in_domain(x)) {
+      continue;
+    }
+    double potential = -1.0/(4.0*M_PI*sqrt(pow(x0 + 3, 2) + pow(x1 + 2, 2) + pow(x2 + 2, 2)));
 
-//     diff_norm += pow(potential - domain.get(i / 3, 0), 2);
-//     norm_of_true += pow(potential, 2);
-//   }
-//   diff_norm = sqrt(diff_norm) / sqrt(norm_of_true);
-//   return diff_norm;
-// }
+    diff_norm += pow(potential - domain.get(i / 3, 0), 2);
+    norm_of_true += pow(potential, 2);
+  }
+  diff_norm = sqrt(diff_norm) / sqrt(norm_of_true);
+  return diff_norm;
+}
 
 double laplace_neumann_error(const ki_Mat& domain,
                              const std::vector<double>& domain_points,
@@ -315,48 +315,60 @@ double laplace_neumann_error(const ki_Mat& domain,
 }
 
 
-// TEST(IeSolverTest, LaplaceCircleAnalyticAgreementElectron) {
-//   srand(0);
-//   std::unique_ptr<Boundary> boundary =
-//     std::unique_ptr<Boundary>(new Circle());
-//   boundary->initialize(pow(2, 12),  BoundaryCondition::SINGLE_ELECTRON);
-//   QuadTree quadtree;
-//   quadtree.initialize_tree(boundary.get(), 1, 2);
-//   std::vector<double> domain_points;
-//   get_domain_points(20, &domain_points, quadtree.min,
-//                     quadtree.max, quadtree.min,
-//                     quadtree.max);
-//   Kernel kernel(1, 2, Kernel::Pde::LAPLACE, boundary.get(), domain_points);
-//   ki_Mat sol = boundary_integral_solve(kernel, *(boundary.get()), &quadtree,
-//                                        1e-13, 4, domain_points);
-//   double err = laplace_error(sol, domain_points, boundary.get());
-//   EXPECT_LE(err, 10 * 1e-13);
-// }
+TEST(IeSolverTest, LaplaceCircleAnalyticAgreementElectron) {
+  srand(0);
+  std::unique_ptr<Boundary> boundary =
+    std::unique_ptr<Boundary>(new Circle());
+  boundary->initialize(pow(2, 12),  BoundaryCondition::SINGLE_ELECTRON);
+  QuadTree quadtree;
+  quadtree.initialize_tree(boundary.get(), 1, 2);
+  std::vector<double> domain_points;
+  get_domain_points(20, &domain_points, quadtree.min,
+                    quadtree.max, quadtree.min,
+                    quadtree.max);
+  Kernel kernel(1, 2, Kernel::Pde::LAPLACE, boundary.get(), domain_points);
+  ki_Mat sol = boundary_integral_solve(kernel, *(boundary.get()), &quadtree,
+                                       1e-13, 4, domain_points);
+  double err = laplace_error(sol, domain_points, boundary.get());
+  EXPECT_LE(err, 10 * 1e-13);
+}
 
 
-// TEST(IeSolverTest, LaplaceSphereAnalyticAgreementElectron) {
-//   srand(0);
-//   int num_threads = 4;
-//   double id_tol=1e-6;
-//   std::unique_ptr<Boundary> boundary =
-//     std::unique_ptr<Boundary>(new Sphere());
-//   boundary->initialize(pow(2, 7),  BoundaryCondition::ELECTRON_3D);
+TEST(IeSolverTest, LaplaceSphereAnalyticAgreementElectron) {
+  srand(0);
+  int num_threads = 4;
+  double id_tol=1e-6;
+  std::unique_ptr<Boundary> boundary =
+    std::unique_ptr<Boundary>(new Sphere());
+  boundary->initialize(pow(2, 7),  BoundaryCondition::ELECTRON_3D);
 
-//   QuadTree quadtree;
-//   quadtree.initialize_tree(boundary.get(), 1, 3);
-//   std::vector<double> domain_points;
-//   get_domain_points3d(5, &domain_points, quadtree.min,
-//                     quadtree.max);
-//   Kernel kernel(1, 3, Kernel::Pde::LAPLACE, boundary.get(), domain_points);
+  QuadTree quadtree;
+  quadtree.initialize_tree(boundary.get(), 1, 3);
+  std::vector<double> old_domain_points, domain_points;
+  
+  get_domain_points3d(5, &old_domain_points, quadtree.min,
+                    quadtree.max);
 
-//   kernel.compute_diag_entries_3dlaplace(boundary.get());
+  // TODO(John) get_domain_points needs to deal with this
+  for(int i=0; i<old_domain_points.size(); i+=3){
+    if(boundary->is_in_domain(PointVec(old_domain_points[i],
+                                      old_domain_points[i+1],
+                                      old_domain_points[i+2] ))){
+      domain_points.push_back(old_domain_points[i]);
+      domain_points.push_back(old_domain_points[i+1]);
+      domain_points.push_back(old_domain_points[i+2]);
+    }
+  }
+  Kernel kernel(1, 3, Kernel::Pde::LAPLACE, boundary.get(), domain_points);
 
-//   ki_Mat sol = boundary_integral_solve(kernel, *(boundary.get()), &quadtree,
-//                                        id_tol, num_threads, domain_points);
+  kernel.compute_diag_entries_3dlaplace(boundary.get());
 
-//   double err = laplace_error3d(sol, domain_points, boundary.get());
-//   EXPECT_LE(err, 10 * 1e-6);
-// }
+  ki_Mat sol = boundary_integral_solve(kernel, *(boundary.get()), &quadtree,
+                                       id_tol, num_threads, domain_points);
+
+  double err = laplace_error3d(sol, domain_points, boundary.get());
+  EXPECT_LE(err, 10 * 1e-6);
+}
 
 
 TEST(IeSolverTest, StokesSphereAnalyticAgreement) {
@@ -367,13 +379,7 @@ TEST(IeSolverTest, StokesSphereAnalyticAgreement) {
   std::unique_ptr<Boundary> boundary =
     std::unique_ptr<Boundary>(new Sphere());
 
-  // Hole hole;
-  // hole.center = PointVec(0.5,0.5,0.5);
-  // hole.radius = 0.1;
-  // boundary->holes.push_back(hole);
-
   boundary->initialize(pow(2,7),  BoundaryCondition::STOKES_3D);
-  std::cout<<"Num points "<<boundary->weights.size()<<std::endl;
   QuadTree quadtree;
   quadtree.initialize_tree(boundary.get(), 3, 3);
   std::vector<double> old_domain_points, domain_points;
@@ -403,179 +409,179 @@ TEST(IeSolverTest, StokesSphereAnalyticAgreement) {
 }
 
 
-// TEST(IeSolverTest, LaplaceAnnulusAnalyticAgreementElectron) {
-//   srand(0);
-//   std::unique_ptr<Boundary> boundary =
-//     std::unique_ptr<Boundary>(new Annulus());
-//   boundary->initialize(pow(2, 12),  BoundaryCondition::SINGLE_ELECTRON);
-//   QuadTree quadtree;
-//   quadtree.initialize_tree(boundary.get(), 1, 2);
-//   std::vector<double> domain_points;
-//   get_domain_points(20, &domain_points, quadtree.min,
-//                     quadtree.max, quadtree.min,
-//                     quadtree.max);
-//   Kernel kernel(1, 2, Kernel::Pde::LAPLACE, boundary.get(), domain_points);
-//   ki_Mat sol = boundary_integral_solve(kernel, *(boundary.get()), &quadtree,
-//                                        1e-13,
-//                                        4, domain_points);
-//   double err = laplace_error(sol, domain_points, boundary.get());
-//   EXPECT_LE(err, 10 * 1e-13);
-// }
+TEST(IeSolverTest, LaplaceAnnulusAnalyticAgreementElectron) {
+  srand(0);
+  std::unique_ptr<Boundary> boundary =
+    std::unique_ptr<Boundary>(new Annulus());
+  boundary->initialize(pow(2, 12),  BoundaryCondition::SINGLE_ELECTRON);
+  QuadTree quadtree;
+  quadtree.initialize_tree(boundary.get(), 1, 2);
+  std::vector<double> domain_points;
+  get_domain_points(20, &domain_points, quadtree.min,
+                    quadtree.max, quadtree.min,
+                    quadtree.max);
+  Kernel kernel(1, 2, Kernel::Pde::LAPLACE, boundary.get(), domain_points);
+  ki_Mat sol = boundary_integral_solve(kernel, *(boundary.get()), &quadtree,
+                                       1e-13,
+                                       4, domain_points);
+  double err = laplace_error(sol, domain_points, boundary.get());
+  EXPECT_LE(err, 10 * 1e-13);
+}
 
 
-// TEST(IeSolverTest, LaplaceNeumannDonutAnalyticAgreement) {
-//   srand(0);
-//   std::unique_ptr<Boundary> boundary =
-//     std::unique_ptr<Boundary>(new Donut());
-//   boundary->initialize(pow(2, 12),  BoundaryCondition::DEFAULT);
+TEST(IeSolverTest, LaplaceNeumannDonutAnalyticAgreement) {
+  srand(0);
+  std::unique_ptr<Boundary> boundary =
+    std::unique_ptr<Boundary>(new Donut());
+  boundary->initialize(pow(2, 12),  BoundaryCondition::DEFAULT);
 
-//   //TODO(John) fix this hack
-//   int hole_nodes = pow(2, 12) / 5;
-//   int num_points = pow(2, 12) + hole_nodes * 1;
+  //TODO(John) fix this hack
+  int hole_nodes = pow(2, 12) / 5;
+  int num_points = pow(2, 12) + hole_nodes * 1;
 
-//   boundary->boundary_values = ki_Mat(num_points, 1);
-//   for (int i = 0; i < pow(2, 12); i++) {
-//      boundary->boundary_values.set(i, 0, 1);
-//   }
-//   for (int i = pow(2, 12); i < num_points; i++) {
-//      boundary->boundary_values.set(i, 0, -2.);
-//   }
+  boundary->boundary_values = ki_Mat(num_points, 1);
+  for (int i = 0; i < pow(2, 12); i++) {
+     boundary->boundary_values.set(i, 0, 1);
+  }
+  for (int i = pow(2, 12); i < num_points; i++) {
+     boundary->boundary_values.set(i, 0, -2.);
+  }
 
-//   QuadTree quadtree;
-//   quadtree.initialize_tree(boundary.get(), 1, 2);
-//   std::vector<double> domain_points;
-//   get_domain_points(20, &domain_points, quadtree.min,
-//                     quadtree.max, quadtree.min,
-//                     quadtree.max);
-//   Kernel kernel(1, 2, Kernel::Pde::LAPLACE_NEUMANN, boundary.get(),
-//                 domain_points);
-//   ki_Mat sol = boundary_integral_solve(kernel, *(boundary.get()), &quadtree,
-//                                        1e-13,
-//                                        4, domain_points);
-//   double err = laplace_neumann_error(sol, domain_points, boundary.get());
-//   EXPECT_LE(err, 10 * 1e-13);
-// }
-
-
-// TEST(IeSolverTest, StokesCircleAnalyticAgreementTangent) {
-//   srand(0);
-//   std::unique_ptr<Boundary> boundary =
-//     std::unique_ptr<Boundary>(new Circle());
-//   boundary->initialize(pow(2, 12),  BoundaryCondition::TANGENT_VEC);
-//   QuadTree quadtree;
-//   quadtree.initialize_tree(boundary.get(), 2, 2);
-//   std::vector<double> domain_points;
-//   get_domain_points(20, &domain_points, quadtree.min,
-//                     quadtree.max, quadtree.min,
-//                     quadtree.max);
-//   Kernel kernel(2, 2, Kernel::Pde::STOKES, boundary.get(), domain_points);
-//   ki_Mat sol = boundary_integral_solve(kernel, *(boundary.get()), &quadtree,
-//                                        1e-13,
-//                                        4, domain_points);
-//   ki_Mat stokes_sol = stokes_true_sol(domain_points, boundary.get(), -1, 2);
-
-//   double err = (stokes_sol - sol).vec_two_norm() / stokes_sol.vec_two_norm();
-//   EXPECT_LE(err, 10 * 1e-13);
-// }
+  QuadTree quadtree;
+  quadtree.initialize_tree(boundary.get(), 1, 2);
+  std::vector<double> domain_points;
+  get_domain_points(20, &domain_points, quadtree.min,
+                    quadtree.max, quadtree.min,
+                    quadtree.max);
+  Kernel kernel(1, 2, Kernel::Pde::LAPLACE_NEUMANN, boundary.get(),
+                domain_points);
+  ki_Mat sol = boundary_integral_solve(kernel, *(boundary.get()), &quadtree,
+                                       1e-13,
+                                       4, domain_points);
+  double err = laplace_neumann_error(sol, domain_points, boundary.get());
+  EXPECT_LE(err, 10 * 1e-13);
+}
 
 
-// TEST(IeSolverTest, StokesDonutAnalyticAgreementTangent) {
-//   srand(0);
-//   std::unique_ptr<Boundary> boundary =
-//     std::unique_ptr<Boundary>(new Donut());
-//   boundary->initialize(pow(2, 12),  BoundaryCondition::TANGENT_VEC);
-//   QuadTree quadtree;
-//   quadtree.initialize_tree(boundary.get(), 2, 2);
-//   std::vector<double> domain_points;
-//   get_domain_points(20, &domain_points, quadtree.min,
-//                     quadtree.max, quadtree.min, quadtree.max);
-//   Kernel kernel(2, 2, Kernel::Pde::STOKES, boundary.get(), domain_points);
-//   ki_Mat sol = boundary_integral_solve(kernel, *(boundary.get()), &quadtree,
-//                                        1e-13,
-//                                        4, domain_points);
-//   ki_Mat stokes_sol = stokes_true_sol(domain_points, boundary.get(), -1, 2);
+TEST(IeSolverTest, StokesCircleAnalyticAgreementTangent) {
+  srand(0);
+  std::unique_ptr<Boundary> boundary =
+    std::unique_ptr<Boundary>(new Circle());
+  boundary->initialize(pow(2, 12),  BoundaryCondition::TANGENT_VEC);
+  QuadTree quadtree;
+  quadtree.initialize_tree(boundary.get(), 2, 2);
+  std::vector<double> domain_points;
+  get_domain_points(20, &domain_points, quadtree.min,
+                    quadtree.max, quadtree.min,
+                    quadtree.max);
+  Kernel kernel(2, 2, Kernel::Pde::STOKES, boundary.get(), domain_points);
+  ki_Mat sol = boundary_integral_solve(kernel, *(boundary.get()), &quadtree,
+                                       1e-13,
+                                       4, domain_points);
+  ki_Mat stokes_sol = stokes_true_sol(domain_points, boundary.get(), -1, 2);
 
-//   double err = (stokes_sol - sol).vec_two_norm() / stokes_sol.vec_two_norm();
-//   EXPECT_LE(err, 10 * 1e-13);
-// }
-
-
-// TEST(IeSolverTest, Ex3UpdateLosesNoAcc) {
-//   double id_tol = 1e-6;
-//   Kernel::Pde pde = Kernel::Pde::STOKES;
-//   int num_boundary_points = pow(2, 12);
-//   int domain_size = 20;
-//   int domain_dimension = 2;
-//   int solution_dimension = 2;
-//   int fact_threads = 4;
-
-//   std::unique_ptr<Boundary> boundary =
-//     std::unique_ptr<Boundary>(new Ex3Boundary());
-//   boundary->initialize(num_boundary_points,
-//                        BoundaryCondition::EX3B);
-//   QuadTree quadtree;
-//   quadtree.initialize_tree(boundary.get(), solution_dimension,
-//                            domain_dimension);
-//   std::vector<double> domain_points;
-//   get_domain_points(domain_size, &domain_points, quadtree.min,
-//                     quadtree.max, quadtree.min,
-//                     quadtree.max);
-//   Kernel kernel(solution_dimension, domain_dimension,
-//                 pde, boundary.get(), domain_points);
-
-//   for (int frame = 0; frame < 10; frame++) {
-//     double ang = (frame / 10.) * 2 * M_PI;
-
-//     boundary->perturbation_parameters[0] = ang;
-//     boundary->perturbation_parameters[1] = ang + M_PI;
-//     boundary->initialize(num_boundary_points, BoundaryCondition::EX3B);
-//     quadtree.perturb(*boundary.get());
-//     kernel.update_data(boundary.get());
-//     ki_Mat solution = boundary_integral_solve(kernel, *(boundary.get()),
-//                       &quadtree, id_tol, fact_threads, domain_points);
-
-//     QuadTree fresh;
-//     fresh.initialize_tree(boundary.get(), 2,  2);
-//     ki_Mat new_sol = boundary_integral_solve(kernel, *(boundary.get()), &fresh,
-//                      id_tol, fact_threads, domain_points);
-
-//     ASSERT_LE((new_sol - solution).vec_two_norm() / new_sol.vec_two_norm(),
-//               20 * id_tol);
-//   }
-// }
+  double err = (stokes_sol - sol).vec_two_norm() / stokes_sol.vec_two_norm();
+  EXPECT_LE(err, 10 * 1e-13);
+}
 
 
-// TEST(IeSolverTest, TreeCopyGivesSameAnswer) {
-//   double id_tol = 1e-6;
-//   Kernel::Pde pde = Kernel::Pde::STOKES;
-//   int num_boundary_points = pow(2, 12);
-//   int domain_size = 20;
-//   int domain_dimension = 2;
-//   int solution_dimension = 2;
-//   int fact_threads = 4;
+TEST(IeSolverTest, StokesDonutAnalyticAgreementTangent) {
+  srand(0);
+  std::unique_ptr<Boundary> boundary =
+    std::unique_ptr<Boundary>(new Donut());
+  boundary->initialize(pow(2, 12),  BoundaryCondition::TANGENT_VEC);
+  QuadTree quadtree;
+  quadtree.initialize_tree(boundary.get(), 2, 2);
+  std::vector<double> domain_points;
+  get_domain_points(20, &domain_points, quadtree.min,
+                    quadtree.max, quadtree.min, quadtree.max);
+  Kernel kernel(2, 2, Kernel::Pde::STOKES, boundary.get(), domain_points);
+  ki_Mat sol = boundary_integral_solve(kernel, *(boundary.get()), &quadtree,
+                                       1e-13,
+                                       4, domain_points);
+  ki_Mat stokes_sol = stokes_true_sol(domain_points, boundary.get(), -1, 2);
 
-//   std::unique_ptr<Boundary> boundary =
-//     std::unique_ptr<Boundary>(new Ex1Boundary());
-//   boundary->initialize(num_boundary_points,
-//                        BoundaryCondition::DEFAULT);
-//   QuadTree quadtree;
-//   quadtree.initialize_tree(boundary.get(), solution_dimension,
-//                            domain_dimension);
-//   std::vector<double> domain_points;
-//   get_domain_points(domain_size, &domain_points, quadtree.min,
-//                     quadtree.max, quadtree.min,
-//                     quadtree.max);
-//   Kernel kernel(solution_dimension, domain_dimension,
-//                 pde, boundary.get(), domain_points);
-//   ki_Mat solution = boundary_integral_solve(kernel, *(boundary.get()),
-//                     &quadtree, id_tol, fact_threads, domain_points);
+  double err = (stokes_sol - sol).vec_two_norm() / stokes_sol.vec_two_norm();
+  EXPECT_LE(err, 10 * 1e-13);
+}
 
-//   QuadTree fresh;
-//   quadtree.copy_into(&fresh);
-//   ki_Mat new_sol = boundary_integral_solve(kernel, *(boundary.get()), &fresh,
-//                    id_tol,
-//                    fact_threads, domain_points);
-//   ASSERT_LE((new_sol - solution).vec_two_norm(), 1e-15);
-// }
+
+TEST(IeSolverTest, Ex3UpdateLosesNoAcc) {
+  double id_tol = 1e-6;
+  Kernel::Pde pde = Kernel::Pde::STOKES;
+  int num_boundary_points = pow(2, 12);
+  int domain_size = 20;
+  int domain_dimension = 2;
+  int solution_dimension = 2;
+  int fact_threads = 4;
+
+  std::unique_ptr<Boundary> boundary =
+    std::unique_ptr<Boundary>(new Ex3Boundary());
+  boundary->initialize(num_boundary_points,
+                       BoundaryCondition::EX3B);
+  QuadTree quadtree;
+  quadtree.initialize_tree(boundary.get(), solution_dimension,
+                           domain_dimension);
+  std::vector<double> domain_points;
+  get_domain_points(domain_size, &domain_points, quadtree.min,
+                    quadtree.max, quadtree.min,
+                    quadtree.max);
+  Kernel kernel(solution_dimension, domain_dimension,
+                pde, boundary.get(), domain_points);
+
+  for (int frame = 0; frame < 10; frame++) {
+    double ang = (frame / 10.) * 2 * M_PI;
+
+    boundary->perturbation_parameters[0] = ang;
+    boundary->perturbation_parameters[1] = ang + M_PI;
+    boundary->initialize(num_boundary_points, BoundaryCondition::EX3B);
+    quadtree.perturb(*boundary.get());
+    kernel.update_data(boundary.get());
+    ki_Mat solution = boundary_integral_solve(kernel, *(boundary.get()),
+                      &quadtree, id_tol, fact_threads, domain_points);
+
+    QuadTree fresh;
+    fresh.initialize_tree(boundary.get(), 2,  2);
+    ki_Mat new_sol = boundary_integral_solve(kernel, *(boundary.get()), &fresh,
+                     id_tol, fact_threads, domain_points);
+
+    ASSERT_LE((new_sol - solution).vec_two_norm() / new_sol.vec_two_norm(),
+              20 * id_tol);
+  }
+}
+
+
+TEST(IeSolverTest, TreeCopyGivesSameAnswer) {
+  double id_tol = 1e-6;
+  Kernel::Pde pde = Kernel::Pde::STOKES;
+  int num_boundary_points = pow(2, 12);
+  int domain_size = 20;
+  int domain_dimension = 2;
+  int solution_dimension = 2;
+  int fact_threads = 4;
+
+  std::unique_ptr<Boundary> boundary =
+    std::unique_ptr<Boundary>(new Ex1Boundary());
+  boundary->initialize(num_boundary_points,
+                       BoundaryCondition::DEFAULT);
+  QuadTree quadtree;
+  quadtree.initialize_tree(boundary.get(), solution_dimension,
+                           domain_dimension);
+  std::vector<double> domain_points;
+  get_domain_points(domain_size, &domain_points, quadtree.min,
+                    quadtree.max, quadtree.min,
+                    quadtree.max);
+  Kernel kernel(solution_dimension, domain_dimension,
+                pde, boundary.get(), domain_points);
+  ki_Mat solution = boundary_integral_solve(kernel, *(boundary.get()),
+                    &quadtree, id_tol, fact_threads, domain_points);
+
+  QuadTree fresh;
+  quadtree.copy_into(&fresh);
+  ki_Mat new_sol = boundary_integral_solve(kernel, *(boundary.get()), &fresh,
+                   id_tol,
+                   fact_threads, domain_points);
+  ASSERT_LE((new_sol - solution).vec_two_norm(), 1e-15);
+}
 
 }  // namespace kern_interp

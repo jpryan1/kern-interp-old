@@ -297,12 +297,19 @@ void get_domain_points(int domain_size, std::vector<double>* points,
 
 void get_domain_points3d(int domain_size, std::vector<double>* points,
                        double min, double max){
+
   for (int i = 0; i < domain_size; i++) {
-    double x = min + ((i + 0.0) / (domain_size - 1)) * (max - min);
+    double r = (0.9*(i/(domain_size + 0.)));
+    // double x = min + ((i + 0.0) / (domain_size - 1)) * (max - min);
     for (int j = 0; j < domain_size; j++) {
-      double y = min + ((j + 0.0) / (domain_size - 1)) * (max - min);
-      for (int k = 0; k < domain_size; k++) {
-        double z = min + ((k + 0.0) / (domain_size - 1)) * (max - min);
+      double theta = 2 * M_PI * (i / (domain_size+ 0.));
+      // double y = min + ((j + 0.0) / (domain_size - 1)) * (max - min);
+      for (int k = 1; k < domain_size-1; k++) {
+        double phi = M_PI * (i / (domain_size+0.));
+        // double z = min + ((k + 0.0) / (domain_size - 1)) * (max - min);
+        double x = 0.5 + r*sin(phi)*cos(theta);
+        double y = 0.5 + r*sin(phi)*sin(theta);
+        double z = 0.5 + r*cos(phi);
         points->push_back(x);
         points->push_back(y);
         points->push_back(z);
