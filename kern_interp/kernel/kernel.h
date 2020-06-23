@@ -96,7 +96,7 @@ struct Kernel {
                        const std::vector<int> & box_inds) const;
 
  
-  ki_Mat op3d(const std::vector<int>& tgt_inds,
+  ki_Mat get_3d(const std::vector<int>& tgt_inds,
                           const std::vector<int>& src_inds, bool forward) const;
   ki_Mat get_proxy_mat3d(std::vector<double> center,
                          double r, const QuadTree * tree,

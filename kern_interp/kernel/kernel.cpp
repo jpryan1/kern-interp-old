@@ -238,8 +238,8 @@ void Kernel::compute_diag_entries_3dstokes(Boundary* boundary){
     }
   }
 
-  int curr_idx = boundary->num_outer_nodes*domain_dimension;
 
+  int curr_idx = boundary->num_outer_nodes*domain_dimension;
   for(Hole hole : boundary->holes){
     #pragma omp parallel for num_threads(8)
     for(int dof =curr_idx; dof < curr_idx+hole.num_nodes*domain_dimension; dof++){
@@ -295,18 +295,14 @@ void Kernel::compute_diag_entries_3dstokes(Boundary* boundary){
         boundary_diag_tensors[pt_idx].set(p,s, tmp + boundary->weights[pt_idx]*tn[p]*tn[s]);
       }
     }
-
   }
-
-
-
 }
 
 
 ki_Mat Kernel::operator()(const std::vector<int>& tgt_inds,
                           const std::vector<int>& src_inds, bool forward) const {
   if(domain_dimension == 3){
-    return op3d(tgt_inds, src_inds, forward);
+    return get_3d(tgt_inds, src_inds, forward);
   }
   ki_Mat ret(tgt_inds.size(), src_inds.size());
   int olda_ = tgt_inds.size();
@@ -357,7 +353,7 @@ ki_Mat Kernel::operator()(const std::vector<int>& tgt_inds,
 }
 
 
-ki_Mat Kernel::op3d(const std::vector<int>& tgt_inds,
+ki_Mat Kernel::get_3d(const std::vector<int>& tgt_inds,
                           const std::vector<int>& src_inds, bool forward) const {
 
   ki_Mat ret(tgt_inds.size(), src_inds.size());

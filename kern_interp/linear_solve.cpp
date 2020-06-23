@@ -20,9 +20,9 @@ ki_Mat initialize_U_mat(const Kernel::Pde pde,
                         const std::vector<double>& tgt_points, int domain_dimension) {
   ki_Mat U;
   if (holes.size() == 0) return ki_Mat(0, 0);
+  // Get rid of magic numbers
   switch (pde) {
     case Kernel::Pde::LAPLACE: {
-
       if(domain_dimension == 3){
         U = ki_Mat(tgt_points.size() / 3, holes.size());
         for (int i = 0; i < tgt_points.size(); i += 3) {
@@ -207,8 +207,6 @@ void linear_solve(const SkelFactorization& skel_factorization,
   } else {
     *alpha = ki_Mat(quadtree.U.width(), 1);
     skel_factorization.multiply_connected_solve(quadtree, mu, alpha, f);
-    std::cout<<"alpha vals "<<alpha->get(0,0)<<" "<<alpha->get(1,0)<<" "<<alpha->get(2,0)<<
-    " "<<alpha->get(3,0)<<" "<<alpha->get(4,0)<<" "<<alpha->get(5,0)<<std::endl;
   }
 }
 
@@ -227,7 +225,10 @@ void schur_solve(const SkelFactorization & skel_factorization,
     *solution = K_domain * mu;
   } else {
     ki_Mat alpha;
+    double start = omp_get_wtime();
     linear_solve(skel_factorization, quadtree, f, &mu, &alpha);
+    double end = omp_get_wtime();
+    std::cout<<"solve "<<end-start<<std::endl;
     *solution = (K_domain * mu) + (U_forward * alpha);
   }
 }
@@ -357,8 +358,6 @@ double solve_err(const Kernel& kernel, Boundary* boundary, double id_tol) {
                         all_dofs.size(), dense.width(), -ident);
 
     ki_Mat fzero_prime = dense * stacked;
-    std::cout<<"Dense size is "<<dense.height()<<" "<<dense.width()<<std::endl;
-    // std::cout<<"Dense cond is "<<dense.condition_number()<<std::endl;
 
     ki_Mat err1 = (fzero_prime(0, mu.height(), 0, 1)
                    - boundary->boundary_values);

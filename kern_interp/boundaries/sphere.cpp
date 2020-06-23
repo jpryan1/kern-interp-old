@@ -59,6 +59,7 @@ void Sphere::initialize(int num_circumf_points, BoundaryCondition bc) {
                         *(( 2* M_PI )/num_circumf_points));
     }
   }
+  
   double hole_phis[hole_phi_points];
   double hole_phi_weights[hole_phi_points];
   cgqf(hole_phi_points, 1, 0.0, 0.0, phi_start, phi_end, hole_phis, hole_phi_weights);
@@ -67,14 +68,14 @@ void Sphere::initialize(int num_circumf_points, BoundaryCondition bc) {
     for (int i = 0; i < hole_circumf_points; i++) {
       double theta = 2 * M_PI * i * (1.0 / hole_circumf_points);
       for (int j = 0; j < hole_phi_points; j++) {   // modify this for annulus proxy
-        double phi = phis[j]; 
+        double phi = hole_phis[j]; 
         points.push_back(hole.center.a[0] + hole.radius* sin(phi) * cos(theta));
         points.push_back(hole.center.a[1] + hole.radius* sin(phi) * sin(theta));
         points.push_back(hole.center.a[2] + hole.radius* cos(phi));
         normals.push_back(-sin(phi) * cos(theta));
         normals.push_back(-sin(phi) * sin(theta));
         normals.push_back(-cos(phi));
-        weights.push_back(pow(hole.radius, 2) * sin(phi) * phi_weights[j]
+        weights.push_back(pow(hole.radius, 2) * sin(phi) * hole_phi_weights[j]
                           *(( 2* M_PI )/hole_circumf_points));
       }
     }

@@ -121,16 +121,8 @@ void SkelFactorization::skeletonize(const Kernel& kernel, QuadTree* tree) {
       double ids = omp_get_wtime();
       double ide;
       if (id_compress(kernel, tree, current_node) == 0) {
-        ide = omp_get_wtime();
-        if(level==2){
-          std::cout<<"id b"<<n<<" "<<ide-ids<<std::endl;
-        }
         continue;
       }
-       ide = omp_get_wtime();
-        if(level==2){
-          std::cout<<"id g"<<n<<" "<<ide-ids<< "sk red "<<current_node->T.height()<<" "<<current_node->T.width()<<std::endl;
-        }
       decouple(kernel, current_node);
       node_counter++;
     }
@@ -154,8 +146,11 @@ void SkelFactorization::skeletonize(const Kernel& kernel, QuadTree* tree) {
   std::cout<<"allskel get time "<<end-start<<std::endl;
 
   if (tree->U.width() == 0) {
+    double lufs=omp_get_wtime();
     tree->allskel_mat.LU_factorize(&tree->allskel_mat_lu,
                                    &tree->allskel_mat_piv);
+    double lufe=omp_get_wtime();
+    std::cout<<"allskel lu "<<(lufe-lufs)<<std::endl;
     return;
   }
 
@@ -200,7 +195,6 @@ void SkelFactorization::skeletonize(const Kernel& kernel, QuadTree* tree) {
   ki_Mat modified_Psi = tree->Psi.transpose();
   ki_Mat modified_U = tree->U;
 
-  start = omp_get_wtime();
   // First apply the sweep matrices to x and U to modify them.
   for (int level = lvls - 1; level >= 0; level--) {
     QuadTreeLevel* current_level = tree->levels[level];
@@ -220,9 +214,6 @@ void SkelFactorization::skeletonize(const Kernel& kernel, QuadTree* tree) {
     }
   }
 
-  end= omp_get_wtime();
-  std::cout<<"first sweep "<<end-start<<std::endl;
-  start=end;
   // Now apply the other sweep matrices to Psi to modify it.
   for (int level = lvls - 1; level >= 0; level--) {
     QuadTreeLevel* current_level = tree->levels[level];
@@ -242,9 +233,7 @@ void SkelFactorization::skeletonize(const Kernel& kernel, QuadTree* tree) {
                          true);
     }
   }
-end = omp_get_wtime();
-std::cout<<"second sweep "<<end-start<<std::endl;
-start=end;
+
   modified_Psi = modified_Psi.transpose();
   // Again, C is mostly 0s, so we just apply Dinv to the nonzero block
   ki_Mat Dinv_C_nonzero = modified_U(allredundant, 0, modified_U.width());
@@ -264,12 +253,10 @@ start=end;
                           &Dinv_C_nonzero,
                           small_redundants);
   }
-  end=omp_get_wtime();
-  std::cout<<"diag invs"<<end-start<<std::endl;
   ki_Mat ident(tree->Psi.height(), tree->Psi.height());
-  if(kernel.domain_dimension ==2){
+  // if(kernel.domain_dimension ==2){
     ident.eye(tree->Psi.height());
-  } 
+  // } 
   ki_Mat S(allskel.size() + tree->Psi.height(),
            allskel.size() + tree->Psi.height());
 
@@ -287,9 +274,8 @@ start=end;
                                           allredundant) * Dinv_C_nonzero));
   double slustart = omp_get_wtime();
   S.LU_factorize(&tree->S_LU, &tree->S_piv);
-    double sluend = omp_get_wtime();
-    std::cout<<"slu "<<(sluend-slustart)<<std::endl;
-    std::cout<<"s height "<<S.height()<<std::endl;
+  double sluend = omp_get_wtime();
+  std::cout<<"slu "<<(sluend-slustart)<<std::endl;
 
 }
 
