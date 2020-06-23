@@ -372,7 +372,7 @@ TEST(IeSolverTest, StokesSphereAnalyticAgreement) {
   // hole.radius = 0.1;
   // boundary->holes.push_back(hole);
 
-  boundary->initialize(96,  BoundaryCondition::STOKES_3D);
+  boundary->initialize(pow(2,7),  BoundaryCondition::STOKES_3D);
   std::cout<<"Num points "<<boundary->weights.size()<<std::endl;
   QuadTree quadtree;
   quadtree.initialize_tree(boundary.get(), 3, 3);
@@ -399,7 +399,7 @@ TEST(IeSolverTest, StokesSphereAnalyticAgreement) {
   double err = stokes_err_3d(sol, domain_points, boundary.get());
   std::cout<<"err "<<err<<std::endl;
   // Allow leeway for poor conditioning
-  EXPECT_LE(err, 100 * 1e-6);
+  EXPECT_LE(err, 10 * 1e-6);
 }
 
 

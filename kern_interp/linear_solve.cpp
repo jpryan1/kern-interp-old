@@ -449,8 +449,8 @@ double stokes_err_3d(const ki_Mat& domain,
       continue;
     }
     truth.set(i, 0, 1);//true_vec.a[0]);
-    truth.set(i + 1, 0, 2);// true_vec.a[1]);
-    truth.set(i + 2, 0,  3);//true_vec.a[2]);
+    truth.set(i + 1, 0, 0);// true_vec.a[1]);
+    truth.set(i + 2, 0,  0);//true_vec.a[2]);
   }
 
   return (domain-truth).vec_two_norm()/truth.vec_two_norm();

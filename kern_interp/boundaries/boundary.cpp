@@ -138,8 +138,8 @@ void Boundary::apply_boundary_condition(int start_point_idx, int end_point_idx,
       }
       case STOKES_3D: {
           boundary_values.set(3*point_idx, 0, 1);
-          boundary_values.set(3*point_idx+1, 0, 2);
-          boundary_values.set(3*point_idx+2, 0, 3);
+          boundary_values.set(3*point_idx+1, 0, 0);
+          boundary_values.set(3*point_idx+2, 0, 0);
         break;
       }
 
