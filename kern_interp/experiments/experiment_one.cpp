@@ -68,6 +68,8 @@ void run_experiment1() {
 
 int main(int argc, char** argv) {
   srand(0);
+    openblas_set_num_threads(1);
+
   kern_interp::run_experiment1();
   return 0;
 }

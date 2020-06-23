@@ -62,6 +62,8 @@ void run_covar_exp() {
 
 int main(int argc, char** argv) {
   srand(0);
+  openblas_set_num_threads(1);
+
   kern_interp::run_covar_exp();
   return 0;
 }

@@ -338,36 +338,42 @@ TEST(IeSolverTest, LaplaceCircleAnalyticAgreementElectron) {
 }
 
 
-TEST(IeSolverTest, LaplaceSphereAnalyticAgreementElectron) {
-  srand(0);
-  int num_threads = 4;
-  double id_tol=1e-6;
-  std::unique_ptr<Boundary> boundary =
-    std::unique_ptr<Boundary>(new Sphere());
-  boundary->initialize(pow(2, 7),  BoundaryCondition::ELECTRON_3D);
+// TEST(IeSolverTest, LaplaceSphereAnalyticAgreementElectron) {
+//   srand(0);
+//   int num_threads = 4;
+//   double id_tol=1e-6;
+//   std::unique_ptr<Boundary> boundary =
+//     std::unique_ptr<Boundary>(new Sphere());
+//   boundary->initialize(pow(2, 7),  BoundaryCondition::ELECTRON_3D);
 
-  QuadTree quadtree;
-  quadtree.initialize_tree(boundary.get(), 1, 3);
-  std::vector<double> domain_points;
-  get_domain_points3d(5, &domain_points, quadtree.min,
-                    quadtree.max);
-  Kernel kernel(1, 3, Kernel::Pde::LAPLACE, boundary.get(), domain_points);
+//   QuadTree quadtree;
+//   quadtree.initialize_tree(boundary.get(), 1, 3);
+//   std::vector<double> domain_points;
+//   get_domain_points3d(5, &domain_points, quadtree.min,
+//                     quadtree.max);
+//   Kernel kernel(1, 3, Kernel::Pde::LAPLACE, boundary.get(), domain_points);
 
-  kernel.compute_diag_entries_3dlaplace(boundary.get());
+//   kernel.compute_diag_entries_3dlaplace(boundary.get());
 
-  ki_Mat sol = boundary_integral_solve(kernel, *(boundary.get()), &quadtree,
-                                       id_tol, num_threads, domain_points);
+//   ki_Mat sol = boundary_integral_solve(kernel, *(boundary.get()), &quadtree,
+//                                        id_tol, num_threads, domain_points);
 
-  double err = laplace_error3d(sol, domain_points, boundary.get());
-  EXPECT_LE(err, 10 * 1e-6);
-}
+//   double err = laplace_error3d(sol, domain_points, boundary.get());
+//   EXPECT_LE(err, 10 * 1e-6);
+// }
 
 
 TEST(IeSolverTest, StokesSphereAnalyticAgreement) {
   srand(0);
   std::unique_ptr<Boundary> boundary =
     std::unique_ptr<Boundary>(new Sphere());
-  boundary->initialize(96,  BoundaryCondition::STOKES_3D);
+
+  Hole hole;
+  hole.center = PointVec(0.5,0.5,0.5);
+  hole.radius = 0.1;
+  boundary->holes.push_back(hole);
+    
+  boundary->initialize(pow(2,7),  BoundaryCondition::STOKES_3D);
 
   QuadTree quadtree;
   quadtree.initialize_tree(boundary.get(), 3, 3);

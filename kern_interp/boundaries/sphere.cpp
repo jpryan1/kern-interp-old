@@ -11,9 +11,18 @@ void Sphere::initialize(int num_circumf_points, BoundaryCondition bc) {
   normals.clear();
   weights.clear();
   curvatures.clear();
-  holes.clear();
 
-  int num_holes = 2;
+  if(holes.size() == 0){
+    Hole hole;
+    hole.center = PointVec(0.3,0.3,0.3);
+    hole.radius = 0.25;
+    holes.push_back(hole);
+    hole.center = PointVec(0.7,0.7,0.7);
+    hole.radius = 0.25;
+    holes.push_back(hole);
+  }
+
+  int num_holes = holes.size();
 
   int num_phi_points = num_circumf_points / 2;
   num_outer_nodes = num_circumf_points*num_phi_points;
@@ -23,19 +32,12 @@ void Sphere::initialize(int num_circumf_points, BoundaryCondition bc) {
 
   int each_hole_points = hole_circumf_points*hole_phi_points;
 
+  for(int i=0; i<holes.size(); i++){
+    holes[i].num_nodes = each_hole_points;
+  }
+
   int total_points = num_circumf_points * num_phi_points + (num_holes*each_hole_points);
 
-  Hole hole;
-  hole.center = PointVec(0.3,0.3,0.3);
-  hole.radius = 0.1;
-  hole.num_nodes = each_hole_points;
-  holes.push_back(hole);
-  hole.center = PointVec(0.7,0.7,0.7);
-  hole.radius = 0.1;
-  hole.num_nodes = each_hole_points;
-  holes.push_back(hole);
-
-std::cout<<"total points "<<total_points<<" each hole points "<<each_hole_points<<std::endl;
   double phis[num_phi_points];
   double phi_weights[num_phi_points];
   double phi_start = 0.;
@@ -77,7 +79,6 @@ std::cout<<"total points "<<total_points<<" each hole points "<<each_hole_points
       }
     }
   }
-
   if (bc == BoundaryCondition::DEFAULT) {
     boundary_values = ki_Mat(total_points, 1);
     apply_boundary_condition(0, total_points, ELECTRON_3D);

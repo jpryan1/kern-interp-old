@@ -16,7 +16,7 @@
 namespace kern_interp {
 
 
-void run_3d() {
+void run_two_hole_sphere() {
   // double start = omp_get_wtime();
   srand(0);
   std::unique_ptr<Boundary> boundary =
@@ -46,9 +46,28 @@ void run_3d() {
   double cend=omp_get_wtime();
   std::cout<<"computer diag "<<(cend-cstart)<<std::endl;
   ki_Mat sol = boundary_integral_solve(kernel, *(boundary.get()), &quadtree,
-                                       1e-3, 4, domain_points);
+                                       1e-6, 8, domain_points);
 
+    std::ofstream sol_out;
+  sol_out.open("ie_solver_solution.txt");
+  int points_index = 0;
+  for (int i = 0; i < sol.height(); i += 3) {
+    sol_out << domain_points[points_index] << "," <<
+            domain_points[points_index + 1] << ","<<domain_points[points_index+2]<<",";
+    points_index += 3;
+    sol_out << sol.get(i, 0) << "," << sol.get(i + 1, 0)<<","<<sol.get(i+2,0)
+            << std::endl;
+  }
+  sol_out.close();
+  // std::ofstream bound_out;
+  // bound_out.open("output/data/ie_solver_boundary.txt");
+  // for (int i = 0; i < boundary->points.size(); i += 2) {
+  //   bound_out << boundary->points[i] << "," << boundary->points[i + 1]
+  //             << std::endl;
+  // }
+  // bound_out.close();
 
+ // conclusion of last timing test - lvl 2 has some boxes that take forever
 }
 
 }  // namespace kern_interp
@@ -56,7 +75,8 @@ void run_3d() {
 
 int main(int argc, char** argv) {
   srand(0);
-  kern_interp::run_3d();
+  openblas_set_num_threads(1);
+  kern_interp::run_two_hole_sphere();
   return 0;
 }
 

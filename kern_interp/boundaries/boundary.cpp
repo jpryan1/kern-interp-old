@@ -9,7 +9,8 @@ namespace kern_interp {
 
 
 void Boundary::set_boundary_values_size(BoundaryCondition bc) {
-  int num_points = points.size() / 2;
+  int num_points = weights.size();
+
   switch (bc) {
     case SINGLE_ELECTRON:
     case EX3A:
@@ -31,6 +32,7 @@ void Boundary::set_boundary_values_size(BoundaryCondition bc) {
     case NO_SLIP:
       boundary_values = ki_Mat(2 * num_points, 1);
       break;
+    case STOKES_3D_MIX:
     case STOKES_3D:
       boundary_values = ki_Mat(3 * num_points, 1);
       break;
@@ -119,10 +121,25 @@ void Boundary::apply_boundary_condition(int start_point_idx, int end_point_idx,
         boundary_values.set(point_idx, 0, -1.0 / (4 * M_PI * r));
         break;
       }      
+      case STOKES_3D_MIX: {
+         double r = sqrt(pow(points[3 * point_idx] - 0.5, 2)
+                        + pow(points[3 * point_idx + 1] - 0.5, 2)
+                        + pow(points[3 * point_idx + 2] - 0.5, 2));
+        if(r>0.9){
+          boundary_values.set(3 * point_idx, 0, 1.0);
+          boundary_values.set(3 * point_idx + 1, 0, 0);
+          boundary_values.set(3 * point_idx + 2, 0, 0);
+        }else{
+          boundary_values.set(3 * point_idx, 0, -10);
+          boundary_values.set(3 * point_idx + 1, 0, 0);
+          boundary_values.set(3 * point_idx + 2, 0, 0);
+        }
+        break;
+      }
       case STOKES_3D: {
-        boundary_values.set(3*point_idx, 0, 1);
-        boundary_values.set(3*point_idx+1, 0, 2);
-        boundary_values.set(3*point_idx+2, 0, 3);
+          boundary_values.set(3*point_idx, 0, 1);
+          boundary_values.set(3*point_idx+1, 0, 2);
+          boundary_values.set(3*point_idx+2, 0, 3);
         break;
       }
 

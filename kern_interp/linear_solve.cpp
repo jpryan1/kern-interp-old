@@ -30,9 +30,7 @@ ki_Mat initialize_U_mat(const Kernel::Pde pde,
             Hole hole = holes[hole_idx];
             PointVec r = PointVec(tgt_points[i], tgt_points[i + 1], tgt_points[i+2]) - hole.center;
             U.set(i / 3, hole_idx, 1.0/(r.norm()));
-            if(r.norm()==0){
-              std::cout<<"r is 0 with pt center "<<tgt_points[i]<< tgt_points[i + 1]<<tgt_points[i+2]<<std::endl;
-            }
+           
           }
         }
       }else{
@@ -66,6 +64,7 @@ ki_Mat initialize_U_mat(const Kernel::Pde pde,
               }
             }
             //Cross product matrix
+            //neg because it's gxr originally
             double rotscale = (-1.0/(8.0*M_PI*pow(r.norm(),3)));
             U.set(i, 6*hole_idx + 4, rotscale*(-r.a[2]));
             U.set(i, 6*hole_idx + 5, rotscale*(r.a[1]));
@@ -159,6 +158,7 @@ ki_Mat initialize_Psi_mat(const Kernel::Pde pde,
               Psi.set(6 * hole_idx + 1, i + 1, boundary.weights[i / 3]);
               Psi.set(6 * hole_idx + 2, i + 2, boundary.weights[i / 3]);
 
+              //negative because transpose
               Psi.set(6*hole_idx + 4, i, -boundary.weights[i / 3]*(-r.a[2]));
               Psi.set(6*hole_idx + 5, i, -boundary.weights[i / 3]*(r.a[1]));
               Psi.set(6*hole_idx + 3, i+1, -boundary.weights[i / 3]*(r.a[2]));
@@ -207,6 +207,8 @@ void linear_solve(const SkelFactorization& skel_factorization,
   } else {
     *alpha = ki_Mat(quadtree.U.width(), 1);
     skel_factorization.multiply_connected_solve(quadtree, mu, alpha, f);
+    std::cout<<"alpha vals "<<alpha->get(0,0)<<" "<<alpha->get(1,0)<<" "<<alpha->get(2,0)<<
+    " "<<alpha->get(3,0)<<" "<<alpha->get(4,0)<<" "<<alpha->get(5,0)<<std::endl;
   }
 }
 
@@ -247,7 +249,7 @@ ki_Mat boundary_integral_solve(const Kernel& kernel, const Boundary& boundary,
   ki_Mat U_forward = initialize_U_mat(kernel.pde, boundary.holes,
                                       kernel.domain_points, kernel.domain_dimension);
 
-  ki_Mat domain_solution((kernel.domain_points.size() / 2)*
+  ki_Mat domain_solution((kernel.domain_points.size() / kernel.domain_dimension)*
                          kernel.solution_dimension, 1);
   quadtree->U = U;
   quadtree->Psi = Psi;
@@ -259,7 +261,7 @@ ki_Mat boundary_integral_solve(const Kernel& kernel, const Boundary& boundary,
 
   schur_solve(skel_factorization, *quadtree, U, Psi, f, K_domain,
               U_forward, &domain_solution);
-
+  
 
   for (int i = 0; i < kernel.domain_points.size(); i += kernel.domain_dimension) {
     std::vector<double> vec;
@@ -355,6 +357,8 @@ double solve_err(const Kernel& kernel, Boundary* boundary, double id_tol) {
                         all_dofs.size(), dense.width(), -ident);
 
     ki_Mat fzero_prime = dense * stacked;
+    std::cout<<"Dense size is "<<dense.height()<<" "<<dense.width()<<std::endl;
+    // std::cout<<"Dense cond is "<<dense.condition_number()<<std::endl;
 
     ki_Mat err1 = (fzero_prime(0, mu.height(), 0, 1)
                    - boundary->boundary_values);
@@ -432,15 +436,22 @@ double stokes_err_3d(const ki_Mat& domain,
     double x1 = domain_points[i + 1];
     double x2 = domain_points[i + 2];
     PointVec x(x0, x1, x2);
+
+    PointVec center(0.5, 0.5, 0.5);
+    PointVec r = x - center;
+    // double p = (c1 / r.norm()) + c2 * r.norm();
+
+    // PointVec true_vec = r * (1. / r.norm()) * p;
+    
     if (!boundary->is_in_domain(x)) {
       truth.set(i, 0, 0.0);
       truth.set(i + 1, 0, 0.0);
       truth.set(i + 2, 0, 0.0);
       continue;
     }
-    truth.set(i, 0, 1);
-    truth.set(i + 1, 0, 2);
-    truth.set(i + 2, 0, 3);
+    truth.set(i, 0, 1);//true_vec.a[0]);
+    truth.set(i + 1, 0, 2);// true_vec.a[1]);
+    truth.set(i + 2, 0,  3);//true_vec.a[2]);
   }
 
   return (domain-truth).vec_two_norm()/truth.vec_two_norm();

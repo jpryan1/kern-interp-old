@@ -154,6 +154,7 @@ void Kernel::compute_diag_entries_3dlaplace(Boundary* boundary){
 
   int curr_idx = boundary->num_outer_nodes;
   for(Hole hole : boundary->holes){
+    #pragma omp parallel for num_threads(8)
     for(int pt_idx = curr_idx; pt_idx < curr_idx + hole.num_nodes; pt_idx++){
       double tp1 = boundary->points[3*pt_idx];
       double tp2 = boundary->points[3*pt_idx+1];
@@ -188,11 +189,17 @@ void Kernel::compute_diag_entries_3dlaplace(Boundary* boundary){
 
 void Kernel::compute_diag_entries_3dstokes(Boundary* boundary){
 
+
+
   boundary_diag_tensors = std::vector<ki_Mat>(boundary->weights.size());
 
   for(int i=0; i<boundary->weights.size(); i++){
     boundary_diag_tensors[i] = ki_Mat(3,3);
+  //   boundary_diag_tensors[i].set(0,0,1);
+  //   boundary_diag_tensors[i].set(1,1,1);
+  //   boundary_diag_tensors[i].set(2,2,1);
   }
+  // return;
   #pragma omp parallel for num_threads(8)
   for(int dof =0; dof < boundary->num_outer_nodes*domain_dimension; dof++){
     int pt_idx = dof/3;

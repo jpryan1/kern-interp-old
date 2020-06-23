@@ -103,6 +103,7 @@ void run_spiral_channel(int num_boundary_points) {
 
 int main(int argc, char** argv) {
   srand(0);
+  openblas_set_num_threads(1);
 
   kern_interp::run_spiral_channel(pow(2, 10));
   // for (int power = 1; power <= 10; power++) {

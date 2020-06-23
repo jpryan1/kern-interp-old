@@ -7,7 +7,7 @@
 #include "kern_interp/ki_mat.h"
 #include "kern_interp/boundaries/boundary.h"
 
-#define MAX_LEAF_DOFS 32
+#define MAX_LEAF_DOFS 64
 
 namespace kern_interp {
 

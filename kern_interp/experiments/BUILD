@@ -13,6 +13,8 @@ cc_binary(
       "//kern_interp:linear_solve",
       ],
   linkopts = ["-llapacke",
+          "-lopenblas",
+
         "-llapack",
         "-lblas",
         "-lgomp"]
@@ -34,6 +36,8 @@ cc_binary(
       "//kern_interp:linear_solve",
       ],
   linkopts = ["-llapacke",
+          "-lopenblas",
+
         "-llapack",
         "-lblas",
         "-lgomp"]
@@ -54,6 +58,8 @@ cc_binary(
       "//kern_interp:linear_solve",
       ],
   linkopts = ["-llapacke",
+          "-lopenblas",
+
         "-llapack",
         "-lblas",
         "-lgomp"]
@@ -74,6 +80,8 @@ cc_binary(
       "//kern_interp:linear_solve",
       ],
   linkopts = ["-llapacke",
+          "-lopenblas",
+
         "-llapack",
         "-lblas",
         "-lgomp"]
@@ -94,6 +102,8 @@ cc_binary(
       "//kern_interp:linear_solve",
       ],
  linkopts = ["-llapacke",
+         "-lopenblas",
+
         "-llapack",
         "-lblas",
         "-lgomp"]
@@ -113,6 +123,8 @@ cc_binary(
       "//kern_interp:linear_solve",
       ],
  linkopts = ["-llapacke",
+         "-lopenblas",
+
         "-llapack",
         "-lblas",
         "-lgomp"]
@@ -134,6 +146,8 @@ cc_binary(
       "//kern_interp:linear_solve",
       ],
   linkopts = ["-llapacke",
+          "-lopenblas",
+
         "-llapack",
         "-lblas",
         "-lgomp"]
@@ -155,6 +169,8 @@ cc_binary(
       "//kern_interp:linear_solve",
       ],
   linkopts = ["-llapacke",
+          "-lopenblas",
+
         "-llapack",
         "-lblas",
         "-lgomp"]
@@ -176,6 +192,8 @@ cc_binary(
       "//kern_interp:linear_solve",
       ],
   linkopts = ["-llapacke",
+          "-lopenblas",
+
         "-llapack",
         "-lblas",
         "-lgomp"]
@@ -185,8 +203,8 @@ cc_binary(
 
 
 cc_binary(
-  name = "3d",
-  srcs = ["3d.cpp"],
+  name = "one_hole_sphere",
+  srcs = ["one_hole_sphere.cpp"],
   copts= ["-fopenmp",
           "-std=c++14"],
   deps = [
@@ -197,6 +215,28 @@ cc_binary(
       "//kern_interp:linear_solve",
       ],
   linkopts = ["-llapacke",
+        "-lopenblas",
+        "-llapack",
+        "-lblas",
+        "-lgomp"]
+
+)
+
+
+cc_binary(
+  name = "two_hole_sphere",
+  srcs = ["two_hole_sphere.cpp"],
+  copts= ["-fopenmp",
+          "-std=c++14"],
+  deps = [
+      "//kern_interp:ki_mat",
+      "//kern_interp/skel_factorization",
+      "//kern_interp/quadtree",
+      "//kern_interp/boundaries",
+      "//kern_interp:linear_solve",
+      ],
+  linkopts = ["-llapacke",
+        "-lopenblas",
         "-llapack",
         "-lblas",
         "-lgomp"]
