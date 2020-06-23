@@ -19,6 +19,8 @@ class SpiralChannel : public CubicBoundary {
   std::unique_ptr<Boundary> clone() const override {
     return std::make_unique<SpiralChannel>(*this);
   }
+
+  PointVec hole_center;
   SpiralChannel() {
     num_turns = 6;
   }
@@ -26,7 +28,6 @@ class SpiralChannel : public CubicBoundary {
     num_turns = num;
   }
   int num_turns;
-  Vec2 hole_center;
   double hole_rad;
 };
 

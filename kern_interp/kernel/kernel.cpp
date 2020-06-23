@@ -140,9 +140,6 @@ ki_Mat Kernel::operator()(const std::vector<int>& tgt_inds,
 ki_Mat Kernel::get_id_mat(const QuadTree* tree,
                           const QuadTreeNode* node) const {
 
-  double cntr_x = node->center[0];
-  double cntr_y = node->center[1];
-
   std::vector<int> active_box = node->dof_lists.active_box;
   // Grab all points inside the proxy circle which are outside the box
   std::vector<int> inner_circle, outside_box;
@@ -201,13 +198,17 @@ ki_Mat Kernel::get_id_mat(const QuadTree* tree,
     int points_vec_index = point_index * domain_dimension;
     double x = boundary_points_[points_vec_index];
     double y = boundary_points_[points_vec_index + 1];
-    double dist = sqrt(pow(cntr_x - x, 2) + pow(cntr_y - y, 2));
+    double dist = 0.;
+    for (int d = 0; d < domain_dimension; d++) {
+      dist += pow(node->center[d] - boundary_points_[points_vec_index + d], 2);
+    }
+    dist = sqrt(dist);
     if (dist < RADIUS_RATIO * node->side_length) {
       inner_circle.push_back(matrix_index);
     }
   }
 
-  ki_Mat pxy = get_proxy_mat(cntr_x, cntr_y, node->side_length
+  ki_Mat pxy = get_proxy_mat(node->center, node->side_length
                              * RADIUS_RATIO, tree, active_box);
   // Now all the matrices are gathered, put them into mat.
   ki_Mat mat(2 * inner_circle.size() + pxy.height(), active_box.size());
@@ -228,19 +229,22 @@ ki_Mat Kernel::get_id_mat(const QuadTree* tree,
 }
 
 
-ki_Mat Kernel::get_proxy_mat(double cntr_x, double cntr_y,
+ki_Mat Kernel::get_proxy_mat(std::vector<double> center,
                              double r, const QuadTree * tree,
                              const std::vector<int>& box_inds) const {
+  if (domain_dimension == 3) {
+    return get_proxy_mat3d(center, r, tree, box_inds);
+  }
   // each row is a pxy point, cols are box dofs
   double pxy_w = 2.0 * M_PI * r / NUM_PROXY_POINTS;
   std::vector<double>  pxy_p, pxy_n;
 
   for (int i = 0; i < NUM_PROXY_POINTS; i++) {
     double ang = 2 * M_PI * i * (1.0 / NUM_PROXY_POINTS);
-    for (int k = 1; k < 3; k++) {   // modify this for annulus proxy
+    for (int k = 1; k < 2; k++) {   // modify this for annulus proxy
       double eps = (k - 1) * 1;
-      pxy_p.push_back(cntr_x + (r + eps) * cos(ang));
-      pxy_p.push_back(cntr_y + (r + eps) * sin(ang));
+      pxy_p.push_back(center[0] + (r + eps) * cos(ang));
+      pxy_p.push_back(center[1] + (r + eps) * sin(ang));
       pxy_n.push_back(cos(ang));
       pxy_n.push_back(sin(ang));
     }
@@ -283,6 +287,61 @@ ki_Mat Kernel::get_proxy_mat(double cntr_x, double cntr_y,
           }
           break;
       }
+    }
+  }
+  return ret;
+}
+
+ki_Mat Kernel::get_proxy_mat3d(std::vector<double> center,
+                               double r, const QuadTree * tree,
+                               const std::vector<int>& box_inds) const {
+
+  // each row is a pxy point, cols are box dofs
+  std::vector<double> pxy_p, pxy_n, pxy_w;
+
+  for (int i = 0; i < pxy_thetas.size(); i++) {
+    double theta = pxy_thetas[i];
+    for (int j = 0; j < pxy_phis.size(); j++) {   // modify this for annulus proxy
+      double phi = pxy_phis[j];
+      pxy_p.push_back(center[0] + r * sin(phi) * cos(theta));
+      pxy_p.push_back(center[1] + r * sin(phi) * sin(theta));
+      pxy_p.push_back(center[2] + r * cos(phi));
+      pxy_n.push_back(sin(phi) * cos(theta));
+      pxy_n.push_back(sin(phi) * sin(theta));
+      pxy_n.push_back(cos(phi));
+      pxy_w.push_back(pow(r, 2) *pxy_phi_weights[j]*pxy_theta_weights[i]);
+    }
+  }
+
+  int lda = solution_dimension * domain_dimension * pxy_w.size();
+
+  ki_Mat ret(lda, box_inds.size());
+  for (int j = 0; j < box_inds.size(); j++) {
+    int box_ind = box_inds[j];
+    int j_point_index = box_ind / solution_dimension;
+    int j_points_vec_index = j_point_index * domain_dimension;
+    std::vector<double> bp, bn;
+    for (int d = 0; d < domain_dimension; d++) {
+      bp.push_back(boundary_points_[j_points_vec_index + d]);
+      bn.push_back(boundary_normals(j_points_vec_index + d));
+    }
+    double bw =  boundary_weights(j_point_index);
+    for (int i = 0; i < pxy_p.size(); i += domain_dimension) {
+      std::vector<double> pp, pn;
+      for (int d = 0; d < domain_dimension; d++) {
+        pp.push_back(pxy_p[i + d]);
+        pn.push_back(pxy_n[i + d]);
+      }
+      double r[2] = {pp[0] - bp[0], pp[1] - bp[1]};
+
+      
+      // box to pxy
+      one_d_kern((i / 2) + lda * j, &ret, r[0], r[1],  pn[0], pn[1],
+                 bn[0], bn[1], bw,  0);
+      // pxy to box
+      one_d_kern((pxy_p.size() / 2) + (i / 2) + lda * j, &ret,
+                 -r[0], -r[1],  bn[0], bn[1], pn[0], pn[1], pxy_w, 0);
+      // get kernel (both ways) based on the above.
     }
   }
   return ret;

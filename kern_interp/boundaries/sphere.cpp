@@ -1,43 +1,56 @@
 // Copyright 2019 John Paul Ryan
 #include <cmath>
 #include <iostream>
-#include "kern_interp/boundaries/circle.h"
+#include "kern_interp/boundaries/sphere.h"
+#include "kern_interp/legendre.h"
 
 namespace kern_interp {
 
-void Circle::initialize(int N, BoundaryCondition bc) {
+void Sphere::initialize(int num_circumf_points, BoundaryCondition bc) {
   points.clear();
   normals.clear();
   weights.clear();
   curvatures.clear();
-  for (int i = 0; i < N; i++) {
-    double ang = i * 2.0 * M_PI / N;
-    double x = 0.5 + 0.25 * cos(ang);
-    double y = 0.5 + 0.25 * sin(ang);
-    points.push_back(x);
-    points.push_back(y);
-    normals.push_back(cos(ang));
-    normals.push_back(sin(ang));
-    curvatures.push_back(4);  // 1/r, r=0.25
-    weights.push_back(M_PI / (N * 2));
+  holes.clear();
+
+  int num_phi_points = num_circumf_points / 2;
+  int total_points = num_circumf_points * num_phi_points;
+
+  double phis[num_phi_points];
+  double phi_weights[num_phi_points];
+  double phi_start = 0.;
+  double phi_end = M_PI;
+  cgqf(num_phi_points, 1, 0.0, 0.0, phi_start, phi_end, phis, phi_weights);
+
+  for (int i = 0; i < num_circumf_points; i++) {
+    double theta = 2 * M_PI * i * (1.0 / num_circumf_points);
+    for (int j = 0; j < num_phi_points; j++) {   // modify this for annulus proxy
+      double phi = phis[j]; //M_PI * j * (1.0 / num_phi_points);
+      points.push_back(0.5 + r * sin(phi) * cos(theta));
+      points.push_back(0.5 + r * sin(phi) * sin(theta));
+      points.push_back(0.5 + r * cos(phi));
+      normals.push_back(sin(phi) * cos(theta));
+      normals.push_back(sin(phi) * sin(theta));
+      normals.push_back(cos(phi));
+      weights.push_back(phi_weights[j]*pow(r, 2) * sin(phi) * 2
+                        * M_PI / (num_circumf_points));
+    }
   }
 
   if (bc == BoundaryCondition::DEFAULT) {
-    boundary_values = ki_Mat(N, 1);
-    apply_boundary_condition(0, N, SINGLE_ELECTRON);
+    boundary_values = ki_Mat(total_points, 1);
+    apply_boundary_condition(0, total_points, ELECTRON_3D);
   } else {
     set_boundary_values_size(bc);
-    apply_boundary_condition(0, N, bc);
+    apply_boundary_condition(0, total_points, bc);
   }
 }
 
-bool Circle::is_in_domain(const Vec2& a) const {
-  double x = a.a[0] - 0.5;
-  double y = a.a[1] - 0.5;
+bool Sphere::is_in_domain(const PointVec& a) const {
+  PointVec center(0.5, 0.5, 0.5);
   double eps = 1e-2;
-
-  double dist = sqrt(pow(x, 2) + pow(y, 2));
-  if (dist + eps > 0.25) return false;
+  double dist = (center - a).norm();
+  if (dist + eps > r) return false;
   return true;
 }
 

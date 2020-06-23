@@ -72,7 +72,7 @@ void run_spiral_channel(int num_boundary_points) {
   //                                     kernel.domain_points);
   // solution = (K_domain * mu);// + (U_forward * alpha);
   // for (int i = 0; i < kernel.domain_points.size(); i += 2) {
-  //   Vec2 point = Vec2(kernel.domain_points[i], kernel.domain_points[i + 1]);
+  //   PointVec point = PointVec(kernel.domain_points[i], kernel.domain_points[i + 1]);
   //   if (!boundary->is_in_domain(point)) {
   //     solution.set(i, 0, 0.);
   //     solution.set(i + 1, 0, 0.);

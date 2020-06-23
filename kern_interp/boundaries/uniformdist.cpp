@@ -18,7 +18,7 @@ void UniformDist::initialize(int N, BoundaryCondition bc) {
 }
 
 
-bool UniformDist::is_in_domain(const Vec2& a) const {
+bool UniformDist::is_in_domain(const PointVec& a) const {
   return true;
 }
 

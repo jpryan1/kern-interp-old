@@ -4,7 +4,7 @@ cc_library(
 	name = "boundaries",
 	hdrs = [
 			"circle.h",
-			#"sphere.h",
+			"sphere.h",
 			"annulus.h",
 			"uniformdist.h",
 			"donut.h",
@@ -17,7 +17,7 @@ cc_library(
 	copts= ["-std=c++14"],
 	srcs = [
 			"circle.cpp",
-		#	"sphere.cpp",
+			"sphere.cpp",
 			"annulus.cpp",
 			"uniformdist.cpp",
 			"donut.cpp",
@@ -30,5 +30,7 @@ cc_library(
 			"ex3boundary.cpp",
 			],
 	deps = ["//kern_interp:ki_mat",
-			"//kern_interp:vec2"]
+			"//kern_interp:pointvec",
+			"//kern_interp:legendre",
+			]
 )

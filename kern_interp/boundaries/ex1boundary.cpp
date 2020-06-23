@@ -83,20 +83,20 @@ void Ex1Boundary::initialize(int N, BoundaryCondition bc) {
 
   Hole star1, star2, circle1, circle2;
 
-  star1.center = Vec2(0.5 + 0.3 * cos(M_PI + perturbation_parameters[0]),
+  star1.center = PointVec(0.5 + 0.3 * cos(M_PI + perturbation_parameters[0]),
                       0.5 + 0.3 * sin(M_PI + perturbation_parameters[0]));
   star1.radius = 0.05;
   star1.num_nodes =  STAR_NUM_SPLINE_POINTS * STAR_NODES_PER_SPLINE;
   holes.push_back(star1);
-  star2.center = Vec2(0.4, 0.5);
+  star2.center = PointVec(0.4, 0.5);
   star2.radius = 0.05;
   star2.num_nodes =  STAR_NUM_SPLINE_POINTS * STAR_NODES_PER_SPLINE;
   holes.push_back(star2);
-  circle1.center = Vec2(0.6, 0.5);
+  circle1.center = PointVec(0.6, 0.5);
   circle1.radius = 0.05;
   circle1.num_nodes =  NUM_CIRCLE_POINTS;
   holes.push_back(circle1);
-  circle2.center = Vec2(0.5 + 0.3 * cos(perturbation_parameters[0]),
+  circle2.center = PointVec(0.5 + 0.3 * cos(perturbation_parameters[0]),
                         0.5 + 0.3 * sin(perturbation_parameters[0]));
   circle2.radius = 0.05;
   circle2.num_nodes =  NUM_CIRCLE_POINTS;

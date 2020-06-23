@@ -5,6 +5,7 @@
 #include <vector>
 #include "kern_interp/boundaries/boundary.h"
 #include "kern_interp/ki_mat.h"
+#include "kern_interp/legendre.h"
 #include "kern_interp/quadtree/quadtree.h"
 
 #define NUM_PROXY_POINTS 128
@@ -30,13 +31,32 @@ struct Kernel {
     boundary_normals_(boundary->normals),
     boundary_weights_(boundary->weights),
     boundary_curvatures_(boundary->curvatures),
-    domain_points(domain_points_) {}
+    domain_points(domain_points_) {
+    int num_circumf_points = 128;
+    int num_phi_points = num_circumf_points / 2;
+    double phis[num_phi_points];
+    double phi_weights[num_phi_points];
+    double phi_start = 0.;
+    double phi_end = M_PI;
+    cgqf(num_phi_points, 1, 0.0, 0.0, phi_start, phi_end, phis, phi_weights);
+    for (int i = 0; i < num_circumf_points; i++) {
+      double theta = 2 * M_PI * i * (1.0 / num_circumf_points);
+      for (int j = 0; j < num_phi_points; j++) {  
+        double phi = phis[j]; 
+        pxy_thetas.push_back(theta);
+        pxy_phis.push_back(phi);
+        pxy_theta_weights.push_back(2 * M_PI / (num_circumf_points));
+        pxy_phi_weights.push_back(phi_weights[j]*sin(phi));
+      }
+    }
+  }
 
   int solution_dimension, domain_dimension;
   Kernel::Pde pde;
   std::vector<double> boundary_points_, boundary_normals_,
       boundary_weights_, boundary_curvatures_, domain_points;
 
+  std::vector<double> pxy_thetas, pxy_theta_weights, pxy_phis, pxy_phi_weights;
   void update_data(Boundary* boundary);
 
   void one_d_kern(int mat_idx, ki_Mat* ret, double r1,
@@ -52,9 +72,13 @@ struct Kernel {
 
   ki_Mat get_id_mat(const QuadTree * tree,
                     const QuadTreeNode * node) const;
-  ki_Mat get_proxy_mat(double cntr_x, double cntr_y,
+  ki_Mat get_proxy_mat(std::vector<double> center,
                        double r, const QuadTree * tree,
                        const std::vector<int> & box_inds) const;
+
+  ki_Mat get_proxy_mat3d(std::vector<double> center,
+                         double r, const QuadTree * tree,
+                         const std::vector<int> & box_inds) const;
 
   ki_Mat forward() const;
 

@@ -13,7 +13,7 @@ void Donut::initialize(int N, BoundaryCondition bc) {
 
   if (holes.size() == 0) {
     Hole hole;
-    hole.center = Vec2(0.5, 0.5);
+    hole.center = PointVec(0.5, 0.5);
     hole.radius = 0.5;
     holes.push_back(hole);
   }
@@ -66,7 +66,7 @@ void Donut::initialize(int N, BoundaryCondition bc) {
 }
 
 
-bool Donut::is_in_domain(const Vec2& a) const {
+bool Donut::is_in_domain(const PointVec& a) const {
   double x = a.a[0] - 0.5;
   double y = a.a[1] - 0.5;
   double eps = 1e-2;
@@ -74,7 +74,7 @@ bool Donut::is_in_domain(const Vec2& a) const {
   double dist = sqrt(pow(x, 2) + pow(y, 2));
   if (dist + eps > 1) return false;
   for (Hole hole : holes) {
-    Vec2 r = a - hole.center;
+    PointVec r = a - hole.center;
     if (r.norm() - eps < hole.radius) return false;
   }
   return true;

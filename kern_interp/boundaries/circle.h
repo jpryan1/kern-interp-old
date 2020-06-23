@@ -10,7 +10,7 @@ namespace kern_interp {
 class Circle : public Boundary {
  public:
   void initialize(int N, BoundaryCondition bc) override;
-  bool is_in_domain(const Vec2& a) const override;
+  bool is_in_domain(const PointVec& a) const override;
   std::unique_ptr<Boundary> clone() const override {
     return std::make_unique<Circle>(*this);
   }

@@ -561,7 +561,7 @@ void QuadTree::copy_into(QuadTree* new_tree) const {
     QuadTreeNode* new_node = new_nodes[n];
     new_node->parent = old_to_new[new_to_old[new_node]->parent];
     if (!new_to_old[new_node]->is_leaf) {
-      for (int c = 0; c < 4; c++) {
+      for (int c = 0; c < pow(2, domain_dimension); c++) {
         new_node->children.push_back(old_to_new[new_to_old[new_node]->children[c]]);
       }
     }

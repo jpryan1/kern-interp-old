@@ -11,38 +11,39 @@
 #include "kern_interp/quadtree/quadtree.h"
 #include "kern_interp/kernel/kernel.h"
 #include "kern_interp/linear_solve.h"
-#include "kern_interp/boundaries/ex1boundary.h"
+#include "kern_interp/boundaries/sphere.h"
 
 namespace kern_interp {
 
 
 void run_3d() {
   double id_tol = 1e-6;
-  Kernel::Pde pde = Kernel::Pde::STOKES;
-  int num_boundary_points = pow(2, 12);
+  Kernel::Pde pde = Kernel::Pde::LAPLACE;
+  int num_circumf_points = pow(2, 6);
   int domain_size = 20;
   int domain_dimension = 3;
-  int solution_dimension = 3;
+  int solution_dimension = 1;
   int fact_threads = 4;
   std::unique_ptr<Boundary> boundary =
     std::unique_ptr<Boundary>(new Sphere());
-  boundary->initialize(num_boundary_points, BoundaryCondition::DEFAULT);
+  boundary->initialize(num_circumf_points, BoundaryCondition::ELECTRON_3D);
 
-  double start = omp_get_wtime();
-  QuadTree quadtree;
-  quadtree.initialize_tree(boundary.get(), solution_dimension,
-                           domain_dimension);
 
-  std::vector<double> domain_points;
-  // get_domain_points(domain_size, &domain_points, quadtree.min,
-  //                   quadtree.max, quadtree.min,
-  //                   quadtree.max);
-  Kernel kernel(solution_dimension, domain_dimension,
-                pde, boundary.get(), domain_points);
-  ki_Mat solution = boundary_integral_solve(kernel, *(boundary.get()),
-                    &quadtree, id_tol, fact_threads, domain_points);
-  double end = omp_get_wtime();
-  std::cout << "Elapsed: " << (end - start) << std::endl;
+  // double start = omp_get_wtime();
+  // QuadTree quadtree;
+  // quadtree.initialize_tree(boundary.get(), solution_dimension,
+  //                          domain_dimension);
+
+  // std::vector<double> domain_points;
+  // // get_domain_points(domain_size, &domain_points, quadtree.min,
+  // //                   quadtree.max, quadtree.min,
+  // //                   quadtree.max);
+  // Kernel kernel(solution_dimension, domain_dimension,
+  //               pde, boundary.get(), domain_points);
+  // ki_Mat solution = boundary_integral_solve(kernel, *(boundary.get()),
+  //                   &quadtree, id_tol, fact_threads, domain_points);
+  // double end = omp_get_wtime();
+  // std::cout << "Elapsed: " << (end - start) << std::endl;
 
   // std::ofstream sol_out;
   // sol_out.open("output/data/ie_solver_solution.txt");

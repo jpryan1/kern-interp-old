@@ -16,6 +16,7 @@ void Boundary::set_boundary_values_size(BoundaryCondition bc) {
     case ALL_ONES:
     case ALL_NEG_ONES:
     case ALL_ZEROS:
+    case ELECTRON_3D:
       boundary_values = ki_Mat(num_points, 1);
       break;
     // Everything above is for 1D solutions.
@@ -39,13 +40,14 @@ void Boundary::set_boundary_values_size(BoundaryCondition bc) {
   }
 }
 
-
+// TODO(John) this shouldn't be that hard to make dimension agnostic
 void Boundary::apply_boundary_condition(int start_point_idx, int end_point_idx,
                                         BoundaryCondition bc) {
   for (int point_idx = start_point_idx;
        point_idx < end_point_idx;
        point_idx++) {
     switch (bc) {
+      // 1D solutions
       case SINGLE_ELECTRON: {
         boundary_values.set(point_idx, 0,
                             log(sqrt(pow(points[2 * point_idx] + 3, 2)
@@ -65,8 +67,7 @@ void Boundary::apply_boundary_condition(int start_point_idx, int end_point_idx,
         boundary_values.set(point_idx, 0, 0.);
         break;
       }
-      // Everything above is for 1D solutions.
-      // Everything below is for 2D solutions.
+      // 2D solutions.
       case TANGENT_VEC: {
         boundary_values.set(2 * point_idx, 0, -normals[2 * point_idx + 1]);
         boundary_values.set(2 * point_idx + 1, 0, normals[2 * point_idx]);
@@ -107,6 +108,15 @@ void Boundary::apply_boundary_condition(int start_point_idx, int end_point_idx,
         boundary_values.set(2 * point_idx + 1, 0, 0.);
         break;
       }
+      // 3D domain
+      case ELECTRON_3D: {
+        double r = sqrt(pow(points[3 * point_idx] + 3, 2)
+                        + pow(points[3 * point_idx + 1] + 2, 2)
+                        + pow(points[3 * point_idx + 2] + 2, 2));
+        boundary_values.set(point_idx, 0, -1.0 / (4 * M_PI * r));
+        break;
+      }
+
       case EX3A:
       case EX3B:
       case DEFAULT: {

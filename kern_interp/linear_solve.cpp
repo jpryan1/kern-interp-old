@@ -26,7 +26,7 @@ ki_Mat initialize_U_mat(const Kernel::Pde pde,
       for (int i = 0; i < tgt_points.size(); i += 2) {
         for (int hole_idx = 0; hole_idx < holes.size(); hole_idx++) {
           Hole hole = holes[hole_idx];
-          Vec2 r = Vec2(tgt_points[i], tgt_points[i + 1]) - hole.center;
+          PointVec r = PointVec(tgt_points[i], tgt_points[i + 1]) - hole.center;
           U.set(i / 2, hole_idx, log(r.norm()));
         }
       }
@@ -37,7 +37,7 @@ ki_Mat initialize_U_mat(const Kernel::Pde pde,
       for (int i = 0; i < tgt_points.size(); i += 2) {
         for (int hole_idx = 0; hole_idx < holes.size(); hole_idx++) {
           Hole hole = holes[hole_idx];
-          Vec2 r = Vec2(tgt_points[i], tgt_points[i + 1]) - hole.center;
+          PointVec r = PointVec(tgt_points[i], tgt_points[i + 1]) - hole.center;
           double scale = 1.0 / (4 * M_PI);
           U.set(i, 3 * hole_idx, scale *
                 (log(1 / r.norm()) +
@@ -73,7 +73,7 @@ ki_Mat initialize_Psi_mat(const Kernel::Pde pde,
     case Kernel::Pde::LAPLACE: {
       Psi = ki_Mat(holes.size(), boundary.points.size() / 2);
       for (int i = 0; i < boundary.points.size(); i += 2) {
-        Vec2 x = Vec2(boundary.points[i], boundary.points[i + 1]);
+        PointVec x = PointVec(boundary.points[i], boundary.points[i + 1]);
         for (int hole_idx = 0; hole_idx < holes.size(); hole_idx++) {
           Hole hole = holes[hole_idx];
           if ((x - hole.center).norm() < hole.radius + 1e-8) {
@@ -87,7 +87,7 @@ ki_Mat initialize_Psi_mat(const Kernel::Pde pde,
     case Kernel::Pde::STOKES: {
       Psi = ki_Mat(3 * holes.size(), boundary.points.size());
       for (int i = 0; i < boundary.points.size(); i += 2) {
-        Vec2 x = Vec2(boundary.points[i], boundary.points[i + 1]);
+        PointVec x = PointVec(boundary.points[i], boundary.points[i + 1]);
         for (int hole_idx = 0; hole_idx < holes.size(); hole_idx++) {
           Hole hole = holes[hole_idx];
           if ((x - hole.center).norm() < hole.radius + 1e-8) {
@@ -166,7 +166,7 @@ ki_Mat boundary_integral_solve(const Kernel& kernel, const Boundary& boundary,
   schur_solve(skel_factorization, *quadtree, U, Psi, f, K_domain,
               U_forward, &domain_solution);
   for (int i = 0; i < kernel.domain_points.size(); i += 2) {
-    Vec2 point = Vec2(kernel.domain_points[i], kernel.domain_points[i + 1]);
+    PointVec point = PointVec(kernel.domain_points[i], kernel.domain_points[i + 1]);
     if (!boundary.is_in_domain(point)) {
       if (kernel.solution_dimension == 2) {
         domain_solution.set(i, 0, 0.);
@@ -274,16 +274,16 @@ ki_Mat stokes_true_sol(const std::vector<double>& domain_points,
   for (int i = 0; i < domain_points.size(); i += 2) {
     double x0 = domain_points[i];
     double x1 = domain_points[i + 1];
-    Vec2 x(x0, x1);
+    PointVec x(x0, x1);
     if (!boundary->is_in_domain(x)) {
       truth.set(i, 0, 0.0);
       truth.set(i + 1, 0, 0.0);
       continue;
     }
 
-    Vec2 center(0.5, 0.5);
-    Vec2 r = x - center;
-    Vec2 true_vec = Vec2(-r.a[1], r.a[0]);
+    PointVec center(0.5, 0.5);
+    PointVec r = x - center;
+    PointVec true_vec = PointVec(-r.a[1], r.a[0]);
     switch (boundary->holes.size()) {
       case 0:  // circle
         true_vec = true_vec * (r.norm() / true_vec.norm()) * 4.;
