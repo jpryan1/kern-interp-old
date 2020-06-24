@@ -92,7 +92,7 @@ void Kernel::three_d_stokes(int mat_idx, int tgt_parity, int src_parity,
   double sn[3] = {sn1, sn2, sn3};
   double tn[3] = {tn1, tn2, tn3};
   double r[3] = {r1, r2, r3};
-  double scale = -3 / (4.0*M_PI);
+  double scale = -3.0 / (4.0*M_PI);
 
   if (r1 == 0. && r2 == 0. && r3==0.) {
     ret->mat[mat_idx] = diag.get(tgt_parity, src_parity);//TODO
@@ -223,7 +223,7 @@ void Kernel::compute_diag_entries_3dstokes(Boundary* boundary){
       double sn3 = boundary->normals[3*other_pt_idx+2];
       double sw = boundary->weights[other_pt_idx];
       double sn[3] = {sn1, sn2, sn3};
-      double scale = -3.0/(4*M_PI);
+      double scale = -3.0/(4.0*M_PI);
       double r1 = tp1-sp1;
       double r2 = tp2-sp2;
       double r3 = tp3-sp3;
@@ -237,9 +237,8 @@ void Kernel::compute_diag_entries_3dstokes(Boundary* boundary){
 
     }
   }
-
-
   int curr_idx = boundary->num_outer_nodes*domain_dimension;
+
   for(Hole hole : boundary->holes){
     #pragma omp parallel for num_threads(8)
     for(int dof =curr_idx; dof < curr_idx+hole.num_nodes*domain_dimension; dof++){
@@ -264,7 +263,7 @@ void Kernel::compute_diag_entries_3dstokes(Boundary* boundary){
         double sn3 = boundary->normals[3*other_pt_idx+2];
         double sw = boundary->weights[other_pt_idx];
         double sn[3] = {sn1, sn2, sn3};
-        double scale = -3.0/(4*M_PI);
+        double scale = -3.0/(4.0*M_PI);
         double r1 = tp1-sp1;
         double r2 = tp2-sp2;
         double r3 = tp3-sp3;

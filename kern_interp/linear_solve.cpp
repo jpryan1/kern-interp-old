@@ -30,7 +30,6 @@ ki_Mat initialize_U_mat(const Kernel::Pde pde,
             Hole hole = holes[hole_idx];
             PointVec r = PointVec(tgt_points[i], tgt_points[i + 1], tgt_points[i+2]) - hole.center;
             U.set(i / 3, hole_idx, 1.0/(r.norm()));
-           
           }
         }
       }else{
@@ -46,9 +45,7 @@ ki_Mat initialize_U_mat(const Kernel::Pde pde,
       break;
     }
     case Kernel::Pde::STOKES: {
-
       if(domain_dimension == 3){
-
         U = ki_Mat(tgt_points.size(), 6 * holes.size());
         for (int i = 0; i < tgt_points.size(); i += 3) {
           for (int hole_idx = 0; hole_idx < holes.size(); hole_idx++) {
@@ -207,6 +204,9 @@ void linear_solve(const SkelFactorization& skel_factorization,
   } else {
     *alpha = ki_Mat(quadtree.U.width(), 1);
     skel_factorization.multiply_connected_solve(quadtree, mu, alpha, f);
+    std::cout<<"alpha is "<<alpha->get(0,0)<<" "<<alpha->get(1,0)<<" "
+     <<alpha->get(2,0)<<std::endl;
+    //<<" "<<alpha->get(3,0)<<" "<<alpha->get(4,0)<<" "<<alpha->get(5,0)<<std::endl;
   }
 }
 
@@ -230,6 +230,7 @@ void schur_solve(const SkelFactorization & skel_factorization,
     double end = omp_get_wtime();
     std::cout<<"solve "<<end-start<<std::endl;
     *solution = (K_domain * mu) + (U_forward * alpha);
+    // std::cout<<"Alpha "<<alpha.get(0,0)<<" "<<alpha.get(1,0)<<" "<<alpha.get(2,0)<<std::endl;
   }
 }
 
@@ -302,10 +303,10 @@ void get_domain_points3d(int domain_size, std::vector<double>* points,
     double r = (0.9*(i/(domain_size + 0.)));
     // double x = min + ((i + 0.0) / (domain_size - 1)) * (max - min);
     for (int j = 0; j < domain_size; j++) {
-      double theta = 2 * M_PI * (i / (domain_size+ 0.));
+      double theta = 2 * M_PI * (j / (domain_size+ 0.));
       // double y = min + ((j + 0.0) / (domain_size - 1)) * (max - min);
       for (int k = 1; k < domain_size-1; k++) {
-        double phi = M_PI * (i / (domain_size+0.));
+        double phi = M_PI * (k / (domain_size+0.));
         // double z = min + ((k + 0.0) / (domain_size - 1)) * (max - min);
         double x = 0.5 + r*sin(phi)*cos(theta);
         double y = 0.5 + r*sin(phi)*sin(theta);

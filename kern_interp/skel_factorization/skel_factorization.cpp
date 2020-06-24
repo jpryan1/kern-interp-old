@@ -153,7 +153,7 @@ void SkelFactorization::skeletonize(const Kernel& kernel, QuadTree* tree) {
     std::cout<<"allskel lu "<<(lufe-lufs)<<std::endl;
     return;
   }
-
+std::cout<<"all skel cond "<<tree->allskel_mat.condition_number()<<std::endl;
   std::vector<QuadTreeNode*> all_nodes;
   for (int level = lvls - 1; level >= 0; level--) {
     QuadTreeLevel* current_level = tree->levels[level];
@@ -254,9 +254,9 @@ void SkelFactorization::skeletonize(const Kernel& kernel, QuadTree* tree) {
                           small_redundants);
   }
   ki_Mat ident(tree->Psi.height(), tree->Psi.height());
-  // if(kernel.domain_dimension ==2){
+  if(kernel.domain_dimension ==2){
     ident.eye(tree->Psi.height());
-  // } 
+  } 
   ki_Mat S(allskel.size() + tree->Psi.height(),
            allskel.size() + tree->Psi.height());
 
@@ -273,6 +273,7 @@ void SkelFactorization::skeletonize(const Kernel& kernel, QuadTree* tree) {
                   - ident - (modified_Psi(0, modified_Psi.height(),
                                           allredundant) * Dinv_C_nonzero));
   double slustart = omp_get_wtime();
+  std::cout<<"slustart"<<std::endl;
   S.LU_factorize(&tree->S_LU, &tree->S_piv);
   double sluend = omp_get_wtime();
   std::cout<<"slu "<<(sluend-slustart)<<std::endl;

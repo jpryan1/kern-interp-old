@@ -29,9 +29,12 @@ enum BoundaryCondition {
   HORIZONTAL_VEC,
   EX3A,
   EX3B,
+  LAPLACE_CHECK_2D,
+  LAPLACE_CHECK_3D,
   ELECTRON_3D,
   STOKES_3D,
   STOKES_3D_MIX,
+  STOKES_2D_MIX,
   DEFAULT  // This is special, means use BC inherent to experiment/function.
 };
 
