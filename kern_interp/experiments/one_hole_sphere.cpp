@@ -87,7 +87,7 @@ void run_one_hole_sphere() {
       Hole hole2d;
   hole2d.center = PointVec(0.5, 0.5);
   hole2d.radius = 0.1;
-  boundary3d->holes.push_back(hole2d);
+  boundary2d->holes.push_back(hole2d);
   boundary2d->initialize(pow(2,11),  BoundaryCondition::STOKES_2D_MIX);
   QuadTree quadtree2d;
   quadtree2d.initialize_tree(boundary2d.get(), 3, 3);
