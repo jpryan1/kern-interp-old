@@ -23,13 +23,13 @@ void run_one_hole_sphere() {
     std::unique_ptr<Boundary>(new Sphere());
 
   Hole hole;
-  hole.center = PointVec(0.0,0.2,0.7);
+  hole.center = PointVec(0.0, 0.2, 0.7);
   hole.radius = 0.25;
-  boundary->holes.push_back(hole);  
+  boundary->holes.push_back(hole);
   Hole hole2;
-  hole2.center = PointVec(1.0,0.8,0.3);
+  hole2.center = PointVec(1.0, 0.8, 0.3);
   hole2.radius = 0.25;
-  boundary->holes.push_back(hole2);  
+  boundary->holes.push_back(hole2);
   boundary->initialize(96,  BoundaryCondition::STOKES_3D_MIX);
 
   QuadTree quadtree;
@@ -43,7 +43,7 @@ void run_one_hole_sphere() {
   ki_Mat sol = boundary_integral_solve(kernel, *(boundary.get()), &quadtree,
                                        1e-6, 8, domain_points);
 
-// double err = stokes_err_3d(sol, domain_points, boundary.get(), 
+// double err = stokes_err_3d(sol, domain_points, boundary.get(),
 //     hole.radius, STOKES_MIXER);
 //   std::cout<<"err of "<<err<<std::endl;
   std::ofstream sol_out;
@@ -51,12 +51,12 @@ void run_one_hole_sphere() {
   int points_index = 0;
   for (int i = 0; i < sol.height(); i += 3) {
     sol_out << domain_points[points_index] << "," <<
-            domain_points[points_index+1] << ","<<
-            domain_points[points_index+2]<<",";
+            domain_points[points_index + 1] << "," <<
+            domain_points[points_index + 2] << ",";
     points_index += 3;
-    sol_out << sol.get(i, 0) << "," << 
-               sol.get(i + 1, 0)<<","<<
-               sol.get(i + 2, 0)<< std::endl;
+    sol_out << sol.get(i, 0) << "," <<
+            sol.get(i + 1, 0) << "," <<
+            sol.get(i + 2, 0) << std::endl;
   }
   sol_out.close();
   // std::ofstream bound_out;
@@ -66,8 +66,8 @@ void run_one_hole_sphere() {
   //             << std::endl;
   // }
   // bound_out.close();
- 
- // conclusion of last timing test - lvl 2 has some boxes that take forever
+
+// conclusion of last timing test - lvl 2 has some boxes that take forever
 }
 
 }  // namespace kern_interp

@@ -12,12 +12,12 @@ void Sphere::initialize(int num_circumf_points, BoundaryCondition bc) {
   weights.clear();
   curvatures.clear();
 
-  if(holes.size() == 0){
+  if (holes.size() == 0) {
     Hole hole;
-    hole.center = PointVec(0.3,0.3,0.3);
+    hole.center = PointVec(0.3, 0.3, 0.3);
     hole.radius = 0.25;
     holes.push_back(hole);
-    hole.center = PointVec(0.7,0.7,0.7);
+    hole.center = PointVec(0.7, 0.7, 0.7);
     hole.radius = 0.25;
     holes.push_back(hole);
   }
@@ -25,18 +25,19 @@ void Sphere::initialize(int num_circumf_points, BoundaryCondition bc) {
   int num_holes = holes.size();
 
   int num_phi_points = num_circumf_points / 2;
-  num_outer_nodes = num_circumf_points*num_phi_points;
+  num_outer_nodes = num_circumf_points * num_phi_points;
 
-  int hole_circumf_points = num_circumf_points/num_holes;
-  int hole_phi_points = hole_circumf_points/2;
+  int hole_circumf_points = num_circumf_points / num_holes;
+  int hole_phi_points = hole_circumf_points / 2;
 
-  int each_hole_points = hole_circumf_points*hole_phi_points;
+  int each_hole_points = hole_circumf_points * hole_phi_points;
 
-  for(int i=0; i<holes.size(); i++){
+  for (int i = 0; i < holes.size(); i++) {
     holes[i].num_nodes = each_hole_points;
   }
 
-  int total_points = num_circumf_points * num_phi_points + (num_holes*each_hole_points);
+  int total_points = num_circumf_points * num_phi_points +
+                     (num_holes * each_hole_points);
 
   double phis[num_phi_points];
   double phi_weights[num_phi_points];
@@ -46,7 +47,7 @@ void Sphere::initialize(int num_circumf_points, BoundaryCondition bc) {
   for (int i = 0; i < num_circumf_points; i++) {
     double theta = 2 * M_PI * i * (1.0 / num_circumf_points);
     for (int j = 0; j < num_phi_points; j++) {   // modify this for annulus proxy
-      double phi = phis[j]; 
+      double phi = phis[j];
       points.push_back(0.5 + r * sin(phi) * cos(theta));
       points.push_back(0.5 + r * sin(phi) * sin(theta));
       points.push_back(0.5 + r * cos(phi));
@@ -54,25 +55,26 @@ void Sphere::initialize(int num_circumf_points, BoundaryCondition bc) {
       normals.push_back(sin(phi) * sin(theta));
       normals.push_back(cos(phi));
       weights.push_back(pow(r, 2) * sin(phi) * phi_weights[j]
-                        *(( 2* M_PI )/num_circumf_points));
+                        * ((2 * M_PI) / num_circumf_points));
     }
   }
   double hole_phis[hole_phi_points];
   double hole_phi_weights[hole_phi_points];
-  cgqf(hole_phi_points, 1, 0.0, 0.0, phi_start, phi_end, hole_phis, hole_phi_weights);
-  for(Hole hole : holes){
+  cgqf(hole_phi_points, 1, 0.0, 0.0, phi_start, phi_end, hole_phis,
+       hole_phi_weights);
+  for (Hole hole : holes) {
     for (int i = 0; i < hole_circumf_points; i++) {
       double theta = 2 * M_PI * i * (1.0 / hole_circumf_points);
       for (int j = 0; j < hole_phi_points; j++) {   // modify this for annulus proxy
-        double phi = hole_phis[j]; 
-        points.push_back(hole.center.a[0] + hole.radius* sin(phi) * cos(theta));
-        points.push_back(hole.center.a[1] + hole.radius* sin(phi) * sin(theta));
-        points.push_back(hole.center.a[2] + hole.radius* cos(phi));
+        double phi = hole_phis[j];
+        points.push_back(hole.center.a[0] + hole.radius * sin(phi) * cos(theta));
+        points.push_back(hole.center.a[1] + hole.radius * sin(phi) * sin(theta));
+        points.push_back(hole.center.a[2] + hole.radius * cos(phi));
         normals.push_back(-sin(phi) * cos(theta));
         normals.push_back(-sin(phi) * sin(theta));
         normals.push_back(-cos(phi));
         weights.push_back(pow(hole.radius, 2) * sin(phi) * hole_phi_weights[j]
-                          *(( 2* M_PI )/hole_circumf_points));
+                          * ((2 * M_PI) / hole_circumf_points));
       }
     }
   }
@@ -91,7 +93,7 @@ bool Sphere::is_in_domain(const PointVec& a) const {
   double eps = 1e-2;
   double dist = (center - a).norm();
   if (dist + eps > r) return false;
-  for(Hole hole : holes){
+  for (Hole hole : holes) {
     dist = (hole.center - a).norm();
     if (dist - eps < hole.radius) return false;
   }
