@@ -175,10 +175,10 @@ ki_Mat initialize_Psi_mat(const Kernel::Pde pde,
           for (int hole_idx = 0; hole_idx < holes.size(); hole_idx++) {
             Hole hole = holes[hole_idx];
             if ((x - hole.center).norm() < hole.radius + 1e-8) {
-              Psi.set(3 * hole_idx, i, boundary.weights[i / 2]);
-              Psi.set(3 * hole_idx + 1, i + 1, boundary.weights[i / 2]);
-              Psi.set(3 * hole_idx + 2, i, boundary.weights[i / 2]*x.a[1]);
-              Psi.set(3 * hole_idx + 2, i + 1, -boundary.weights[i / 2]*x.a[0]);
+              Psi.set(2 * hole_idx, i, boundary.weights[i / 2]);
+              Psi.set(2 * hole_idx + 1, i + 1, boundary.weights[i / 2]);
+              Psi.set(2 * hole_idx + 2, i, boundary.weights[i / 2]*x.a[1]);
+              Psi.set(2 * hole_idx + 2, i + 1, -boundary.weights[i / 2]*x.a[0]);
               break;
             }
           }
@@ -204,8 +204,8 @@ void linear_solve(const SkelFactorization& skel_factorization,
   } else {
     *alpha = ki_Mat(quadtree.U.width(), 1);
     skel_factorization.multiply_connected_solve(quadtree, mu, alpha, f);
-    std::cout<<"alpha is "<<alpha->get(0,0)<<" "<<alpha->get(1,0)<<" "
-     <<alpha->get(2,0)<<std::endl;
+    // std::cout<<"alpha is "<<alpha->get(0,0)<<" "<<alpha->get(1,0)<<" "
+    //  <<alpha->get(2,0)<<std::endl;
     //<<" "<<alpha->get(3,0)<<" "<<alpha->get(4,0)<<" "<<alpha->get(5,0)<<std::endl;
   }
 }
@@ -298,9 +298,10 @@ void get_domain_points(int domain_size, std::vector<double>* points,
 
 void get_domain_points3d(int domain_size, std::vector<double>* points,
                        double min, double max){
+  double eps = 0.05;
 
   for (int i = 0; i < domain_size; i++) {
-    double r = (0.9*(i/(domain_size + 0.)));
+    double r = eps + min + ((max-min-eps)*(i/(domain_size + 0.)));
     // double x = min + ((i + 0.0) / (domain_size - 1)) * (max - min);
     for (int j = 0; j < domain_size; j++) {
       double theta = 2 * M_PI * (j / (domain_size+ 0.));
@@ -308,6 +309,8 @@ void get_domain_points3d(int domain_size, std::vector<double>* points,
       for (int k = 1; k < domain_size-1; k++) {
         double phi = M_PI * (k / (domain_size+0.));
         // double z = min + ((k + 0.0) / (domain_size - 1)) * (max - min);
+        // double phi=0;
+        // double theta=0;
         double x = 0.5 + r*sin(phi)*cos(theta);
         double y = 0.5 + r*sin(phi)*sin(theta);
         double z = 0.5 + r*cos(phi);
@@ -435,33 +438,78 @@ ki_Mat stokes_true_sol(const std::vector<double>& domain_points,
 
 double stokes_err_3d(const ki_Mat& domain,
                      const std::vector<double>& domain_points,
-                     Boundary * boundary){
+                     Boundary* boundary, double rsmall, double w){
 
-  ki_Mat truth(domain_points.size(), 1);
+
+  ki_Mat abcd(4,4);
+  abcd.set(0,0, 1.);
+  abcd.set(0,1, 1.);
+  abcd.set(0,2, 1.);
+  abcd.set(0,3, 1.);
+  
+  abcd.set(1,0, 1.);
+  abcd.set(1,1, -1.);
+  abcd.set(1,2, -2.);
+  abcd.set(1,3, -4.);
+  
+  abcd.set(2,0, 1.0/pow(rsmall,3));
+  abcd.set(2,1, 1.0/rsmall);
+  abcd.set(2,2, 1.0);
+  abcd.set(2,3, pow(rsmall,2));
+  
+  abcd.set(3,0, 1.0/pow(rsmall,3));
+  abcd.set(3,1, -1.0/rsmall);
+  abcd.set(3,2, -2);
+  abcd.set(3,3, -4*pow(rsmall,2));
+
+  ki_Mat b(4, 1);
+  b.set(0, 0, 0.5);
+  b.set(1, 0, -1.0);
+  b.set(2, 0, w/2.0);
+  b.set(3, 0, w);
+
+  ki_Mat x_vals(4,1);
+  abcd.left_multiply_inverse(b, &x_vals);
+
+  double err =0.;
+  double tot = 0.;
   for (int i = 0; i < domain_points.size(); i += 3) {
     double x0 = domain_points[i];
     double x1 = domain_points[i + 1];
     double x2 = domain_points[i + 2];
+
     PointVec x(x0, x1, x2);
-
-    PointVec center(0.5, 0.5, 0.5);
-    PointVec r = x - center;
-    // double p = (c1 / r.norm()) + c2 * r.norm();
-
-    // PointVec true_vec = r * (1. / r.norm()) * p;
-    
     if (!boundary->is_in_domain(x)) {
-      truth.set(i, 0, 0.0);
-      truth.set(i + 1, 0, 0.0);
-      truth.set(i + 2, 0, 0.0);
       continue;
     }
-    truth.set(i, 0, 1);//true_vec.a[0]);
-    truth.set(i + 1, 0, 0);// true_vec.a[1]);
-    truth.set(i + 2, 0,  0);//true_vec.a[2]);
-  }
 
-  return (domain-truth).vec_two_norm()/truth.vec_two_norm();
+    PointVec center(0.5, 0.5, 0.5);
+    PointVec point = x - center;
+
+    double r, phi;
+    r = point.norm();
+    phi = acos(point.a[2]/point.norm());
+
+    double ur,uphi;
+     ur = 2*cos(phi)*(
+      (x_vals.get(0,0)/pow(r,3))
+      +(x_vals.get(1,0)/r)
+      +(x_vals.get(2,0))
+      +(x_vals.get(3,0)*pow(r,2)));
+     uphi = sin(phi)*(
+      (x_vals.get(0,0)/pow(r,3))
+      +(-x_vals.get(1,0)/r)
+      +(-2*x_vals.get(2,0))
+      +(-4*x_vals.get(3,0)*pow(r,2)));
+
+    PointVec guessvel = PointVec(domain.get(i, 0), domain.get(i+1, 0), domain.get(i+2,0));
+    double guessmag = guessvel.norm();
+   double predmag = sqrt(pow(ur,2) + pow(r*uphi,2));
+    
+    err+=pow(guessmag-predmag,2);
+    tot +=pow(predmag,2);
+  }
+  return sqrt(err)/sqrt(tot);
 }
 
 

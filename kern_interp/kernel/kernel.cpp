@@ -180,7 +180,7 @@ void Kernel::compute_diag_entries_3dlaplace(Boundary* boundary){
                                   (r1 * sn1 + r2 * sn2 + r3 * sn3) /
                                   pow(r1 * r1 + r2 * r2 + r3 * r3, 1.5));
       }
-      boundary_diags[pt_idx] = 1 - rowsum;
+      boundary_diags[pt_idx] = -rowsum;
     }
     curr_idx += hole.num_nodes;
   }
@@ -230,7 +230,9 @@ void Kernel::compute_diag_entries_3dstokes(Boundary* boundary){
       double r[3] = {r1, r2, r3};
       double pot = sw * scale * (r1 * sn1 + r2 * sn2 + r3 * sn3) /
                         (pow(r1 * r1 + r2 * r2 + r3 * r3, 2.5))
-                        * r[dof%3] * r[other_dof%3];
+                        * r[dof%3] * r[other_dof%3]
+                         + sw * tn[dof%3] * sn[other_dof%3 ];
+;
  
       double tmp = boundary_diag_tensors[pt_idx].get(dof%3, other_dof%3);
       boundary_diag_tensors[pt_idx].set(dof%3, other_dof%3, tmp + pot );
@@ -270,7 +272,9 @@ void Kernel::compute_diag_entries_3dstokes(Boundary* boundary){
         double r[3] = {r1, r2, r3};
         double pot = sw * scale * (r1 * sn1 + r2 * sn2 + r3 * sn3) /
                           (pow(r1 * r1 + r2 * r2 + r3 * r3, 2.5))
-                          * r[dof%3] * r[other_dof%3];
+                          * r[dof%3] * r[other_dof%3]
+                           + sw * tn[dof%3] * sn[other_dof%3 ];
+;
    
         double tmp = boundary_diag_tensors[pt_idx].get(dof%3, other_dof%3);
         boundary_diag_tensors[pt_idx].set(dof%3, other_dof%3, tmp + pot );
@@ -282,18 +286,11 @@ void Kernel::compute_diag_entries_3dstokes(Boundary* boundary){
 
   ki_Mat ident(3,3);
   ident.eye(3);
-  for(int pt_idx=0; pt_idx<boundary->weights.size(); pt_idx++){
+  for(int pt_idx=0; pt_idx<boundary->num_outer_nodes; pt_idx++){
     boundary_diag_tensors[pt_idx] =(ident)- boundary_diag_tensors[pt_idx];
-    double tn1 = boundary->normals[3*pt_idx];
-    double tn2 = boundary->normals[3*pt_idx+1];
-    double tn3 = boundary->normals[3*pt_idx+2];    
-    double tn[3] = {tn1, tn2, tn3};
-    for(int p=0;p<3;p++){
-      for(int s=0;s<3;s++){
-        double tmp = boundary_diag_tensors[pt_idx].get(p,s);
-        boundary_diag_tensors[pt_idx].set(p,s, tmp + boundary->weights[pt_idx]*tn[p]*tn[s]);
-      }
-    }
+  }
+    for(int pt_idx=boundary->num_outer_nodes; pt_idx<boundary->weights.size(); pt_idx++){
+    boundary_diag_tensors[pt_idx] =- boundary_diag_tensors[pt_idx];
   }
 }
 

@@ -153,7 +153,7 @@ void SkelFactorization::skeletonize(const Kernel& kernel, QuadTree* tree) {
     std::cout<<"allskel lu "<<(lufe-lufs)<<std::endl;
     return;
   }
-std::cout<<"all skel cond "<<tree->allskel_mat.condition_number()<<std::endl;
+// std::cout<<"all skel cond "<<tree->allskel_mat.condition_number()<<std::endl;
   std::vector<QuadTreeNode*> all_nodes;
   for (int level = lvls - 1; level >= 0; level--) {
     QuadTreeLevel* current_level = tree->levels[level];
@@ -177,10 +177,10 @@ std::cout<<"all skel cond "<<tree->allskel_mat.condition_number()<<std::endl;
       allredundant.push_back(i);
     }
   }
-  if (allredundant.size() == 0) {
-    std::cout << "No compression possible" << std::endl;
-    exit(0);
-  }
+  // if (allredundant.size() == 0) {
+  //   std::cout << "No compression possible" << std::endl;
+  //   exit(0);
+  // }
 
   // In our bordered linear system, the skel and redundant indices are
   // partitioned so we create a map from their original index into their
@@ -273,7 +273,8 @@ std::cout<<"all skel cond "<<tree->allskel_mat.condition_number()<<std::endl;
                   - ident - (modified_Psi(0, modified_Psi.height(),
                                           allredundant) * Dinv_C_nonzero));
   double slustart = omp_get_wtime();
-  std::cout<<"slustart"<<std::endl;
+  std::cout<<"slustart "<<std::endl;
+
   S.LU_factorize(&tree->S_LU, &tree->S_piv);
   double sluend = omp_get_wtime();
   std::cout<<"slu "<<(sluend-slustart)<<std::endl;

@@ -135,7 +135,7 @@ void Boundary::apply_boundary_condition(int start_point_idx, int end_point_idx,
           boundary_values.set(2 * point_idx, 0, 1.0);
           boundary_values.set(2 * point_idx + 1, 0, 0);
         }else{
-          boundary_values.set(2 * point_idx, 0, -5);
+          boundary_values.set(2 * point_idx, 0, -STOKES_MIXER);
           boundary_values.set(2 * point_idx + 1, 0, 0);
         }
         break;
@@ -165,13 +165,13 @@ void Boundary::apply_boundary_condition(int start_point_idx, int end_point_idx,
                         + pow(points[3 * point_idx + 1] - 0.5, 2)
                         + pow(points[3 * point_idx + 2] - 0.5, 2));
         if(r>0.9){
-          boundary_values.set(3 * point_idx, 0, 1.0);
-          boundary_values.set(3 * point_idx + 1, 0, 0);
-          boundary_values.set(3 * point_idx + 2, 0, 0);
+          boundary_values.set(3 * point_idx, 0, 0);
+          boundary_values.set(3 * point_idx + 1, 0, 0.0);
+          boundary_values.set(3 * point_idx + 2, 0, 1.0);
         }else{
-          boundary_values.set(3 * point_idx, 0, -5);
+          boundary_values.set(3 * point_idx, 0, 0);
           boundary_values.set(3 * point_idx + 1, 0, 0);
-          boundary_values.set(3 * point_idx + 2, 0, 0);
+          boundary_values.set(3 * point_idx + 2, 0, -STOKES_MIXER);
         }
         break;
       }

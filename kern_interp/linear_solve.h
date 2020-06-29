@@ -44,7 +44,7 @@ ki_Mat stokes_true_sol(const std::vector<double>& domain_points,
 
 double stokes_err_3d(const ki_Mat& domain,
                      const std::vector<double>& domain_points,
-                     Boundary * boundary);
+                     Boundary* boundary, double r, double w);
 }  // namespace kern_interp
 
 #endif  // KERN_INTERP_LINEAR_SOLVE_H_
