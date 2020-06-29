@@ -86,15 +86,15 @@ void Kernel::two_d_kern(int mat_idx, int tgt_parity, int src_parity,
 }
 
 void Kernel::three_d_stokes(int mat_idx, int tgt_parity, int src_parity,
-                        ki_Mat* ret, double r1, double r2, double r3, const ki_Mat& diag,
-                        double tn1, double tn2, double tn3, double sn1, double sn2, double sn3,
-                        double sw) const {
+                            ki_Mat* ret, double r1, double r2, double r3, const ki_Mat& diag,
+                            double tn1, double tn2, double tn3, double sn1, double sn2, double sn3,
+                            double sw) const {
   double sn[3] = {sn1, sn2, sn3};
   double tn[3] = {tn1, tn2, tn3};
   double r[3] = {r1, r2, r3};
-  double scale = -3 / (4.0*M_PI);
+  double scale = -3.0 / (4.0 * M_PI);
 
-  if (r1 == 0. && r2 == 0. && r3==0.) {
+  if (r1 == 0. && r2 == 0. && r3 == 0.) {
     ret->mat[mat_idx] = diag.get(tgt_parity, src_parity);//TODO
   } else {
     ret->mat[mat_idx] = sw * scale * (r1 * sn1 + r2 * sn2 + r3 * sn3) /
@@ -105,47 +105,49 @@ void Kernel::three_d_stokes(int mat_idx, int tgt_parity, int src_parity,
 
 }
 
-void Kernel::three_d_laplace(int mat_idx, ki_Mat* ret, double r1, double r2, double r3,
-                        double diag,  
-                       double sn1, double sn2, double sn3, 
-                        double sw ) const {
-  if (r1 == 0. && r2 == 0.&& r3 == 0.) {
+void Kernel::three_d_laplace(int mat_idx, ki_Mat* ret, double r1, double r2,
+                             double r3,
+                             double diag,
+                             double sn1, double sn2, double sn3,
+                             double sw) const {
+  if (r1 == 0. && r2 == 0. && r3 == 0.) {
     ret->mat[mat_idx] = diag;
   } else {
     ret->mat[mat_idx] =  -sw * (1.0 / (4 * M_PI)) *
-                          (r1 * sn1 + r2 * sn2 + r3 * sn3) /
-                          pow(r1 * r1 + r2 * r2 + r3 * r3, 1.5);
+                         (r1 * sn1 + r2 * sn2 + r3 * sn3) /
+                         pow(r1 * r1 + r2 * r2 + r3 * r3, 1.5);
   }
 }
 
 
-void Kernel::compute_diag_entries_3dlaplace(Boundary* boundary){
+void Kernel::compute_diag_entries_3dlaplace(Boundary* boundary) {
   boundary_diags = std::vector<double>(boundary->weights.size());
   #pragma omp parallel for num_threads(8)
-  for(int pt_idx =0; pt_idx < boundary->num_outer_nodes; pt_idx++){
-    double tp1 = boundary->points[3*pt_idx];
-    double tp2 = boundary->points[3*pt_idx+1];
-    double tp3 = boundary->points[3*pt_idx+2];    
+  for (int pt_idx = 0; pt_idx < boundary->num_outer_nodes; pt_idx++) {
+    double tp1 = boundary->points[3 * pt_idx];
+    double tp2 = boundary->points[3 * pt_idx + 1];
+    double tp3 = boundary->points[3 * pt_idx + 2];
 
     double rowsum = 0.0;
-    for(int other_pt_idx = 0; other_pt_idx < boundary->num_outer_nodes; other_pt_idx++){
-      if(pt_idx == other_pt_idx) continue;
+    for (int other_pt_idx = 0; other_pt_idx < boundary->num_outer_nodes;
+         other_pt_idx++) {
+      if (pt_idx == other_pt_idx) continue;
 
-      double sp1 = boundary->points[3*other_pt_idx];
-      double sp2 = boundary->points[3*other_pt_idx+1];
-      double sp3 = boundary->points[3*other_pt_idx+2];
-      double sn1 = boundary->normals[3*other_pt_idx];
-      double sn2 = boundary->normals[3*other_pt_idx+1];
-      double sn3 = boundary->normals[3*other_pt_idx+2];
+      double sp1 = boundary->points[3 * other_pt_idx];
+      double sp2 = boundary->points[3 * other_pt_idx + 1];
+      double sp3 = boundary->points[3 * other_pt_idx + 2];
+      double sn1 = boundary->normals[3 * other_pt_idx];
+      double sn2 = boundary->normals[3 * other_pt_idx + 1];
+      double sn3 = boundary->normals[3 * other_pt_idx + 2];
       double sw = boundary->weights[other_pt_idx];
 
-      double r1 = tp1-sp1;
-      double r2 = tp2-sp2;
-      double r3 = tp3-sp3;
+      double r1 = tp1 - sp1;
+      double r2 = tp2 - sp2;
+      double r3 = tp3 - sp3;
 
       rowsum += (-sw * (1.0 / (4 * M_PI)) *
-                                (r1 * sn1 + r2 * sn2 + r3 * sn3) /
-                                pow(r1 * r1 + r2 * r2 + r3 * r3, 1.5));
+                 (r1 * sn1 + r2 * sn2 + r3 * sn3) /
+                 pow(r1 * r1 + r2 * r2 + r3 * r3, 1.5));
     }
     boundary_diags[pt_idx] = 1 - rowsum;
   }
@@ -153,155 +155,156 @@ void Kernel::compute_diag_entries_3dlaplace(Boundary* boundary){
   // #pragma omp parallel for num_threads(8)
 
   int curr_idx = boundary->num_outer_nodes;
-  for(Hole hole : boundary->holes){
+  for (Hole hole : boundary->holes) {
     #pragma omp parallel for num_threads(8)
-    for(int pt_idx = curr_idx; pt_idx < curr_idx + hole.num_nodes; pt_idx++){
-      double tp1 = boundary->points[3*pt_idx];
-      double tp2 = boundary->points[3*pt_idx+1];
-      double tp3 = boundary->points[3*pt_idx+2];    
+    for (int pt_idx = curr_idx; pt_idx < curr_idx + hole.num_nodes; pt_idx++) {
+      double tp1 = boundary->points[3 * pt_idx];
+      double tp2 = boundary->points[3 * pt_idx + 1];
+      double tp3 = boundary->points[3 * pt_idx + 2];
 
       double rowsum = 0.0;
-      for(int other_pt_idx = curr_idx; other_pt_idx < curr_idx+hole.num_nodes; other_pt_idx++){
-        if(pt_idx == other_pt_idx) continue;
+      for (int other_pt_idx = curr_idx; other_pt_idx < curr_idx + hole.num_nodes;
+           other_pt_idx++) {
+        if (pt_idx == other_pt_idx) continue;
 
-        double sp1 = boundary->points[3*other_pt_idx];
-        double sp2 = boundary->points[3*other_pt_idx+1];
-        double sp3 = boundary->points[3*other_pt_idx+2];
-        double sn1 = boundary->normals[3*other_pt_idx];
-        double sn2 = boundary->normals[3*other_pt_idx+1];
-        double sn3 = boundary->normals[3*other_pt_idx+2];
+        double sp1 = boundary->points[3 * other_pt_idx];
+        double sp2 = boundary->points[3 * other_pt_idx + 1];
+        double sp3 = boundary->points[3 * other_pt_idx + 2];
+        double sn1 = boundary->normals[3 * other_pt_idx];
+        double sn2 = boundary->normals[3 * other_pt_idx + 1];
+        double sn3 = boundary->normals[3 * other_pt_idx + 2];
         double sw = boundary->weights[other_pt_idx];
 
-        double r1 = tp1-sp1;
-        double r2 = tp2-sp2;
-        double r3 = tp3-sp3;
+        double r1 = tp1 - sp1;
+        double r2 = tp2 - sp2;
+        double r3 = tp3 - sp3;
 
         rowsum += (-sw * (1.0 / (4 * M_PI)) *
-                                  (r1 * sn1 + r2 * sn2 + r3 * sn3) /
-                                  pow(r1 * r1 + r2 * r2 + r3 * r3, 1.5));
+                   (r1 * sn1 + r2 * sn2 + r3 * sn3) /
+                   pow(r1 * r1 + r2 * r2 + r3 * r3, 1.5));
       }
-      boundary_diags[pt_idx] = 1 - rowsum;
+      boundary_diags[pt_idx] = -rowsum;
     }
     curr_idx += hole.num_nodes;
   }
 }
 
 
-void Kernel::compute_diag_entries_3dstokes(Boundary* boundary){
+void Kernel::compute_diag_entries_3dstokes(Boundary* boundary) {
 
 
 
   boundary_diag_tensors = std::vector<ki_Mat>(boundary->weights.size());
 
-  for(int i=0; i<boundary->weights.size(); i++){
-    boundary_diag_tensors[i] = ki_Mat(3,3);
-  //   boundary_diag_tensors[i].set(0,0,1);
-  //   boundary_diag_tensors[i].set(1,1,1);
-  //   boundary_diag_tensors[i].set(2,2,1);
+  for (int i = 0; i < boundary->weights.size(); i++) {
+    boundary_diag_tensors[i] = ki_Mat(3, 3);
+    //   boundary_diag_tensors[i].set(0,0,1);
+    //   boundary_diag_tensors[i].set(1,1,1);
+    //   boundary_diag_tensors[i].set(2,2,1);
   }
   // return;
   #pragma omp parallel for num_threads(8)
-  for(int dof =0; dof < boundary->num_outer_nodes*domain_dimension; dof++){
-    int pt_idx = dof/3;
-    double tp1 = boundary->points[3*pt_idx];
-    double tp2 = boundary->points[3*pt_idx+1];
-    double tp3 = boundary->points[3*pt_idx+2];   
-    double tn1 = boundary->normals[3*pt_idx];
-    double tn2 = boundary->normals[3*pt_idx+1];
-    double tn3 = boundary->normals[3*pt_idx+2];    
+  for (int dof = 0; dof < boundary->num_outer_nodes * domain_dimension; dof++) {
+    int pt_idx = dof / 3;
+    double tp1 = boundary->points[3 * pt_idx];
+    double tp2 = boundary->points[3 * pt_idx + 1];
+    double tp3 = boundary->points[3 * pt_idx + 2];
+    double tn1 = boundary->normals[3 * pt_idx];
+    double tn2 = boundary->normals[3 * pt_idx + 1];
+    double tn3 = boundary->normals[3 * pt_idx + 2];
     double tn[3] = {tn1, tn2, tn3};
 
-    for(int other_dof =0; other_dof < boundary->num_outer_nodes*domain_dimension; other_dof++){
-      int other_pt_idx = other_dof/3;
-      if(pt_idx == other_pt_idx) continue;
+    for (int other_dof = 0;
+         other_dof < boundary->num_outer_nodes * domain_dimension; other_dof++) {
+      int other_pt_idx = other_dof / 3;
+      if (pt_idx == other_pt_idx) continue;
 
-      double sp1 = boundary->points[3*other_pt_idx];
-      double sp2 = boundary->points[3*other_pt_idx+1];
-      double sp3 = boundary->points[3*other_pt_idx+2];
-      double sn1 = boundary->normals[3*other_pt_idx];
-      double sn2 = boundary->normals[3*other_pt_idx+1];
-      double sn3 = boundary->normals[3*other_pt_idx+2];
+      double sp1 = boundary->points[3 * other_pt_idx];
+      double sp2 = boundary->points[3 * other_pt_idx + 1];
+      double sp3 = boundary->points[3 * other_pt_idx + 2];
+      double sn1 = boundary->normals[3 * other_pt_idx];
+      double sn2 = boundary->normals[3 * other_pt_idx + 1];
+      double sn3 = boundary->normals[3 * other_pt_idx + 2];
       double sw = boundary->weights[other_pt_idx];
       double sn[3] = {sn1, sn2, sn3};
-      double scale = -3.0/(4*M_PI);
-      double r1 = tp1-sp1;
-      double r2 = tp2-sp2;
-      double r3 = tp3-sp3;
+      double scale = -3.0 / (4.0 * M_PI);
+      double r1 = tp1 - sp1;
+      double r2 = tp2 - sp2;
+      double r3 = tp3 - sp3;
       double r[3] = {r1, r2, r3};
       double pot = sw * scale * (r1 * sn1 + r2 * sn2 + r3 * sn3) /
-                        (pow(r1 * r1 + r2 * r2 + r3 * r3, 2.5))
-                        * r[dof%3] * r[other_dof%3];
- 
-      double tmp = boundary_diag_tensors[pt_idx].get(dof%3, other_dof%3);
-      boundary_diag_tensors[pt_idx].set(dof%3, other_dof%3, tmp + pot );
+                   (pow(r1 * r1 + r2 * r2 + r3 * r3, 2.5))
+                   * r[dof % 3] * r[other_dof % 3]
+                   + sw * tn[dof % 3] * sn[other_dof % 3 ];
+      ;
+
+      double tmp = boundary_diag_tensors[pt_idx].get(dof % 3, other_dof % 3);
+      boundary_diag_tensors[pt_idx].set(dof % 3, other_dof % 3, tmp + pot);
 
     }
   }
+  int curr_idx = boundary->num_outer_nodes * domain_dimension;
 
-
-  int curr_idx = boundary->num_outer_nodes*domain_dimension;
-  for(Hole hole : boundary->holes){
+  for (Hole hole : boundary->holes) {
     #pragma omp parallel for num_threads(8)
-    for(int dof =curr_idx; dof < curr_idx+hole.num_nodes*domain_dimension; dof++){
-      int pt_idx = dof/3;
-      double tp1 = boundary->points[3*pt_idx];
-      double tp2 = boundary->points[3*pt_idx+1];
-      double tp3 = boundary->points[3*pt_idx+2];   
-      double tn1 = boundary->normals[3*pt_idx];
-      double tn2 = boundary->normals[3*pt_idx+1];
-      double tn3 = boundary->normals[3*pt_idx+2];    
+    for (int dof = curr_idx; dof < curr_idx + hole.num_nodes * domain_dimension;
+         dof++) {
+      int pt_idx = dof / 3;
+      double tp1 = boundary->points[3 * pt_idx];
+      double tp2 = boundary->points[3 * pt_idx + 1];
+      double tp3 = boundary->points[3 * pt_idx + 2];
+      double tn1 = boundary->normals[3 * pt_idx];
+      double tn2 = boundary->normals[3 * pt_idx + 1];
+      double tn3 = boundary->normals[3 * pt_idx + 2];
       double tn[3] = {tn1, tn2, tn3};
 
-      for(int other_dof =curr_idx; other_dof < curr_idx+hole.num_nodes*domain_dimension; other_dof++){
-        int other_pt_idx = other_dof/3;
-        if(pt_idx == other_pt_idx) continue;
+      for (int other_dof = curr_idx;
+           other_dof < curr_idx + hole.num_nodes * domain_dimension; other_dof++) {
+        int other_pt_idx = other_dof / 3;
+        if (pt_idx == other_pt_idx) continue;
 
-        double sp1 = boundary->points[3*other_pt_idx];
-        double sp2 = boundary->points[3*other_pt_idx+1];
-        double sp3 = boundary->points[3*other_pt_idx+2];
-        double sn1 = boundary->normals[3*other_pt_idx];
-        double sn2 = boundary->normals[3*other_pt_idx+1];
-        double sn3 = boundary->normals[3*other_pt_idx+2];
+        double sp1 = boundary->points[3 * other_pt_idx];
+        double sp2 = boundary->points[3 * other_pt_idx + 1];
+        double sp3 = boundary->points[3 * other_pt_idx + 2];
+        double sn1 = boundary->normals[3 * other_pt_idx];
+        double sn2 = boundary->normals[3 * other_pt_idx + 1];
+        double sn3 = boundary->normals[3 * other_pt_idx + 2];
         double sw = boundary->weights[other_pt_idx];
         double sn[3] = {sn1, sn2, sn3};
-        double scale = -3.0/(4*M_PI);
-        double r1 = tp1-sp1;
-        double r2 = tp2-sp2;
-        double r3 = tp3-sp3;
+        double scale = -3.0 / (4.0 * M_PI);
+        double r1 = tp1 - sp1;
+        double r2 = tp2 - sp2;
+        double r3 = tp3 - sp3;
         double r[3] = {r1, r2, r3};
         double pot = sw * scale * (r1 * sn1 + r2 * sn2 + r3 * sn3) /
-                          (pow(r1 * r1 + r2 * r2 + r3 * r3, 2.5))
-                          * r[dof%3] * r[other_dof%3];
-   
-        double tmp = boundary_diag_tensors[pt_idx].get(dof%3, other_dof%3);
-        boundary_diag_tensors[pt_idx].set(dof%3, other_dof%3, tmp + pot );
+                     (pow(r1 * r1 + r2 * r2 + r3 * r3, 2.5))
+                     * r[dof % 3] * r[other_dof % 3]
+                     + sw * tn[dof % 3] * sn[other_dof % 3 ];
+        ;
+
+        double tmp = boundary_diag_tensors[pt_idx].get(dof % 3, other_dof % 3);
+        boundary_diag_tensors[pt_idx].set(dof % 3, other_dof % 3, tmp + pot);
 
       }
     }
-    curr_idx += hole.num_nodes*domain_dimension;
+    curr_idx += hole.num_nodes * domain_dimension;
   }
 
-  ki_Mat ident(3,3);
+  ki_Mat ident(3, 3);
   ident.eye(3);
-  for(int pt_idx=0; pt_idx<boundary->weights.size(); pt_idx++){
-    boundary_diag_tensors[pt_idx] =(ident)- boundary_diag_tensors[pt_idx];
-    double tn1 = boundary->normals[3*pt_idx];
-    double tn2 = boundary->normals[3*pt_idx+1];
-    double tn3 = boundary->normals[3*pt_idx+2];    
-    double tn[3] = {tn1, tn2, tn3};
-    for(int p=0;p<3;p++){
-      for(int s=0;s<3;s++){
-        double tmp = boundary_diag_tensors[pt_idx].get(p,s);
-        boundary_diag_tensors[pt_idx].set(p,s, tmp + boundary->weights[pt_idx]*tn[p]*tn[s]);
-      }
-    }
+  for (int pt_idx = 0; pt_idx < boundary->num_outer_nodes; pt_idx++) {
+    boundary_diag_tensors[pt_idx] = (ident) - boundary_diag_tensors[pt_idx];
+  }
+  for (int pt_idx = boundary->num_outer_nodes; pt_idx < boundary->weights.size();
+       pt_idx++) {
+    boundary_diag_tensors[pt_idx] = - boundary_diag_tensors[pt_idx];
   }
 }
 
 
 ki_Mat Kernel::operator()(const std::vector<int>& tgt_inds,
                           const std::vector<int>& src_inds, bool forward) const {
-  if(domain_dimension == 3){
+  if (domain_dimension == 3) {
     return get_3d(tgt_inds, src_inds, forward);
   }
   ki_Mat ret(tgt_inds.size(), src_inds.size());
@@ -354,7 +357,7 @@ ki_Mat Kernel::operator()(const std::vector<int>& tgt_inds,
 
 
 ki_Mat Kernel::get_3d(const std::vector<int>& tgt_inds,
-                          const std::vector<int>& src_inds, bool forward) const {
+                      const std::vector<int>& src_inds, bool forward) const {
 
   ki_Mat ret(tgt_inds.size(), src_inds.size());
   int olda_ = tgt_inds.size();
@@ -381,7 +384,7 @@ ki_Mat Kernel::get_3d(const std::vector<int>& tgt_inds,
       int i_point_index = tgt_ind / solution_dimension;
       int i_points_vec_index = i_point_index * domain_dimension;
       double tp[3], tn[3];
-      if(forward){
+      if (forward) {
         tp[0] = domain_points[i_points_vec_index];
         tp[1] = domain_points[i_points_vec_index + 1];
         tp[2] = domain_points[i_points_vec_index + 2];
@@ -389,26 +392,27 @@ ki_Mat Kernel::get_3d(const std::vector<int>& tgt_inds,
         tn[0] = 0;
         tn[1] = 0;
         tn[2] = 0;
-      }else{
+      } else {
         tp[0] = boundary_points_[i_points_vec_index];
         tp[1] = boundary_points_[i_points_vec_index + 1];
         tp[2] = boundary_points_[i_points_vec_index + 2];
 
         tn[0] = boundary_normals(i_points_vec_index);
-        tn[1] = boundary_normals(i_points_vec_index+1);
-        tn[2] = boundary_normals(i_points_vec_index+2);
+        tn[1] = boundary_normals(i_points_vec_index + 1);
+        tn[2] = boundary_normals(i_points_vec_index + 2);
       }
       double r[3] = {tp[0] - sp[0], tp[1] - sp[1], tp[2] - sp[2]};
- 
-     
-      if(solution_dimension==1){
-        three_d_laplace(i + olda_ * j, &ret, r[0], r[1],r[2], boundary_diags[j_point_index], 
-          sn[0], sn[1], sn[2], sw);
-      }      
-      else{
-        three_d_stokes(i + olda_ * j, tgt_ind % 3, src_ind % 3, &ret, r[0], r[1],r[2], boundary_diag_tensors[j_point_index],
-          tn[0], tn[1], tn[2], sn[0], sn[1], sn[2], sw);
-        
+
+
+      if (solution_dimension == 1) {
+        three_d_laplace(i + olda_ * j, &ret, r[0], r[1], r[2],
+                        boundary_diags[j_point_index],
+                        sn[0], sn[1], sn[2], sw);
+      } else {
+        three_d_stokes(i + olda_ * j, tgt_ind % 3, src_ind % 3, &ret, r[0], r[1], r[2],
+                       boundary_diag_tensors[j_point_index],
+                       tn[0], tn[1], tn[2], sn[0], sn[1], sn[2], sw);
+
       }
     }
   }
@@ -443,7 +447,7 @@ ki_Mat Kernel::get_id_mat(const QuadTree* tree,
     return mat;
   }
   // If at level 2, grab active from all on level, plus from leaves of level 1
-  if (node->level == 2 && domain_dimension <3) {
+  if (node->level == 2 && domain_dimension < 3) {
     for (QuadTreeNode* level_node : tree->levels[node->level]->nodes) {
       if (level_node != node) {
         for (int matrix_index :
@@ -599,45 +603,50 @@ ki_Mat Kernel::get_proxy_mat3d(std::vector<double> center,
     int j_points_vec_index = j_point_index * domain_dimension;
 
     double bp[3] = {boundary_points_[j_points_vec_index],
-     boundary_points_[j_points_vec_index + 1],
-     boundary_points_[j_points_vec_index + 2]};
+                    boundary_points_[j_points_vec_index + 1],
+                    boundary_points_[j_points_vec_index + 2]
+                   };
     double bn[3] = {boundary_normals(j_points_vec_index),
-     boundary_normals(j_points_vec_index + 1),
-     boundary_normals(j_points_vec_index + 2)};
+                    boundary_normals(j_points_vec_index + 1),
+                    boundary_normals(j_points_vec_index + 2)
+                   };
 
     double bw =  boundary_weights(j_point_index);
     for (int i = 0; i < pxy_p.size(); i += domain_dimension) {
       double pp[3] = {pxy_p[i],
-        pxy_p[i + 1],
-        pxy_p[i + 2]};
+                      pxy_p[i + 1],
+                      pxy_p[i + 2]
+                     };
       double pn[3] = {pxy_n[i],
-        pxy_n[i + 1],
-        pxy_n[i + 2]};
-    
-      double r[3] = {pp[0] - bp[0], pp[1] - bp[1], pp[2]-bp[2]};
-      if(solution_dimension == 1){
-        three_d_laplace((i/domain_dimension)+lda*j, &ret, 
-            r[0], r[1], r[2], 0.,
-            bn[0], bn[1], bn[2],
-            bw);
-        three_d_laplace((pxy_p.size()/domain_dimension)+(i/domain_dimension)+lda*j, &ret, 
-            -r[0], -r[1], -r[2], 0.,
-            pn[0], pn[1], pn[2],
-            pxy_w[i/domain_dimension]);
-      }else{
-       for (int pxy_parity = 0; pxy_parity < 3; pxy_parity++) {
+                      pxy_n[i + 1],
+                      pxy_n[i + 2]
+                     };
+
+      double r[3] = {pp[0] - bp[0], pp[1] - bp[1], pp[2] - bp[2]};
+      if (solution_dimension == 1) {
+        three_d_laplace((i / domain_dimension) + lda * j, &ret,
+                        r[0], r[1], r[2], 0.,
+                        bn[0], bn[1], bn[2],
+                        bw);
+        three_d_laplace((pxy_p.size() / domain_dimension) + (i / domain_dimension) + lda
+                        * j, &ret,
+                        -r[0], -r[1], -r[2], 0.,
+                        pn[0], pn[1], pn[2],
+                        pxy_w[i / domain_dimension]);
+      } else {
+        for (int pxy_parity = 0; pxy_parity < 3; pxy_parity++) {
           // box to pxy
           three_d_stokes(i + pxy_parity + lda * j, pxy_parity, box_ind % 3,
-                     &ret, r[0], r[1], r[2], ki_Mat(3,3), pn[0], pn[1], pn[2],
-                      bn[0], bn[1], bn[2], bw);
+                         &ret, r[0], r[1], r[2], ki_Mat(3, 3), pn[0], pn[1], pn[2],
+                         bn[0], bn[1], bn[2], bw);
 
           // pxy to box
           three_d_stokes(pxy_p.size() + i + pxy_parity + lda * j,
-                     box_ind % 3, pxy_parity, &ret, -r[0], -r[1],-r[2], ki_Mat(3,3),
-                     bn[0], bn[1], bn[2], pn[0], pn[1], pn[2], pxy_w[i/domain_dimension]);
+                         box_ind % 3, pxy_parity, &ret, -r[0], -r[1], -r[2], ki_Mat(3, 3),
+                         bn[0], bn[1], bn[2], pn[0], pn[1], pn[2], pxy_w[i / domain_dimension]);
         }
       }
-     
+
     }
   }
   return ret;
@@ -645,8 +654,8 @@ ki_Mat Kernel::get_proxy_mat3d(std::vector<double> center,
 
 
 ki_Mat Kernel::forward() const {
-  int tgt = solution_dimension * (domain_points.size()/domain_dimension);
-  int src = solution_dimension * (boundary_points_.size()/domain_dimension);
+  int tgt = solution_dimension * (domain_points.size() / domain_dimension);
+  int src = solution_dimension * (boundary_points_.size() / domain_dimension);
   std::vector<int> tgt_inds(tgt), src_inds(src);
   for (int i = 0; i < tgt; i++) tgt_inds[i] = i;
   for (int j = 0; j < src; j++) src_inds[j] = j;
