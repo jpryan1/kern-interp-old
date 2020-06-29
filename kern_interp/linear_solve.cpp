@@ -178,10 +178,10 @@ ki_Mat initialize_Psi_mat(const Kernel::Pde pde,
           for (int hole_idx = 0; hole_idx < holes.size(); hole_idx++) {
             Hole hole = holes[hole_idx];
             if ((x - hole.center).norm() < hole.radius + 1e-8) {
-              Psi.set(2 * hole_idx, i, boundary.weights[i / 2]);
-              Psi.set(2 * hole_idx + 1, i + 1, boundary.weights[i / 2]);
-              Psi.set(2 * hole_idx + 2, i, boundary.weights[i / 2]*x.a[1]);
-              Psi.set(2 * hole_idx + 2, i + 1, -boundary.weights[i / 2]*x.a[0]);
+              Psi.set(3 * hole_idx, i, boundary.weights[i / 2]);
+              Psi.set(3 * hole_idx + 1, i + 1, boundary.weights[i / 2]);
+              Psi.set(3 * hole_idx + 2, i, boundary.weights[i / 2]*x.a[1]);
+              Psi.set(3 * hole_idx + 2, i + 1, -boundary.weights[i / 2]*x.a[0]);
               break;
             }
           }
@@ -302,7 +302,7 @@ void get_domain_points(int domain_size, std::vector<double>* points,
 
 void get_domain_points3d(int domain_size, std::vector<double>* points,
                          double min, double max) {
-  double eps = 0.05;
+  double eps = 0.1;
 
   for (int i = 0; i < domain_size; i++) {
     double r = eps + min + ((max - min - eps) * (i / (domain_size + 0.)));
@@ -310,7 +310,7 @@ void get_domain_points3d(int domain_size, std::vector<double>* points,
     for (int j = 0; j < domain_size; j++) {
       double theta = 2 * M_PI * (j / (domain_size + 0.));
       // double y = min + ((j + 0.0) / (domain_size - 1)) * (max - min);
-      for (int k = 1; k < domain_size - 1; k++) {
+      for (int k = 0; k <domain_size; k++) {
         double phi = M_PI * (k / (domain_size + 0.));
         // double z = min + ((k + 0.0) / (domain_size - 1)) * (max - min);
         // double phi=0;
@@ -477,6 +477,7 @@ double stokes_err_3d(const ki_Mat& domain,
   ki_Mat x_vals(4, 1);
   abcd.left_multiply_inverse(b, &x_vals);
 
+  for(int i=0; i<4; i++) std::cout<<x_vals.get(i,0)<<std::endl;
   double err = 0.;
   double tot = 0.;
   for (int i = 0; i < domain_points.size(); i += 3) {
@@ -497,7 +498,8 @@ double stokes_err_3d(const ki_Mat& domain,
     phi = acos(point.a[2] / point.norm());
 
     double ur, uphi;
-    ur = 2 * cos(phi) * (
+
+ur = 2 * cos(phi) * (
            (x_vals.get(0, 0) / pow(r, 3))
            + (x_vals.get(1, 0) / r)
            + (x_vals.get(2, 0))
@@ -511,8 +513,7 @@ double stokes_err_3d(const ki_Mat& domain,
     PointVec guessvel = PointVec(domain.get(i, 0), domain.get(i + 1, 0),
                                  domain.get(i + 2, 0));
     double guessmag = guessvel.norm();
-    double predmag = sqrt(pow(ur, 2) + pow(r * uphi, 2));
-
+    double predmag = sqrt(pow(ur, 2) + pow(uphi, 2));
     err += pow(guessmag - predmag, 2);
     tot += pow(predmag, 2);
   }

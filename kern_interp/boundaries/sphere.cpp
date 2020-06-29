@@ -90,7 +90,7 @@ void Sphere::initialize(int num_circumf_points, BoundaryCondition bc) {
 
 bool Sphere::is_in_domain(const PointVec& a) const {
   PointVec center(0.5, 0.5, 0.5);
-  double eps = 1e-2;
+  double eps = 1e-1;
   double dist = (center - a).norm();
   if (dist + eps > r) return false;
   for (Hole hole : holes) {
