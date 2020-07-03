@@ -207,9 +207,6 @@ void linear_solve(const SkelFactorization& skel_factorization,
   } else {
     *alpha = ki_Mat(quadtree.U.width(), 1);
     skel_factorization.multiply_connected_solve(quadtree, mu, alpha, f);
-    // std::cout<<"alpha is "<<alpha->get(0,0)<<" "<<alpha->get(1,0)<<" "
-    //  <<alpha->get(2,0)<<std::endl;
-    //<<" "<<alpha->get(3,0)<<" "<<alpha->get(4,0)<<" "<<alpha->get(5,0)<<std::endl;
   }
 }
 
@@ -245,9 +242,7 @@ ki_Mat boundary_integral_solve(const Kernel& kernel, const Boundary& boundary,
   // Consider making init instead of constructor for readability
   SkelFactorization skel_factorization(id_tol, fact_threads);
   ki_Mat K_domain = kernel.forward();
-
   ki_Mat f = boundary.boundary_values;
-
   ki_Mat U = initialize_U_mat(kernel.pde, boundary.holes, boundary.points,
                               kernel.domain_dimension);
   ki_Mat Psi = initialize_Psi_mat(kernel.pde, boundary.holes,
@@ -301,29 +296,48 @@ void get_domain_points(int domain_size, std::vector<double>* points,
 }
 
 void get_domain_points3d(int domain_size, std::vector<double>* points,
-                         double min, double max) {
-  double eps = 0.1;
+                         Boundary* boundary, double min, double max) {
+  double eps = 0.01;
+
 
   for (int i = 0; i < domain_size; i++) {
-    double r = eps + min + ((max - min - eps) * (i / (domain_size + 0.)));
-    // double x = min + ((i + 0.0) / (domain_size - 1)) * (max - min);
+    double x = -0.5 + ((i + 0.0) / (domain_size - 1)) * (2);
     for (int j = 0; j < domain_size; j++) {
-      double theta = 2 * M_PI * (j / (domain_size + 0.));
-      // double y = min + ((j + 0.0) / (domain_size - 1)) * (max - min);
-      for (int k = 0; k <domain_size; k++) {
-        double phi = M_PI * (k / (domain_size + 0.));
-        // double z = min + ((k + 0.0) / (domain_size - 1)) * (max - min);
-        // double phi=0;
-        // double theta=0;
-        double x = 0.5 + r * sin(phi) * cos(theta);
-        double y = 0.5 + r * sin(phi) * sin(theta);
-        double z = 0.5 + r * cos(phi);
+      double y = -0.5 + ((j + 0.0) / (domain_size - 1)) * (2);
+      for (int k = 0; k < domain_size; k++) {
+        double z = -0.5 + ((k + 0.0) / (domain_size - 1)) * (2);
+        if (!boundary->is_in_domain(PointVec(x, y, z))) {
+          continue;
+        }
         points->push_back(x);
         points->push_back(y);
         points->push_back(z);
       }
     }
   }
+
+
+
+  // for (int i = 0; i < domain_size; i++) {
+  //   double r = eps + min + ((max - min - eps) * (i / (domain_size + 0.)));
+  //   // double x = min + ((i + 0.0) / (domain_size - 1)) * (max - min);
+  //   for (int j = 0; j < domain_size; j++) {
+  //     double theta = 2 * M_PI * (j / (domain_size + 0.));
+  //     // double y = min + ((j + 0.0) / (domain_size - 1)) * (max - min);
+  //     for (int k = 0; k < domain_size; k++) {
+  //       double phi = M_PI * (k / (domain_size + 0.));
+  //       // double z = min + ((k + 0.0) / (domain_size - 1)) * (max - min);
+  //       // double phi=0;
+  //       // double theta=0;
+  //       double x = 0.5 + r * sin(phi) * cos(theta);
+  //       double y = 0.5 + r * sin(phi) * sin(theta);
+  //       double z = 0.5 + r * cos(phi);
+  //       points->push_back(x);
+  //       points->push_back(y);
+  //       points->push_back(z);
+  //     }
+  //   }
+  // }
 }
 
 
@@ -477,7 +491,6 @@ double stokes_err_3d(const ki_Mat& domain,
   ki_Mat x_vals(4, 1);
   abcd.left_multiply_inverse(b, &x_vals);
 
-  for(int i=0; i<4; i++) std::cout<<x_vals.get(i,0)<<std::endl;
   double err = 0.;
   double tot = 0.;
   for (int i = 0; i < domain_points.size(); i += 3) {
@@ -499,7 +512,7 @@ double stokes_err_3d(const ki_Mat& domain,
 
     double ur, uphi;
 
-ur = 2 * cos(phi) * (
+    ur = 2 * cos(phi) * (
            (x_vals.get(0, 0) / pow(r, 3))
            + (x_vals.get(1, 0) / r)
            + (x_vals.get(2, 0))

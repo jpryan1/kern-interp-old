@@ -104,13 +104,14 @@ void SkelFactorization::skeletonize(const Kernel& kernel, QuadTree* tree) {
   start = omp_get_wtime();
 
   int nodes_left = kernel.boundary_points_.size();
+  int prev_nodes_left = nodes_left;
   for (int level = lvls - 1; level >  1; level--) {
     end = omp_get_wtime();
     std::cout << "level " << level << " " << (end - start) << std::endl;
+    prev_nodes_left = nodes_left;
     start = end;
     tree->remove_inactive_dofs_at_level(level);
     QuadTreeLevel* current_level = tree->levels[level];
-
     #pragma omp parallel for num_threads(fact_threads)
     for (int n = 0; n < current_level->nodes.size(); n++) {
       QuadTreeNode* current_node = current_level->nodes[n];
@@ -118,11 +119,11 @@ void SkelFactorization::skeletonize(const Kernel& kernel, QuadTree* tree) {
           < MIN_DOFS_TO_COMPRESS) {
         continue;
       }
-      double ids = omp_get_wtime();
-      double ide;
+
       if (id_compress(kernel, tree, current_node) == 0) {
         continue;
       }
+      nodes_left -= current_node->T.width();
       decouple(kernel, current_node);
       node_counter++;
     }
@@ -130,20 +131,20 @@ void SkelFactorization::skeletonize(const Kernel& kernel, QuadTree* tree) {
 
   end = omp_get_wtime();
   std::cout << "Last level " << (end - start) << std::endl;
-  //     std::cout<<"Nodes left "<<nodes_left<<std::endl;
+  std::cout << "Nodes left " << nodes_left << std::endl;
   // If the above breaks due to a cap, we need to manually propagate active
   // boxes up the tree.
   tree->remove_inactive_dofs_at_all_boxes();
   std::vector<int> allskel = tree->root->dof_lists.active_box;
 
-  start = omp_get_wtime();
   if (allskel.size() > 0) {
     ki_Mat allskel_updates = ki_Mat(allskel.size(), allskel.size());
     get_all_schur_updates(&allskel_updates, allskel, tree->root);
-    tree->allskel_mat = kernel(allskel, allskel) - allskel_updates;
+    start = omp_get_wtime();
+    tree->allskel_mat = kernel(allskel, allskel, false, true) - allskel_updates;
+    end = omp_get_wtime();
+    std::cout << "allskel get time " << end - start << std::endl;
   }
-  end = omp_get_wtime();
-  std::cout << "allskel get time " << end - start << std::endl;
 
   if (tree->U.width() == 0) {
     double lufs = omp_get_wtime();
@@ -177,10 +178,10 @@ void SkelFactorization::skeletonize(const Kernel& kernel, QuadTree* tree) {
       allredundant.push_back(i);
     }
   }
-  // if (allredundant.size() == 0) {
-  //   std::cout << "No compression possible" << std::endl;
-  //   exit(0);
-  // }
+  if (allredundant.size() == 0) {
+    std::cout << "No compression possible" << std::endl;
+    exit(0);
+  }
 
   // In our bordered linear system, the skel and redundant indices are
   // partitioned so we create a map from their original index into their
@@ -273,8 +274,8 @@ void SkelFactorization::skeletonize(const Kernel& kernel, QuadTree* tree) {
                   - ident - (modified_Psi(0, modified_Psi.height(),
                                           allredundant) * Dinv_C_nonzero));
   double slustart = omp_get_wtime();
+  std::cout << "S height " << S.height() << std::endl;
   std::cout << "slustart " << std::endl;
-
   S.LU_factorize(&tree->S_LU, &tree->S_piv);
   double sluend = omp_get_wtime();
   std::cout << "slu " << (sluend - slustart) << std::endl;
@@ -282,8 +283,8 @@ void SkelFactorization::skeletonize(const Kernel& kernel, QuadTree* tree) {
 }
 
 
-void SkelFactorization::get_all_schur_updates(ki_Mat* updates,
-    const std::vector<int>& BN, const QuadTreeNode* node) const {
+void SkelFactorization::get_all_schur_updates(ki_Mat * updates,
+    const std::vector<int>& BN, const QuadTreeNode * node) const {
   assert(node != nullptr && "get_all_schur_updates fails on null node.");
   assert(BN.size() > 0 && "get_all_schur_updates needs positive num of DOFs");
   if (!node->is_leaf) get_descendents_updates(updates, BN, node);
