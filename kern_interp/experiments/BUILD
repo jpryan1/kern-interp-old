@@ -1,10 +1,10 @@
 package(default_visibility = ["//visibility:public"])
+load("//kern_interp:buildvars.bzl", "COPTS")
 
 cc_binary(
   name = "experiment_one",
   srcs = ["experiment_one.cpp"],
-  copts= ["-fopenmp",
-          "-std=c++14"],
+  copts= COPTS,
   deps = [
       "//kern_interp:ki_mat",
       "//kern_interp/skel_factorization",
@@ -26,8 +26,7 @@ cc_binary(
 cc_binary(
   name = "spiral_channel",
   srcs = ["spiral_channel.cpp"],
-  copts= ["-fopenmp",
-          "-std=c++14"],
+  copts= COPTS,
   deps = [
       "//kern_interp:ki_mat",
       "//kern_interp/skel_factorization",
@@ -48,8 +47,7 @@ cc_binary(
 cc_binary(
   name = "xrr_test",
   srcs = ["xrr_test.cpp"],
-  copts= ["-fopenmp",
-          "-std=c++14"],
+  copts= COPTS,
   deps = [
       "//kern_interp:ki_mat",
       "//kern_interp/skel_factorization",
@@ -70,8 +68,7 @@ cc_binary(
 cc_binary(
   name = "experiment_two",
   srcs = ["experiment_two.cpp"],
-  copts= ["-fopenmp",
-          "-std=c++14"],
+  copts= COPTS,
   deps = [
       "//kern_interp:ki_mat",
       "//kern_interp/skel_factorization",
@@ -92,8 +89,7 @@ cc_binary(
 cc_binary(
   name = "experiment_three",
   srcs = ["experiment_three.cpp"],
-  copts= ["-fopenmp",
-          "-std=c++14"],
+  copts= COPTS,
   deps = [
       "//kern_interp:ki_mat",
       "//kern_interp/skel_factorization",
@@ -113,8 +109,7 @@ cc_binary(
 cc_binary(
   name = "covar",
   srcs = ["covar.cpp"],
-  copts= ["-fopenmp",
-          "-std=c++14"],
+  copts= COPTS,
   deps = [
       "//kern_interp:ki_mat",
       "//kern_interp/skel_factorization",
@@ -136,8 +131,7 @@ cc_binary(
 cc_binary(
   name = "linalg_acc",
   srcs = ["linalg_acc.cpp"],
-  copts= ["-fopenmp",
-          "-std=c++14"],
+  copts= COPTS,
   deps = [
       "//kern_interp:ki_mat",
       "//kern_interp/skel_factorization",
@@ -159,8 +153,7 @@ cc_binary(
 cc_binary(
   name = "pde_acc",
   srcs = ["pde_acc.cpp"],
-  copts= ["-fopenmp",
-          "-std=c++14"],
+  copts= COPTS,
   deps = [
       "//kern_interp:ki_mat",
       "//kern_interp/skel_factorization",
@@ -182,8 +175,7 @@ cc_binary(
 cc_binary(
   name = "update_acc",
   srcs = ["update_acc.cpp"],
-  copts= ["-fopenmp",
-          "-std=c++14"],
+  copts= COPTS,
   deps = [
       "//kern_interp:ki_mat",
       "//kern_interp/skel_factorization",
@@ -205,8 +197,7 @@ cc_binary(
 cc_binary(
   name = "one_hole_sphere",
   srcs = ["one_hole_sphere.cpp"],
-  copts= ["-fopenmp",
-          "-std=c++14"],
+  copts= COPTS,
   deps = [
       "//kern_interp:ki_mat",
       "//kern_interp/skel_factorization",
@@ -226,8 +217,7 @@ cc_binary(
 cc_binary(
   name = "two_hole_sphere",
   srcs = ["two_hole_sphere.cpp"],
-  copts= ["-fopenmp",
-          "-std=c++14"],
+  copts= COPTS,
   deps = [
       "//kern_interp:ki_mat",
       "//kern_interp/skel_factorization",

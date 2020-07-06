@@ -352,15 +352,13 @@ TEST(IeSolverTest, LaplaceSphereAnalyticAgreementElectron) {
   hole.center=PointVec(0.5,0.5,0.5);
   hole.radius=0.1;
   boundary->holes.push_back(hole);
-  boundary->initialize(pow(2,8),  BoundaryCondition::LAPLACE_CHECK_3D);
+  boundary->initialize(pow(2, 13),  BoundaryCondition::LAPLACE_CHECK_3D);
 
   QuadTree quadtree;
   quadtree.initialize_tree(boundary.get(), 1, 3);
   std::vector<double> old_domain_points, domain_points;
 
-  get_domain_points3d(10, &old_domain_points, 0.1, 1);
-
-  // TODO(John) get_domain_points needs to deal with this
+  get_domain_points3d(10, &old_domain_points, boundary.get(), 0.1, 1);
   for(int i=0; i<old_domain_points.size(); i+=3){
 
         if(boundary->is_in_domain(PointVec(old_domain_points[i],
@@ -396,14 +394,14 @@ TEST(IeSolverTest, StokesSphereAnalyticAgreement) {
   hole3d.center = PointVec(0.5, 0.5, 0.5);
   hole3d.radius = 0.1;
   boundary3d->holes.push_back(hole3d);
-  boundary3d->initialize(pow(2,7),  BoundaryCondition::STOKES_3D_MIX);
+  boundary3d->initialize(pow(2, 13)*3,  BoundaryCondition::STOKES_3D_MIX);
 
   QuadTree quadtree3d;
   quadtree3d.initialize_tree(boundary3d.get(), 3, 3);
   std::vector<double> domain_points3d;
-  int domain_size = 5;
+  int domain_size = 10;
 
-  get_domain_points3d(domain_size, &domain_points3d, hole3d.radius, 1);
+  get_domain_points3d(domain_size, &domain_points3d, boundary3d.get(), 0, 1);
 
   Kernel kernel3d(3, 3, Kernel::Pde::STOKES, boundary3d.get(), domain_points3d);
   // TODO(John) this should be part of kernel init
@@ -415,7 +413,7 @@ TEST(IeSolverTest, StokesSphereAnalyticAgreement) {
 
   double err = stokes_err_3d(sol3d, domain_points3d, boundary3d.get(),
                              hole3d.radius, STOKES_MIXER);
-  EXPECT_LE(err, 10*id_tol);
+  EXPECT_LE(err, 10 * id_tol);
 }
 
 

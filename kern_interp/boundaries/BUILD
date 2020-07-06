@@ -1,4 +1,5 @@
 package(default_visibility = ["//visibility:public"])
+load("//kern_interp:buildvars.bzl", "COPTS")
 
 cc_library(
 	name = "boundaries",
@@ -14,7 +15,7 @@ cc_library(
 			"ex2boundary.h",
 			"ex3boundary.h",
 			"boundary.h"],
-	copts= ["-std=c++14"],
+	copts= COPTS,
 	srcs = [
 			"circle.cpp",
 			"sphere.cpp",

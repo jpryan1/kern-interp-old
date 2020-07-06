@@ -87,7 +87,7 @@ struct Kernel {
 
   ki_Mat operator()(const std::vector<int> & tgt_inds,
                     const std::vector<int> & src_inds,
-                    bool forward = false) const;
+                    bool forward = false, bool parallel = false) const;
 
   ki_Mat get_id_mat(const QuadTree * tree,
                     const QuadTreeNode * node) const;
@@ -97,7 +97,7 @@ struct Kernel {
 
 
   ki_Mat get_3d(const std::vector<int>& tgt_inds,
-                const std::vector<int>& src_inds, bool forward) const;
+                const std::vector<int>& src_inds, bool forward, bool parallel) const;
   ki_Mat get_proxy_mat3d(std::vector<double> center,
                          double r, const QuadTree * tree,
                          const std::vector<int> & box_inds) const;

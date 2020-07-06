@@ -236,11 +236,10 @@ void Kernel::compute_diag_entries_3dstokes(Boundary* boundary) {
                    (pow(r1 * r1 + r2 * r2 + r3 * r3, 2.5))
                    * r[dof % 3] * r[other_dof % 3]
                    + sw * tn[dof % 3] * sn[other_dof % 3 ];
-      ;
+
 
       double tmp = boundary_diag_tensors[pt_idx].get(dof % 3, other_dof % 3);
       boundary_diag_tensors[pt_idx].set(dof % 3, other_dof % 3, tmp + pot);
-
     }
   }
   int curr_idx = boundary->num_outer_nodes * domain_dimension;
@@ -303,12 +302,17 @@ void Kernel::compute_diag_entries_3dstokes(Boundary* boundary) {
 
 
 ki_Mat Kernel::operator()(const std::vector<int>& tgt_inds,
-                          const std::vector<int>& src_inds, bool forward) const {
+                          const std::vector<int>& src_inds, bool forward, bool parallel) const {
   if (domain_dimension == 3) {
-    return get_3d(tgt_inds, src_inds, forward);
+    return get_3d(tgt_inds, src_inds, forward, parallel);
   }
   ki_Mat ret(tgt_inds.size(), src_inds.size());
   int olda_ = tgt_inds.size();
+  int threads = 1;
+  if (parallel) {
+    threads = 8;
+  }
+  #pragma omp parallel for num_threads(threads)
   for (int j = 0; j < src_inds.size(); j++) {
     int src_ind = src_inds[j];
     int j_point_index = src_ind / solution_dimension;
@@ -357,10 +361,15 @@ ki_Mat Kernel::operator()(const std::vector<int>& tgt_inds,
 
 
 ki_Mat Kernel::get_3d(const std::vector<int>& tgt_inds,
-                      const std::vector<int>& src_inds, bool forward) const {
+                      const std::vector<int>& src_inds, bool forward, bool parallel) const {
 
   ki_Mat ret(tgt_inds.size(), src_inds.size());
   int olda_ = tgt_inds.size();
+  int threads = 1;
+  if (parallel) {
+    threads = 8;
+  }
+  #pragma omp parallel for num_threads(threads)
   for (int j = 0; j < src_inds.size(); j++) {
     int src_ind = src_inds[j];
     int j_point_index = src_ind / solution_dimension;
@@ -402,7 +411,6 @@ ki_Mat Kernel::get_3d(const std::vector<int>& tgt_inds,
         tn[2] = boundary_normals(i_points_vec_index + 2);
       }
       double r[3] = {tp[0] - sp[0], tp[1] - sp[1], tp[2] - sp[2]};
-
 
       if (solution_dimension == 1) {
         three_d_laplace(i + olda_ * j, &ret, r[0], r[1], r[2],
@@ -578,7 +586,7 @@ ki_Mat Kernel::get_proxy_mat3d(std::vector<double> center,
                                const std::vector<int>& box_inds) const {
 
   // each row is a pxy point, cols are box dofs
-  // r*=3;
+  // r *= 2;
   std::vector<double> pxy_p, pxy_n, pxy_w;
   for (int i = 0; i < pxy_thetas.size(); i++) {
     double theta = pxy_thetas[i];
@@ -659,7 +667,7 @@ ki_Mat Kernel::forward() const {
   std::vector<int> tgt_inds(tgt), src_inds(src);
   for (int i = 0; i < tgt; i++) tgt_inds[i] = i;
   for (int j = 0; j < src; j++) src_inds[j] = j;
-  return (*this)(tgt_inds, src_inds, true);
+  return (*this)(tgt_inds, src_inds, true, true);
 }
 
 }  // namespace kern_interp
