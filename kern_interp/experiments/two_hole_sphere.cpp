@@ -18,7 +18,7 @@ namespace kern_interp {
 
 void run_two_hole_sphere() {
 
-  int num_threads = 1;
+  int num_threads = 8;
   double id_tol = 1e-6;
 
   std::unique_ptr<Boundary> boundary3d =
