@@ -9,7 +9,7 @@
 
 namespace kern_interp {
 
-void Sphere::initialize(int num_circumf_points, BoundaryCondition bc) {
+void Sphere::initialize(int sz_param, BoundaryCondition bc) {
   points.clear();
   normals.clear();
   weights.clear();
@@ -39,6 +39,7 @@ void Sphere::initialize(int num_circumf_points, BoundaryCondition bc) {
     hole.center = PointVec(0.5, 0.5, 0.5);
     hole.radius = 0.1;
     hole.num_nodes = num_outer_nodes;
+
     holes.push_back(hole);
   }
 
@@ -80,7 +81,7 @@ void Sphere::initialize(int num_circumf_points, BoundaryCondition bc) {
 
 bool Sphere::is_in_domain(const PointVec& a) const {
   PointVec center(0.5, 0.5, 0.5);
-  double eps = 1e-1;
+  double eps = 0.1;
   double dist = (center - a).norm();
   if (dist + eps > r) return false;
   for (Hole hole : holes) {

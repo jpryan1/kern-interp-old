@@ -58,13 +58,13 @@ struct Kernel {
       pxy_thetas.push_back(theta);
       pxy_theta_weights.push_back(2 * M_PI / (num_circumf_points));
     }
-    for (int j = 0; j < num_phi_points; j++) {  
-        double phi = phis[j]; 
-        pxy_phis.push_back(phi);
-        pxy_phi_weights.push_back(phi_weights[j]*sin(phi));
+    for (int j = 0; j < num_phi_points; j++) {
+      double phi = phis[j];
+      pxy_phis.push_back(phi);
+      pxy_phi_weights.push_back(phi_weights[j]*sin(phi));
     }
   }
-  
+
   void compute_diag_entries_3dlaplace(Boundary* boundary);
   void compute_diag_entries_3dstokes(Boundary* boundary);
 
@@ -78,16 +78,16 @@ struct Kernel {
                   double sn1, double sn2, double sw, double sc,
                   bool forward = false) const;
   void three_d_laplace(int mat_idx, ki_Mat* ret, double r1, double r2, double r3,
-                       double diag, double sn1, double sn2, double sn3, 
-                        double sw ) const;
+                       double diag, double sn1, double sn2, double sn3,
+                       double sw) const;
   void three_d_stokes(int mat_idx, int tgt_parity, int src_parity,
-                        ki_Mat* ret, double r1, double r2, double r3, const ki_Mat& diag,
-                        double tn1, double tn2, double tn3, double sn1, double sn2, double sn3,
-                        double sw) const;
+                      ki_Mat* ret, double r1, double r2, double r3, const ki_Mat& diag,
+                      double tn1, double tn2, double tn3, double sn1, double sn2, double sn3,
+                      double sw) const;
 
   ki_Mat operator()(const std::vector<int> & tgt_inds,
                     const std::vector<int> & src_inds,
-                    bool forward = false) const;
+                    bool forward = false, bool parallel = false) const;
 
   ki_Mat get_id_mat(const QuadTree * tree,
                     const QuadTreeNode * node) const;
@@ -95,9 +95,9 @@ struct Kernel {
                        double r, const QuadTree * tree,
                        const std::vector<int> & box_inds) const;
 
- 
+
   ki_Mat get_3d(const std::vector<int>& tgt_inds,
-                          const std::vector<int>& src_inds, bool forward) const;
+                const std::vector<int>& src_inds, bool forward, bool parallel) const;
   ki_Mat get_proxy_mat3d(std::vector<double> center,
                          double r, const QuadTree * tree,
                          const std::vector<int> & box_inds) const;

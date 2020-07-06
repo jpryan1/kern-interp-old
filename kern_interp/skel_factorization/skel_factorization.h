@@ -18,6 +18,7 @@ namespace kern_interp {
 // Or maybe make everything static.
 class SkelFactorization {
  public:
+
   double id_tol;
   int fact_threads;
 

@@ -7,6 +7,8 @@
 #include "kern_interp/pointvec.h"
 #include "kern_interp/ki_mat.h"
 
+#define STOKES_MIXER 0
+
 namespace kern_interp {
 
 struct Hole {
@@ -29,9 +31,12 @@ enum BoundaryCondition {
   HORIZONTAL_VEC,
   EX3A,
   EX3B,
+  LAPLACE_CHECK_2D,
+  LAPLACE_CHECK_3D,
   ELECTRON_3D,
   STOKES_3D,
   STOKES_3D_MIX,
+  STOKES_2D_MIX,
   DEFAULT  // This is special, means use BC inherent to experiment/function.
 };
 

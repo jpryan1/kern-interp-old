@@ -112,6 +112,7 @@ void QuadTree::initialize_tree(Boundary* boundary,
     recursive_add(this->root, pt, i / domain_dimension);
   }
   compute_neighbor_lists();
+
 }
 
 

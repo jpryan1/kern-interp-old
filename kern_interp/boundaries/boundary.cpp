@@ -18,6 +18,8 @@ void Boundary::set_boundary_values_size(BoundaryCondition bc) {
     case ALL_NEG_ONES:
     case ALL_ZEROS:
     case ELECTRON_3D:
+    case LAPLACE_CHECK_2D:
+    case LAPLACE_CHECK_3D:
       boundary_values = ki_Mat(num_points, 1);
       break;
     // Everything above is for 1D solutions.
@@ -30,6 +32,7 @@ void Boundary::set_boundary_values_size(BoundaryCondition bc) {
     case EX3B:
     case HORIZONTAL_VEC:
     case NO_SLIP:
+    case STOKES_2D_MIX:
       boundary_values = ki_Mat(2 * num_points, 1);
       break;
     case STOKES_3D_MIX:
@@ -58,6 +61,17 @@ void Boundary::apply_boundary_condition(int start_point_idx, int end_point_idx,
                             log(sqrt(pow(points[2 * point_idx] + 3, 2)
                                      + pow(points[2 * point_idx + 1] + 2, 2)))
                             / (2 * M_PI));
+        break;
+      }
+      case LAPLACE_CHECK_2D: {
+
+        double r = sqrt(pow(points[2 * point_idx] - 0.5, 2)
+                        + pow(points[2 * point_idx + 1] - 0.5, 2));
+        if (r < 0.6) {
+          boundary_values.set(point_idx, 0, 1.);
+        } else {
+          boundary_values.set(point_idx, 0, 3.);
+        }
         break;
       }
       case ALL_ONES: {
@@ -113,6 +127,19 @@ void Boundary::apply_boundary_condition(int start_point_idx, int end_point_idx,
         boundary_values.set(2 * point_idx + 1, 0, 0.);
         break;
       }
+      case STOKES_2D_MIX: {
+        double r = sqrt(pow(points[2 * point_idx] - 0.5, 2)
+                        + pow(points[2 * point_idx + 1] - 0.5, 2)
+                       );
+        if (r > 0.9) {
+          boundary_values.set(2 * point_idx, 0, 1.0);
+          boundary_values.set(2 * point_idx + 1, 0, 0);
+        } else {
+          boundary_values.set(2 * point_idx, 0, -STOKES_MIXER);
+          boundary_values.set(2 * point_idx + 1, 0, 0);
+        }
+        break;
+      }
       // 3D domain
       case ELECTRON_3D: {
         double r = sqrt(pow(points[3 * point_idx] + 3, 2)
@@ -120,26 +147,38 @@ void Boundary::apply_boundary_condition(int start_point_idx, int end_point_idx,
                         + pow(points[3 * point_idx + 2] + 2, 2));
         boundary_values.set(point_idx, 0, -1.0 / (4 * M_PI * r));
         break;
-      }      
-      case STOKES_3D_MIX: {
-         double r = sqrt(pow(points[3 * point_idx] - 0.5, 2)
+      }
+      case LAPLACE_CHECK_3D: {
+
+        double r = sqrt(pow(points[3 * point_idx] - 0.5, 2)
                         + pow(points[3 * point_idx + 1] - 0.5, 2)
                         + pow(points[3 * point_idx + 2] - 0.5, 2));
-        if(r>0.9){
-          boundary_values.set(3 * point_idx, 0, 1.0);
+        if (r < 0.2) {
+          boundary_values.set(point_idx, 0, 1.);
+        } else {
+          boundary_values.set(point_idx, 0, 3.);
+        }
+        break;
+      }
+      case STOKES_3D_MIX: {
+        double r = sqrt(pow(points[3 * point_idx] - 0.5, 2)
+                        + pow(points[3 * point_idx + 1] - 0.5, 2)
+                        + pow(points[3 * point_idx + 2] - 0.5, 2));
+        if (r > 0.9) {
+          boundary_values.set(3 * point_idx, 0, 0);
+          boundary_values.set(3 * point_idx + 1, 0, 0.0);
+          boundary_values.set(3 * point_idx + 2, 0, 1.0);
+        } else {
+          boundary_values.set(3 * point_idx, 0, 0);
           boundary_values.set(3 * point_idx + 1, 0, 0);
-          boundary_values.set(3 * point_idx + 2, 0, 0);
-        }else{
-          boundary_values.set(3 * point_idx, 0, -10);
-          boundary_values.set(3 * point_idx + 1, 0, 0);
-          boundary_values.set(3 * point_idx + 2, 0, 0);
+          boundary_values.set(3 * point_idx + 2, 0, -STOKES_MIXER);
         }
         break;
       }
       case STOKES_3D: {
-          boundary_values.set(3*point_idx, 0, 1);
-          boundary_values.set(3*point_idx+1, 0, 0);
-          boundary_values.set(3*point_idx+2, 0, 0);
+        boundary_values.set(3 * point_idx, 0, 1);
+        boundary_values.set(3 * point_idx + 1, 0, 0);
+        boundary_values.set(3 * point_idx + 2, 0, 0);
         break;
       }
 

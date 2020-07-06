@@ -12,6 +12,7 @@
 #include "kern_interp/kernel/kernel.h"
 #include "kern_interp/linear_solve.h"
 #include "kern_interp/boundaries/sphere.h"
+#include "kern_interp/boundaries/donut.h"
 
 namespace kern_interp {
 
@@ -27,7 +28,7 @@ void run_one_hole_sphere() {
   QuadTree quadtree;
   quadtree.initialize_tree(boundary.get(), 3, 3);
   std::vector<double> old_domain_points, domain_points;
-  get_domain_points3d(20, &old_domain_points, quadtree.min,
+  get_domain_points3d(20, &old_domain_points, boundary.get(), quadtree.min,
                       quadtree.max);
   for (int i = 0; i < old_domain_points.size(); i += 3) {
     if (boundary->is_in_domain(PointVec(old_domain_points[i],
@@ -46,25 +47,22 @@ void run_one_hole_sphere() {
   std::cout << "computer diag " << (cend - cstart) << std::endl;
   ki_Mat sol = boundary_integral_solve(kernel, *(boundary.get()), &quadtree,
                                        1e-6, 8, domain_points);
-  double err = stokes_err_3d(sol, domain_points, boundary.get());
+  double err = stokes_err_3d(sol, domain_points, boundary.get(), 0.1, STOKES_MIXER);
   std::cout << "err " << err << std::endl;
 
+  // std::ofstream sol_out;
+  // sol_out.open("output/data/ie_solver_solution.txt");
+  // int points_index = 0;
+  // for (int i = 0; i < sol.height(); i += 3) {
+  //   sol_out << domain_points[points_index] << "," <<
+  //           domain_points[points_index + 1] << "," << domain_points[points_index + 2] <<
+  //           ",";
+  //   points_index += 3;
+  //   sol_out << sol.get(i, 0) << "," << sol.get(i + 1, 0) << "," << sol.get(i + 2, 0)
+  //           << std::endl;
+  // }
+  // sol_out.close();
 
-
-  std::ofstream sol_out;
-  sol_out.open("output/data/ie_solver_solution.txt");
-  int points_index = 0;
-  for (int i = 0; i < sol.height(); i += 3) {
-    sol_out << domain_points[points_index] << "," <<
-            domain_points[points_index + 1] << "," << domain_points[points_index + 2] <<
-            ",";
-    points_index += 3;
-    sol_out << sol.get(i, 0) << "," << sol.get(i + 1, 0) << "," << sol.get(i + 2, 0)
-            << std::endl;
-  }
-  sol_out.close();
-
-// conclusion of last timing test - lvl 2 has some boxes that take forever
 }
 
 }  // namespace kern_interp

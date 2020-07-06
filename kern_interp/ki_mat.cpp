@@ -531,8 +531,10 @@ int ki_Mat::id(std::vector<int>* p, ki_Mat* Z, double tol) const {
 
   // /tau/ will contain an output from dgeqp3 that we don't need.
   std::vector<double> tau(width_);
+
   int info1 = LAPACKE_dgeqp3(CblasColMajor, height_, width_, cpy.mat, lda_,
                              &pvt[0], &tau[0]);
+
   assert(info1 == 0);
   int skel = 0;
   double thresh = fabs(tol * cpy.get(0, 0));
@@ -547,8 +549,10 @@ int ki_Mat::id(std::vector<int>* p, ki_Mat* Z, double tol) const {
     // no compression to be done :/
     return 0;
   }
+  *p = std::vector<int>(width_);
+
   for (int i = 0; i < width_; i++) {
-    p->push_back(pvt[i] - 1);
+    (*p)[i] = pvt[i]-1;
   }
   int redund = width_ - skel;
   // set Z to be R_11^-1 R_12. Note 'U' (above diagonal) part of cp.mat
