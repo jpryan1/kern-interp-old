@@ -28,8 +28,8 @@ void run_one_hole_sphere() {
   QuadTree quadtree;
   quadtree.initialize_tree(boundary.get(), 3, 3);
   std::vector<double> old_domain_points, domain_points;
-  get_domain_points3d(20, &old_domain_points, boundary.get(), quadtree.min,
-                      quadtree.max);
+  get_domain_points3d(20, &old_domain_points, boundary.get(), 0.1,1
+                      );
   for (int i = 0; i < old_domain_points.size(); i += 3) {
     if (boundary->is_in_domain(PointVec(old_domain_points[i],
                                         old_domain_points[i + 1],
