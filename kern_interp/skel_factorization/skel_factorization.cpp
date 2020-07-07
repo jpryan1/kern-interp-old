@@ -148,8 +148,10 @@ void SkelFactorization::skeletonize(const Kernel& kernel, QuadTree* tree) {
 
   if (tree->U.width() == 0) {
     double lufs = omp_get_wtime();
+    openblas_set_num_threads(fact_threads);
     tree->allskel_mat.LU_factorize(&tree->allskel_mat_lu,
                                    &tree->allskel_mat_piv);
+    openblas_set_num_threads(1);
     double lufe = omp_get_wtime();
     std::cout << "allskel lu " << (lufe - lufs) << std::endl;
     return;
@@ -276,7 +278,9 @@ void SkelFactorization::skeletonize(const Kernel& kernel, QuadTree* tree) {
   double slustart = omp_get_wtime();
   std::cout << "S height " << S.height() << std::endl;
   std::cout << "slustart " << std::endl;
+  openblas_set_num_threads(fact_threads);
   S.LU_factorize(&tree->S_LU, &tree->S_piv);
+  openblas_set_num_threads(1);
   double sluend = omp_get_wtime();
   std::cout << "slu " << (sluend - slustart) << std::endl;
 
