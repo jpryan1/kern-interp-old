@@ -43,7 +43,7 @@ struct InteractionLists {
 
 struct QuadTreeNode {
   int level, dofs_below;
-  bool is_leaf, X_rr_is_LU_factored = false, compressed = false;
+  bool is_leaf, X_rr_is_LU_factored = false, compressed = false, p_marked = false;
   double side_length;
   QuadTreeNode* parent;
   std::vector<QuadTreeNode*> children;
