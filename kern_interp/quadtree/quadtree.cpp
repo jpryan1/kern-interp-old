@@ -240,6 +240,8 @@ void QuadTree::node_subdivide(QuadTreeNode* node) {
 
 void QuadTree::mark_neighbors_and_parents(QuadTreeNode * node) {
   if (node == nullptr) return;
+  if (node->p_marked) return;
+  node->p_marked = true;
   node->compressed = false;
   node->X_rr_is_LU_factored = false;
   node->dof_lists.active_box.clear();
@@ -261,6 +263,7 @@ void QuadTree::mark_neighbors_and_parents(QuadTreeNode * node) {
     neighbor->T = ki_Mat(0, 0);
     neighbor->U = ki_Mat(0, 0);
     neighbor->L = ki_Mat(0, 0);
+    mark_neighbors_and_parents(neighbor->parent);
   }
   mark_neighbors_and_parents(node->parent);
 }
@@ -509,6 +512,7 @@ void QuadTree::perturb(const Boundary & perturbed_boundary) {
   }
   for (QuadTreeLevel* level : levels) {
     for (QuadTreeNode* node : level->nodes) {
+      node->p_marked = false;
       node->neighbors.clear();
     }
   }
