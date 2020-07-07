@@ -6,16 +6,16 @@ from mpl_toolkits.axes_grid1 import make_axes_locatable
 import matplotlib.pyplot as plt
 
 # Ex Spiral
-is_channel_plot = False
-ARROW_LENGTH = 0.4
-BORDER_WIDTH = 8
-HEAD_WIDTH = 3
-QUIVER_RES_X = 2
-QUIVER_RES_Y = 2
-BOUNDARY_RES = 5
-ZOOM = 1
-TICK_LABEL_SIZE = 40
-TICKS = [0.2, 0.9, 1.6]
+# is_channel_plot = False
+# ARROW_LENGTH = 0.4
+# BORDER_WIDTH = 8
+# HEAD_WIDTH = 3
+# QUIVER_RES_X = 2
+# QUIVER_RES_Y = 2
+# BOUNDARY_RES = 5
+# ZOOM = 1
+# TICK_LABEL_SIZE = 40
+# TICKS = [0.2, 0.9, 1.6]
 # OUTPUT_FILE = "ex1.eps"
 # config.num_boundary_points = pow(2, 12);
 # config.domain_size = 200;
@@ -37,17 +37,17 @@ TICKS = [0.2, 0.9, 1.6]
 # config.domain_size = 200;
 
 # Ex 2 
-# is_channel_plot = True
-# ARROW_LENGTH = 0.4
-# BORDER_WIDTH = 8
-# HEAD_WIDTH = 5
-# QUIVER_RES_X = 20
-# QUIVER_RES_Y = 10
-# BOUNDARY_RES = 1
-# ZOOM = 1.65
-# TICK_LABEL_SIZE = 20
-# TICKS = [0.25, 1, 1.75]
-# OUTPUT_FILE = "ex2.eps"
+is_channel_plot = True
+ARROW_LENGTH = 0.4
+BORDER_WIDTH = 8
+HEAD_WIDTH = 5
+QUIVER_RES_X = 10
+QUIVER_RES_Y = 20
+BOUNDARY_RES = 1
+ZOOM = 1.0 #1.65
+TICK_LABEL_SIZE = 20
+TICKS = [0.25, 1, 1.75]
+OUTPUT_FILE = "ex2.eps"
 # config.num_boundary_points = pow(2, 12);
 # config.domain_size = 350;
 
