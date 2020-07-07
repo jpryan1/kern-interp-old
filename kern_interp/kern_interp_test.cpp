@@ -343,14 +343,14 @@ TEST(IeSolverTest, LaplaceCircleAnalyticAgreementElectron) {
 
 TEST(IeSolverTest, LaplaceSphereAnalyticAgreementElectron) {
   srand(0);
-    openblas_set_num_threads(1);
+  openblas_set_num_threads(1);
   int num_threads = 8;
-  double id_tol=1e-6;
+  double id_tol = 1e-6;
   std::unique_ptr<Boundary> boundary =
-  std::unique_ptr<Boundary>(new Sphere());
+    std::unique_ptr<Boundary>(new Sphere());
   Hole hole;
-  hole.center=PointVec(0.5,0.5,0.5);
-  hole.radius=0.1;
+  hole.center = PointVec(0.5, 0.5, 0.5);
+  hole.radius = 0.1;
   boundary->holes.push_back(hole);
   boundary->initialize(pow(2, 13),  BoundaryCondition::LAPLACE_CHECK_3D);
 
@@ -359,14 +359,14 @@ TEST(IeSolverTest, LaplaceSphereAnalyticAgreementElectron) {
   std::vector<double> old_domain_points, domain_points;
 
   get_domain_points3d(10, &old_domain_points, boundary.get(), 0.1, 1);
-  for(int i=0; i<old_domain_points.size(); i+=3){
+  for (int i = 0; i < old_domain_points.size(); i += 3) {
 
-        if(boundary->is_in_domain(PointVec(old_domain_points[i],
-                                      old_domain_points[i+1],
-                                      old_domain_points[i+2] ))){
+    if (boundary->is_in_domain(PointVec(old_domain_points[i],
+                                        old_domain_points[i + 1],
+                                        old_domain_points[i + 2]))) {
       domain_points.push_back(old_domain_points[i]);
-      domain_points.push_back(old_domain_points[i+1]);
-      domain_points.push_back(old_domain_points[i+2]);
+      domain_points.push_back(old_domain_points[i + 1]);
+      domain_points.push_back(old_domain_points[i + 2]);
     }
   }
   Kernel kernel(1, 3, Kernel::Pde::LAPLACE, boundary.get(), domain_points);
@@ -376,7 +376,8 @@ TEST(IeSolverTest, LaplaceSphereAnalyticAgreementElectron) {
   ki_Mat sol = boundary_integral_solve(kernel, *(boundary.get()), &quadtree,
                                        id_tol, num_threads, domain_points);
 
-  double err = laplace_error3d(sol, domain_points, boundary.get(), BoundaryCondition::LAPLACE_CHECK_3D);
+  double err = laplace_error3d(sol, domain_points, boundary.get(),
+                               BoundaryCondition::LAPLACE_CHECK_3D);
   EXPECT_LE(err, 10 * 1e-6);
 }
 
@@ -394,7 +395,7 @@ TEST(IeSolverTest, StokesSphereAnalyticAgreement) {
   hole3d.center = PointVec(0.5, 0.5, 0.5);
   hole3d.radius = 0.1;
   boundary3d->holes.push_back(hole3d);
-  boundary3d->initialize(pow(2, 13)*3,  BoundaryCondition::STOKES_3D_MIX);
+  boundary3d->initialize(pow(2, 13) * 3,  BoundaryCondition::STOKES_3D_MIX);
 
   QuadTree quadtree3d;
   quadtree3d.initialize_tree(boundary3d.get(), 3, 3);
@@ -514,19 +515,19 @@ TEST(IeSolverTest, StokesDonutAnalyticAgreementTangent) {
 }
 
 
-TEST(IeSolverTest, Ex3UpdateLosesNoAcc) {
+TEST(IeSolverTest, Ex2UpdateLosesNoAcc) {
   double id_tol = 1e-6;
   Kernel::Pde pde = Kernel::Pde::STOKES;
-  int num_boundary_points = pow(2, 12);
+  int num_boundary_points = pow(2, 16);
   int domain_size = 20;
   int domain_dimension = 2;
   int solution_dimension = 2;
   int fact_threads = 4;
 
   std::unique_ptr<Boundary> boundary =
-    std::unique_ptr<Boundary>(new Ex3Boundary());
+    std::unique_ptr<Boundary>(new Ex2Boundary());
   boundary->initialize(num_boundary_points,
-                       BoundaryCondition::EX3B);
+                       BoundaryCondition::DEFAULT);
   QuadTree quadtree;
   quadtree.initialize_tree(boundary.get(), solution_dimension,
                            domain_dimension);
@@ -538,11 +539,10 @@ TEST(IeSolverTest, Ex3UpdateLosesNoAcc) {
                 pde, boundary.get(), domain_points);
 
   for (int frame = 0; frame < 10; frame++) {
-    double ang = (frame / 10.) * 2 * M_PI;
-
-    boundary->perturbation_parameters[0] = ang;
-    boundary->perturbation_parameters[1] = ang + M_PI;
-    boundary->initialize(num_boundary_points, BoundaryCondition::EX3B);
+    int rand_idx = floor(8 * (rand() / (0. + RAND_MAX)));
+    boundary->perturbation_parameters[rand_idx] = 0.35
+        + 0.3 * (frame / 10.0);
+    boundary->initialize(num_boundary_points, BoundaryCondition::DEFAULT);
     quadtree.perturb(*boundary.get());
     kernel.update_data(boundary.get());
     ki_Mat solution = boundary_integral_solve(kernel, *(boundary.get()),
@@ -552,7 +552,8 @@ TEST(IeSolverTest, Ex3UpdateLosesNoAcc) {
     fresh.initialize_tree(boundary.get(), 2,  2);
     ki_Mat new_sol = boundary_integral_solve(kernel, *(boundary.get()), &fresh,
                      id_tol, fact_threads, domain_points);
-
+    std::cout << "err: " << (new_sol - solution).vec_two_norm() /
+              new_sol.vec_two_norm() << std::endl;
     ASSERT_LE((new_sol - solution).vec_two_norm() / new_sol.vec_two_norm(),
               20 * id_tol);
   }
