@@ -17,10 +17,10 @@
 namespace kern_interp {
 
 
-void run_pde_acc() {
-  double id_tol = 1e-13;
+void run_pde_acc(int eps_pow) {
+  double id_tol = pow(10, eps_pow);
   Kernel::Pde pde = Kernel::Pde::STOKES;
-  int num_boundary_points = pow(2, 11);
+  int num_boundary_points = pow(2, 13);
   int domain_size = 200;
   int domain_dimension = 2;
   int solution_dimension = 2;
@@ -49,44 +49,44 @@ void run_pde_acc() {
 
   ki_Mat error = stokes_sol - sol;
 
-  // std::vector<double> err_norms;
-  // for (int i = 0; i < error.height(); i += 2) {
-  //   double err_mag = sqrt(pow(error.get(i, 0), 2) + pow(error.get(i + 1, 0), 2));
-  //   if (err_mag != 0) {
-  //     double truth_mag = sqrt(pow(stokes_sol.get(i, 0), 2)
-  //                             + pow(stokes_sol.get(i + 1, 0), 2));
-  //     err_norms.push_back(err_mag / truth_mag);
-  //   }
-  // }
-  // std::sort(err_norms.begin(), err_norms.end());
-  // int tenth = err_norms.size() / 10;
-  // int med = err_norms.size() / 2;
-  // int ninetieth = 9 * err_norms.size() / 10;
-  // std::cout << "percentiles " << err_norms[tenth] << " "
-  //           << err_norms[med] << " " << err_norms[ninetieth] << std::endl;
-
-
-
-
-
-  std::ofstream sol_out;
-  sol_out.open("output/data/ie_solver_solution.txt");
-  int points_index = 0;
+  std::vector<double> err_norms;
   for (int i = 0; i < error.height(); i += 2) {
-    sol_out << domain_points[points_index] << "," <<
-            domain_points[points_index + 1] << ",";
-    points_index += 2;
-    sol_out << error.get(i, 0) << "," << error.get(i + 1, 0)
-            << std::endl;
+    double err_mag = sqrt(pow(error.get(i, 0), 2) + pow(error.get(i + 1, 0), 2));
+    if (err_mag != 0) {
+      double truth_mag = sqrt(pow(stokes_sol.get(i, 0), 2)
+                              + pow(stokes_sol.get(i + 1, 0), 2));
+      err_norms.push_back(err_mag / truth_mag);
+    }
   }
-  sol_out.close();
-  std::ofstream bound_out;
-  bound_out.open("output/data/ie_solver_boundary.txt");
-  for (int i = 0; i < boundary->points.size(); i += 2) {
-    bound_out << boundary->points[i] << "," << boundary->points[i + 1]
-              << std::endl;
-  }
-  bound_out.close();
+  std::sort(err_norms.begin(), err_norms.end());
+  // int tenth = err_norms.size() / 10;
+  int med = err_norms.size() / 2;
+  // int ninetieth = 9 * err_norms.size() / 10;
+  std::cout << eps_pow << " " << err_norms[0] << " "
+            << err_norms[med] << " " << err_norms[err_norms.size() - 1] << std::endl;
+
+
+
+
+
+  // std::ofstream sol_out;
+  // sol_out.open("output/data/ie_solver_solution.txt");
+  // int points_index = 0;
+  // for (int i = 0; i < error.height(); i += 2) {
+  //   sol_out << domain_points[points_index] << "," <<
+  //           domain_points[points_index + 1] << ",";
+  //   points_index += 2;
+  //   sol_out << error.get(i, 0) << "," << error.get(i + 1, 0)
+  //           << std::endl;
+  // }
+  // sol_out.close();
+  // std::ofstream bound_out;
+  // bound_out.open("output/data/ie_solver_boundary.txt");
+  // for (int i = 0; i < boundary->points.size(); i += 2) {
+  //   bound_out << boundary->points[i] << "," << boundary->points[i + 1]
+  //             << std::endl;
+  // }
+  // bound_out.close();
 }
 
 }  // namespace kern_interp
@@ -94,9 +94,10 @@ void run_pde_acc() {
 
 int main(int argc, char** argv) {
   srand(0);
-    openblas_set_num_threads(1);
-
-  kern_interp::run_pde_acc();
+  openblas_set_num_threads(1);
+  for (int i = -3; i >= -9; i--) {
+    kern_interp::run_pde_acc(i);
+  }
   return 0;
 }
 
