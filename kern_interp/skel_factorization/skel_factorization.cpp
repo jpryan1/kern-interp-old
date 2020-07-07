@@ -107,7 +107,7 @@ void SkelFactorization::skeletonize(const Kernel& kernel, QuadTree* tree) {
   int prev_nodes_left = nodes_left;
   for (int level = lvls - 1; level >  1; level--) {
     end = omp_get_wtime();
-    std::cout << "level " << level << " " << (end - start) << std::endl;
+    // std::cout << "level " << level << " " << (end - start) << std::endl;
     prev_nodes_left = nodes_left;
     start = end;
     tree->remove_inactive_dofs_at_level(level);
@@ -130,8 +130,8 @@ void SkelFactorization::skeletonize(const Kernel& kernel, QuadTree* tree) {
   }
 
   end = omp_get_wtime();
-  std::cout << "Last level " << (end - start) << std::endl;
-  std::cout << "Nodes left " << nodes_left << std::endl;
+  // std::cout << "Last level " << (end - start) << std::endl;
+  // std::cout << "Nodes left " << nodes_left << std::endl;
   // If the above breaks due to a cap, we need to manually propagate active
   // boxes up the tree.
   tree->remove_inactive_dofs_at_all_boxes();
@@ -143,7 +143,7 @@ void SkelFactorization::skeletonize(const Kernel& kernel, QuadTree* tree) {
     start = omp_get_wtime();
     tree->allskel_mat = kernel(allskel, allskel, false, true) - allskel_updates;
     end = omp_get_wtime();
-    std::cout << "allskel get time " << end - start << std::endl;
+    // std::cout << "allskel get time " << end - start << std::endl;
   }
 
   if (tree->U.width() == 0) {
@@ -153,7 +153,7 @@ void SkelFactorization::skeletonize(const Kernel& kernel, QuadTree* tree) {
                                    &tree->allskel_mat_piv);
     openblas_set_num_threads(1);
     double lufe = omp_get_wtime();
-    std::cout << "allskel lu " << (lufe - lufs) << std::endl;
+    // std::cout << "allskel lu " << (lufe - lufs) << std::endl;
     return;
   }
 // std::cout<<"all skel cond "<<tree->allskel_mat.condition_number()<<std::endl;
@@ -276,13 +276,13 @@ void SkelFactorization::skeletonize(const Kernel& kernel, QuadTree* tree) {
                   - ident - (modified_Psi(0, modified_Psi.height(),
                                           allredundant) * Dinv_C_nonzero));
   double slustart = omp_get_wtime();
-  std::cout << "S height " << S.height() << std::endl;
-  std::cout << "slustart " << std::endl;
+  // std::cout << "S height " << S.height() << std::endl;
+  // std::cout << "slustart " << std::endl;
   openblas_set_num_threads(fact_threads);
   S.LU_factorize(&tree->S_LU, &tree->S_piv);
   openblas_set_num_threads(1);
   double sluend = omp_get_wtime();
-  std::cout << "slu " << (sluend - slustart) << std::endl;
+  // std::cout << "slu " << (sluend - slustart) << std::endl;
 
 }
 

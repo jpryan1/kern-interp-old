@@ -39,7 +39,7 @@ void Sphere::initialize(int sz_param, BoundaryCondition bc) {
     holes[i].num_nodes = each_hole_points;
   }
 
-  int total_points = num_circumf_points * num_phi_points + 
+  int total_points = num_circumf_points * num_phi_points +
                      (num_holes * each_hole_points);
 
   double phis[num_phi_points];
