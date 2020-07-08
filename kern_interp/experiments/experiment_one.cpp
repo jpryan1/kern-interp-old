@@ -32,10 +32,17 @@ void run_experiment1() {
   QuadTree quadtree;
   quadtree.initialize_tree(boundary.get(), solution_dimension,
                            domain_dimension);
+  double x_min = boundary->points[0], x_max = boundary->points[0],
+         y_min = boundary->points[1], y_max = boundary->points[1];
+  for (int i = 0; i < boundary->points.size(); i += 2) {
+    x_min = std::min(x_min, boundary->points[i]);
+    x_max = std::max(x_max, boundary->points[i]);
+    y_min = std::min(y_min, boundary->points[i + 1]);
+    y_max = std::max(y_max, boundary->points[i + 1]);
+  }
   std::vector<double> domain_points;
-  get_domain_points(domain_size, &domain_points, quadtree.min,
-                    quadtree.max, quadtree.min,
-                    quadtree.max);
+  get_domain_points(domain_size, &domain_points, x_min, x_max, y_min,
+                    y_max);
   Kernel kernel(solution_dimension, domain_dimension,
                 pde, boundary.get(), domain_points);
   ki_Mat solution = boundary_integral_solve(kernel, *(boundary.get()),

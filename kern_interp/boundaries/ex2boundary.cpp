@@ -9,222 +9,23 @@ namespace kern_interp {
 
 void Ex2Boundary::get_spline_points(std::vector<double>* x0_points,
                                     std::vector<double>* x1_points) {
-
-
-  for (int i = 0; i <= 3; i++) {
-    x0_points->push_back(0);
-    x1_points->push_back(3 - 0.5 * (i / 3.0));
-  }
-
-
-  for (int i = 1; i <= 3; i++) {
-    x0_points->push_back(-0.25 * (i / 3.0));
-    x1_points->push_back(2.5);
-  }
-  for (int i = 1; i <= 3; i++) {
-    x0_points->push_back(-0.25);
-    x1_points->push_back(2.5 + 0.25 * (i / 3.0));
-  }
-  for (int i = 1; i <= 3; i++) {
-    x0_points->push_back(-0.25 - 0.25 * (i / 3.0));
-    x1_points->push_back(2.75);
-  }
-  for (int i = 1; i <= 3; i++) {
-    x0_points->push_back(-0.5);
-    x1_points->push_back(2.75 - 0.5 * (i / 3.0));
-  }
-  for (int i = 1; i <= 3; i++) {
-    x0_points->push_back(-0.5 + 0.5 * (i / 3.0));
-    x1_points->push_back(2.25);
-  }
-
-
-
-  for (int i = 1; i <= 3; i++) {
-    x0_points->push_back(0);
-    x1_points->push_back(2.25 - 0.5 * (i / 3.0));
-  }
-
-
-  for (int i = 1; i <= 3; i++) {
-    x0_points->push_back(-0.5 * (i / 3.0));
-    x1_points->push_back(1.75);
-  }
-  for (int i = 1; i <= 3; i++) {
-    x0_points->push_back(-0.5);
-    x1_points->push_back(1.75 - 0.5 * (i / 3.0));
-  }
-  for (int i = 1; i <= 3; i++) {
-    x0_points->push_back(-0.5 + 0.25 * (i / 3.0));
-    x1_points->push_back(1.25);
-  }
-  for (int i = 1; i <= 3; i++) {
-    x0_points->push_back(-0.25);
-    x1_points->push_back(1.25 + 0.25 * (i / 3.0));
-  }
-  for (int i = 1; i <= 3; i++) {
-    x0_points->push_back(-0.25 + 0.25 * (i / 3.0));
-    x1_points->push_back(1.5);
-  }
-
-
-  for (int i = 1; i <= 3; i++) {
-    x0_points->push_back(0);
-    x1_points->push_back(1.5 - 0.5 * (i / 3.0));
-  }
-
-
-
-  for (int i = 1; i <= 3; i++) {
-    x0_points->push_back(-0.5 * (i / 3.0));
-    x1_points->push_back(1.0);
-  }
-  for (int i = 1; i <= 3; i++) {
-    x0_points->push_back(-0.5);
-    x1_points->push_back(1.0 - 0.5 * (i / 3.0));
-  }
-  for (int i = 1; i <= 3; i++) {
-    x0_points->push_back(-0.5 + 0.25 * (i / 3.0));
-    x1_points->push_back(0.5);
-  }
-  for (int i = 1; i <= 3; i++) {
-    x0_points->push_back(-0.25);
-    x1_points->push_back(0.5 + 0.25 * (i / 3.0));
-  }
-  for (int i = 1; i <= 3; i++) {
-    x0_points->push_back(-0.25 + 0.25 * (i / 3.0));
-    x1_points->push_back(0.75);
-  }
-
-  for (int i = 1; i <= 3; i++) {
-    x0_points->push_back(0);
-    x1_points->push_back(0.75 - 0.75 * (i / 3.0));
-  }
-
-// bottom wall
-  for (int i = 1; i <= 3; i++) {
-    x0_points->push_back(0.5 * (i / 3.0));
-    x1_points->push_back(0);
-  }
-
-
-
-
-  for (int i = 1; i <= 3; i++) {
-    x0_points->push_back(0.5);
-    x1_points->push_back(0.5 * (i / 3.0));
-  }
-
-
-  for (int i = 1; i <= 3; i++) {
-    x0_points->push_back(0.5 + 0.25 * (i / 3.0));
-    x1_points->push_back(0.5);
-  }
-  for (int i = 1; i <= 3; i++) {
-    x0_points->push_back(0.75);
-    x1_points->push_back(0.5- 0.25 * (i / 3.0));
-  }
-  for (int i = 1; i <= 3; i++) {
-    x0_points->push_back(0.75+ 0.25 * (i / 3.0));
+  for (int i = 0; i < 12; i++) {
+    x0_points->push_back(-1 + 3 * (i / 12.0));
     x1_points->push_back(0.25);
   }
-  for (int i = 1; i <= 3; i++) {
-    x0_points->push_back(1);
-    x1_points->push_back(0.25+0.5 * (i / 3.0));
+  for (int i = 0; i < 2; i++) {
+    x0_points->push_back(2);
+    x1_points->push_back(0.25 + 0.5 * i / 2.0);
   }
-  for (int i = 1; i <= 3; i++) {
-    x0_points->push_back(1- 0.5 * (i / 3.0));
+
+  for (int i = 0; i < 12; i++) {
+    x0_points->push_back(2 - 3 * (i / 12.0));
     x1_points->push_back(0.75);
   }
-
-
-
-  for (int i = 1; i <= 3; i++) {
-    x0_points->push_back(0.5);
-    x1_points->push_back(0.75 + 1.0 * (i / 3.0));
+  for (int i = 0; i < 2; i++) {
+    x0_points->push_back(-1);
+    x1_points->push_back(0.75 - 0.5 * i / 2.0);
   }
-
-
-  for (int i = 1; i <= 3; i++) {
-    x0_points->push_back(0.5+0.25 * (i / 3.0));
-    x1_points->push_back(1.75);
-  }
-  for (int i = 1; i <= 3; i++) {
-    x0_points->push_back(0.75);
-    x1_points->push_back(1.75 - 0.25 * (i / 3.0));
-  }
-  for (int i = 1; i <= 3; i++) {
-    x0_points->push_back(0.75 + 0.25 * (i / 3.0));
-    x1_points->push_back(1.5);
-  }
-  for (int i = 1; i <= 3; i++) {
-    x0_points->push_back(1.0);
-    x1_points->push_back(1.5 + 0.5 * (i / 3.0));
-  }
-  for (int i = 1; i <= 3; i++) {
-    x0_points->push_back(1.0-0.5 * (i / 3.0));
-    x1_points->push_back(2.0);
-  }
-
-
-  for (int i = 1; i <= 3; i++) {
-    x0_points->push_back(0.5);
-    x1_points->push_back(2.0 + 0.25 * (i / 3.0));
-  }
-
-
-
-  for (int i = 1; i <= 3; i++) {
-    x0_points->push_back(0.5+0.5 * (i / 3.0));
-    x1_points->push_back(2.25);
-  }
-  for (int i = 1; i <= 3; i++) {
-    x0_points->push_back(1.0);
-    x1_points->push_back(2.25 + 0.5 * (i / 3.0));
-  }
-  for (int i = 1; i <= 3; i++) {
-    x0_points->push_back(1.0- 0.25 * (i / 3.0));
-    x1_points->push_back(2.75);
-  }
-  for (int i = 1; i <= 3; i++) {
-    x0_points->push_back(0.75);
-    x1_points->push_back(2.75 - 0.25 * (i / 3.0));
-  }
-  for (int i = 1; i <= 3; i++) {
-    x0_points->push_back(0.75 - 0.25 * (i / 3.0));
-    x1_points->push_back(2.5);
-  }
-
-  for (int i = 1; i <= 3; i++) {
-    x0_points->push_back(0.5);
-    x1_points->push_back(2.5 + 0.5 * (i / 3.0));
-  }
-
-
-// top wall
-  for (int i = 1; i < 3; i++) {
-    x0_points->push_back(0.5-0.5 * (i / 3.0));
-    x1_points->push_back(3.0);
-  }
-
-// // top wall
-//   for (int i = 0; i < 12; i++) {
-//     x0_points->push_back(-1 + 3 * (i / 12.0));
-//     x1_points->push_back(0.25);
-//   }
-//   for (int i = 0; i < 2; i++) {
-//     x0_points->push_back(2);
-//     x1_points->push_back(0.25 + 0.5 * i / 2.0);
-//   }
-
-//   for (int i = 0; i < 12; i++) {
-//     x0_points->push_back(2 - 3 * (i / 12.0));
-//     x1_points->push_back(0.75);
-//   }
-//   for (int i = 0; i < 2; i++) {
-//     x0_points->push_back(-1);
-//     x1_points->push_back(0.75 - 0.5 * i / 2.0);
-//   }
 }
 
 
@@ -235,30 +36,30 @@ void Ex2Boundary::initialize(int N, BoundaryCondition bc) {
   curvatures.clear();
   holes.clear();
 
-  // if (perturbation_parameters.size() == 0) {
-  //   for (int i = 0; i <= 7; i++) perturbation_parameters.push_back(0.5);
-  // }
+  if (perturbation_parameters.size() == 0) {
+    for (int i = 0; i <= 7; i++) perturbation_parameters.push_back(0.5);
+  }
 
+  int OUTER_NUM_SPLINE_POINTS = 28;
+
+  int OUTER_NODES_PER_SPLINE = (3 * N / 4) / OUTER_NUM_SPLINE_POINTS;
   int NUM_CIRCLE_POINTS = (N / 4) / 8;
 
+  num_outer_nodes = OUTER_NODES_PER_SPLINE * OUTER_NUM_SPLINE_POINTS;
+
   Hole circle;
+
   circle.radius = 0.05;
   circle.num_nodes =  NUM_CIRCLE_POINTS;
-  // for (int i = 2; i <= 3; i++) {
-    circle.center = PointVec(0.25, 0.5);
-    // holes.push_back(circle);
-    // circle.center = PointVec(0.25, 2.0);
+  for (int i = 0; i <= 7; i++) {
+    double x = -0.7 + (i / 3.);
+    circle.center = PointVec(x, perturbation_parameters[i]);
     holes.push_back(circle);
-  // }
+  }
 
 
   std::vector<double> outer_x0_spline_points, outer_x1_spline_points;
   get_spline_points(&outer_x0_spline_points, &outer_x1_spline_points);
-
-
-  int OUTER_NUM_SPLINE_POINTS = outer_x0_spline_points.size();
-  int OUTER_NODES_PER_SPLINE = (3 * N / 4) / OUTER_NUM_SPLINE_POINTS;
-  num_outer_nodes = OUTER_NODES_PER_SPLINE * OUTER_NUM_SPLINE_POINTS;
 
   std::vector<std::vector<double>> outer_x0_cubics, outer_x1_cubics;
   get_cubics(outer_x0_spline_points, outer_x1_spline_points,

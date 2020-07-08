@@ -28,6 +28,7 @@ void Boundary::set_boundary_values_size(BoundaryCondition bc) {
     case REVERSE_TANGENT_VEC:
     case NORMAL_VEC:
     case REVERSE_NORMAL_VEC:
+    case EX1:
     case LEFT_TO_RIGHT_FLOW:
     case EX3B:
     case HORIZONTAL_VEC:
@@ -112,6 +113,17 @@ void Boundary::apply_boundary_condition(int start_point_idx, int end_point_idx,
         break;
       }
       case LEFT_TO_RIGHT_FLOW: {
+        double x = points[2 * point_idx];
+        if (x < -0.99 || x > 1.99) {
+          boundary_values.set(2 * point_idx, 0, 1);
+          boundary_values.set(2 * point_idx + 1, 0, 0);
+        } else {
+          boundary_values.set(2 * point_idx, 0, 0);
+          boundary_values.set(2 * point_idx + 1, 0, 0);
+        }
+        break;
+      }
+      case EX1: {
         double x = points[2 * point_idx ];
         double y = points[2 * point_idx + 1];
         if (y < 0.01 || y > 2.99) {
@@ -119,18 +131,20 @@ void Boundary::apply_boundary_condition(int start_point_idx, int end_point_idx,
           boundary_values.set(2 * point_idx + 1, 0, -1);
         } else if (x < 0.1 && (
                      (std::abs(y - 2.75) < 0.01) ||
-                     (std::abs(y - 1.25) < 0.01) ||
-                     (std::abs(y - 0.5) < 0.01) 
-                                        )) {
-          boundary_values.set(2 * point_idx, 0, 0);
-          boundary_values.set(2 * point_idx + 1, 0, -1);
-        } else if (x > 0.6 && (
-                     (std::abs(y - 2.75) < 0.01) ||
-                     (std::abs(y - 1.5) < 0.01) ||
-                     (std::abs(y - 0.25) < 0.01) 
+                     (std::abs(y - 0.5) < 0.01)
                    )) {
           boundary_values.set(2 * point_idx, 0, 0);
           boundary_values.set(2 * point_idx + 1, 0, -1);
+        } else if (x > 0.6 && (
+                     (std::abs(y - 3.0) < 0.01) ||
+                     (std::abs(y - 0.25) < 0.01)
+                   )) {
+          boundary_values.set(2 * point_idx, 0, 0);
+          boundary_values.set(2 * point_idx + 1, 0, -1);
+        } else if ((x > 0.6 && (std::abs(y - 1.75) < 0.01)) ||
+                   (x < 0.1 && (std::abs(y - 1.25) < 0.01))) {
+          boundary_values.set(2 * point_idx, 0, 0);
+          boundary_values.set(2 * point_idx + 1, 0, -2);
         } else {
           boundary_values.set(2 * point_idx, 0, 0);
           boundary_values.set(2 * point_idx + 1, 0, 0);
