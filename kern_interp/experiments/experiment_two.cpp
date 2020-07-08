@@ -20,6 +20,7 @@ void run_experiment2() {
   double id_tol = 1e-6;
   Kernel::Pde pde = Kernel::Pde::STOKES;
   int num_boundary_points = pow(2, 12);
+  // int domain_size = 100;
   int domain_size = 350;
   int domain_dimension = 2;
   int solution_dimension = 2;

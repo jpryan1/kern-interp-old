@@ -6,16 +6,16 @@ from mpl_toolkits.axes_grid1 import make_axes_locatable
 import matplotlib.pyplot as plt
 
 # Ex Spiral
-is_channel_plot = False
-ARROW_LENGTH = 0.4
-BORDER_WIDTH = 8
-HEAD_WIDTH = 3
-QUIVER_RES_X = 2
-QUIVER_RES_Y = 2
-BOUNDARY_RES = 5
-ZOOM = 1
-TICK_LABEL_SIZE = 40
-TICKS = [0.2, 0.9, 1.6]
+# is_channel_plot = False
+# ARROW_LENGTH = 0.4
+# BORDER_WIDTH = 8
+# HEAD_WIDTH = 3
+# QUIVER_RES_X = 2
+# QUIVER_RES_Y = 2
+# BOUNDARY_RES = 5
+# ZOOM = 1
+# TICK_LABEL_SIZE = 40
+# TICKS = [0.2, 0.9, 1.6]
 # OUTPUT_FILE = "ex1.eps"
 # config.num_boundary_points = pow(2, 12);
 # config.domain_size = 200;
@@ -35,6 +35,22 @@ TICKS = [0.2, 0.9, 1.6]
 # OUTPUT_FILE = "ex1.eps"
 # config.num_boundary_points = pow(2, 12);
 # config.domain_size = 200;
+
+
+# Ex 1 new 
+is_channel_plot = True
+ARROW_LENGTH = 0.15
+BORDER_WIDTH = 7
+HEAD_WIDTH = 7
+QUIVER_RES_X = 10
+QUIVER_RES_Y = 20
+BOUNDARY_RES = 1
+ZOOM = 1.0 #1.65
+TICK_LABEL_SIZE = 20
+TICKS = [0.25, 1.75, 3.25]
+OUTPUT_FILE = "ex1_new.eps"
+# config.num_boundary_points = pow(2, 12);
+# config.domain_size = 350;
 
 # Ex 2 
 # is_channel_plot = True
@@ -156,13 +172,17 @@ yl, yr = ax.get_ylim()
 l = min(xl,yl)-0.01
 r = max(xr,yr)+0.01
 ax.set_xlim((l - (r+l)/2.)/ZOOM + (r+l)/2., (r - (r+l)/2.)/ZOOM + (r+l)/2.)
+ax.set_ylim((l - (r+l)/2.)/ZOOM + (r+l)/2., (r - (r+l)/2.)/ZOOM + (r+l)/2.)
 
 if(is_channel_plot):
-	yl-=0.2
-	yr+=0.2
-	ax.set_ylim((yl - (yr+yl)/2.)/ZOOM + (yr+yl)/2., (yr - (yr+yl)/2.)/ZOOM + (yr+yl)/2.)
-else:
-	ax.set_ylim((l - (r+l)/2.)/ZOOM + (r+l)/2., (r - (r+l)/2.)/ZOOM + (r+l)/2.)
+	if OUTPUT_FILE == "ex1_new.eps":
+		xl-=0.2
+		xr+=0.2
+		ax.set_xlim((xl - (xr+xl)/2.)/ZOOM + (xr+xl)/2., (xr - (xr+xl)/2.)/ZOOM + (xr+xl)/2.)
+	else:
+		yl-=0.2
+		yr+=0.2
+		ax.set_ylim((yl - (yr+yl)/2.)/ZOOM + (yr+yl)/2., (yr - (yr+yl)/2.)/ZOOM + (yr+yl)/2.)
 
-# plt.savefig(OUTPUT_FILE, bbox_inches="tight", format="eps")
-plt.show()
+plt.savefig(OUTPUT_FILE, bbox_inches="tight", format="eps")
+# plt.show()
