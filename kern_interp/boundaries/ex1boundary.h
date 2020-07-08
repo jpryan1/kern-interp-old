@@ -14,10 +14,7 @@ class Ex1Boundary : public CubicBoundary {
 
   void get_spline_points(std::vector<double>* outer_x0_spline_points,
                          std::vector<double>* outer_x1_spline_points) override;
-  void get_star_spline_points(double x, double y,
-                              std::vector<double>* star_x0_spline_points,
-                              std::vector<double>* star_x1_spline_points);
-  std::unique_ptr<Boundary> clone() const override {
+   std::unique_ptr<Boundary> clone() const override {
     return std::make_unique<Ex1Boundary>(*this);
   }
 };
