@@ -104,7 +104,7 @@ void SkelFactorization::skeletonize(const Kernel& kernel, QuadTree* tree) {
   start = omp_get_wtime();
 
   int nodes_left = kernel.boundary_points_.size();
-  std::cout << "Starting with " << nodes_left << " nodes " << std::endl;
+  // std::cout << "Starting with " << nodes_left << " nodes " << std::endl;
   int prev_nodes_left = nodes_left;
   for (int level = lvls - 1; level >  1; level--) {
     end = omp_get_wtime();
