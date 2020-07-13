@@ -1,0 +1,7 @@
+id_tol 0.001 err: 0.0267099
+id_tol 0.0001 err: 0.00237372
+id_tol 1e-05 err: 0.000156486
+id_tol 1e-06 err: 1.16514e-05
+id_tol 1e-07 err: 9.12405e-07
+id_tol 1e-08 err: 7.84753e-08
+id_tol 1e-09 err: 7.61095e-09

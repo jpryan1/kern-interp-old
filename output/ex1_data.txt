@@ -1,0 +1,65 @@
+pow 15
+skel time 2.3189
+solve time 0.0778816
+skel time 0.620218
+solve time 0.0746663
+skel time 2.27617
+solve time 0.0702287
+skel time 0.609909
+solve time 0.0686744
+skel time 2.28536
+solve time 0.068347
+skel time 0.611624
+solve time 0.0686929
+pow 16
+skel time 4.26742
+solve time 0.143119
+skel time 0.867357
+solve time 0.150441
+skel time 4.25637
+solve time 0.136955
+skel time 0.841743
+solve time 0.144866
+skel time 4.19431
+solve time 0.141139
+skel time 0.846959
+solve time 0.144883
+pow 17
+skel time 8.07107
+solve time 0.280097
+skel time 1.34717
+solve time 0.284197
+skel time 8.4852
+solve time 0.282084
+skel time 1.43205
+solve time 0.316117
+skel time 8.25303
+solve time 0.279402
+skel time 1.34942
+solve time 0.280347
+pow 18
+skel time 17.2676
+solve time 0.604002
+skel time 2.33395
+solve time 0.604152
+skel time 16.4501
+solve time 0.637834
+skel time 2.50559
+solve time 0.623474
+skel time 16.2373
+solve time 0.615385
+skel time 2.37372
+solve time 0.603633
+pow 19
+skel time 33.3234
+solve time 1.21669
+skel time 4.4583
+solve time 1.21818
+skel time 32.3644
+solve time 1.33868
+skel time 4.55143
+solve time 1.25876
+skel time 34.1454
+solve time 1.40162
+skel time 4.62253
+solve time 1.26652
