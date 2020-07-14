@@ -313,7 +313,6 @@ void QuadTree::consolidate_node(QuadTreeNode* node) {
 
 
 void QuadTree::sort_leaves() {
-  return; //seemingly unnecessary?
   for (int level = 0; level < levels.size(); level++) {
     QuadTreeLevel* current_level = levels[level];
     for (int k = 0; k < current_level->nodes.size(); k++) {
