@@ -221,14 +221,14 @@ void schur_solve(const SkelFactorization & skel_factorization,
     double start = omp_get_wtime();
     linear_solve(skel_factorization, quadtree, f, &mu);
     double end = omp_get_wtime();
-    std::cout << "solve time " << end - start << std::endl;
+    // std::cout << "solve time " << end - start << std::endl;
     *solution = K_domain * mu;
   } else {
     ki_Mat alpha;
     double start = omp_get_wtime();
     linear_solve(skel_factorization, quadtree, f, &mu, &alpha);
     double end = omp_get_wtime();
-    std::cout << "solve time " << end - start << std::endl;
+    // std::cout << "solve time " << end - start << std::endl;
     *solution = (K_domain * mu) + (U_forward * alpha);
     // std::cout<<"Alpha "<<alpha.get(0,0)<<" "<<alpha.get(1,0)<<" "<<alpha.get(2,0)<<std::endl;
   }

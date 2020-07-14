@@ -39,7 +39,15 @@ void get_fin_diff_vals(double* samples, Boundary* boundary, int perturbed_param,
                         kernel.pde, boundaries[i].get(), domain_points);
     trees[i].perturb(*(boundaries[i].get()));
   }
-  #pragma omp parallel for num_threads(4)
+  int outer_threads;
+  if (fact_threads == 4) {
+    outer_threads = 1;
+  } else if (fact_threads == 2) {
+    outer_threads = 2;
+  } else {
+    outer_threads = 4;
+  }
+  #pragma omp parallel for num_threads(outer_threads)
   for (int i = 0; i < 4; i++) {
     ki_Mat solution = boundary_integral_solve(kernels[i],
                       *(boundaries[i].get()), &trees[i], id_tol,
@@ -91,14 +99,14 @@ void enforce_separation(double* ang1, double* ang2) {
 }
 
 
-void run_experiment3() {
+void run_experiment3(int num_inner_threads) {
   double start_alpha = 1;
   double alpha_decay = 0.8;
   double h = 1e-4;
   double id_tol = 1e-6;
   int num_boundary_points = pow(2, 12);
   int domain_dimension = 2;
-  int fact_threads = 1;
+  int fact_threads = num_inner_threads;
   int FRAME_CAP = 30;
   BoundaryCondition boundary_condition;
   int solution_dimension;
@@ -139,7 +147,7 @@ void run_experiment3() {
   Kernel kernel(solution_dimension, domain_dimension,
                 pde, boundary.get(), domain_points);
   ki_Mat solution = boundary_integral_solve(kernel,  *(boundary.get()),
-                    &quadtree, id_tol, fact_threads, domain_points);
+                    &quadtree, id_tol, 4, domain_points);
   double prev_gradient;
   if (THREE_B) {
     prev_gradient = -solution.get(0, 0);
@@ -150,6 +158,7 @@ void run_experiment3() {
 
 
   for (int step = 0; step < FRAME_CAP; step++) {
+    double starttime = omp_get_wtime();
     double findiff1[4];
     double samples1[4] = {current_ang1 - 2 * h, current_ang1 - h,
                           current_ang1 + h, current_ang1 + 2 * h
@@ -170,6 +179,8 @@ void run_experiment3() {
     double grad2 = (findiff2[0] - 8 * findiff2[1] + 8 * findiff2[2]
                     - findiff2[3]) / (12 * h);
     double alpha = start_alpha;
+    double endtime = omp_get_wtime();
+    std::cout << endtime - starttime << std::endl;
     while (alpha > 0.01) {
       double trial_ang1 = current_ang1 + alpha * grad1;
       double trial_ang2 = current_ang2 + alpha * grad2;
@@ -191,9 +202,9 @@ void run_experiment3() {
                    / (2 * DELTA_X);
       }
       if (prev_gradient < gradient) {
-        std::cout << "theta1: " << trial_ang1 << " theta2: " << trial_ang2 <<
-                  " theta3: "
-                  << gradient << std::endl;
+        // std::cout << "theta1: " << trial_ang1 << " theta2: " << trial_ang2 <<
+        //           " theta3: "
+        //           << gradient << std::endl;
         prev_gradient = gradient;
         current_ang1 = trial_ang1;
         current_ang2 = trial_ang2;
@@ -233,8 +244,25 @@ void run_experiment3() {
 int main(int argc, char** argv) {
   srand(0);
   omp_set_nested(1);
-    openblas_set_num_threads(1);
+  openblas_set_num_threads(1);
+  std::cout << "inner_threads " << 1 << std::endl;
+  for (int k = 0; k < 3; k++) {
+    std::cout << "k " << k << std::endl;
+    kern_interp::run_experiment3(1);
+  }
+  std::cout << "inner_threads " << 2 << std::endl;
 
-  kern_interp::run_experiment3();
+  for (int k = 0; k < 3; k++) {
+    std::cout << "k " << k << std::endl;
+
+    kern_interp::run_experiment3(2);
+  }
+  std::cout << "inner_threads " << 4 << std::endl;
+
+  for (int k = 0; k < 3; k++) {
+    std::cout << "k " << k << std::endl;
+
+    kern_interp::run_experiment3(4);
+  }
   return 0;
 }

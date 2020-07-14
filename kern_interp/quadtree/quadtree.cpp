@@ -112,6 +112,7 @@ void QuadTree::initialize_tree(Boundary* boundary,
     recursive_add(this->root, pt, i / domain_dimension);
   }
   compute_neighbor_lists();
+  sort_leaves();
 
 }
 
@@ -252,6 +253,7 @@ void QuadTree::mark_neighbors_and_parents(QuadTreeNode * node) {
   node->T = ki_Mat(0, 0);
   node->U = ki_Mat(0, 0);
   node->L = ki_Mat(0, 0);
+
   for (QuadTreeNode* neighbor : node->neighbors) {
     neighbor->compressed = false;
     neighbor->X_rr_is_LU_factored = false;
@@ -308,6 +310,39 @@ void QuadTree::consolidate_node(QuadTreeNode* node) {
   node->children.clear();
   node->is_leaf = true;
 }
+
+
+void QuadTree::sort_leaves() {
+  return; //seemingly unnecessary?
+  for (int level = 0; level < levels.size(); level++) {
+    QuadTreeLevel* current_level = levels[level];
+    for (int k = 0; k < current_level->nodes.size(); k++) {
+      QuadTreeNode* node = current_level->nodes[k];
+      if ((!node->is_leaf) || node->compressed) continue;
+      std::vector<std::pair<double, int>> origboxtmp;
+      for (int i = 0; i < node->dof_lists.original_box.size(); i++) {
+        int points_vec_index = domain_dimension * ( node->dof_lists.original_box[i] /
+                               solution_dimension);
+        double x = boundary_points[points_vec_index];
+        double y = boundary_points[points_vec_index + 1];
+        double dist = 0.;
+        for (int d = 0; d < domain_dimension; d++) {
+          dist += pow(node->center[d] - boundary_points[points_vec_index + d], 2);
+        }
+        dist = sqrt(dist);
+        origboxtmp.push_back(std::pair<double, int>(dist,
+                                node->dof_lists.original_box[i]));
+      }
+      std::sort(origboxtmp.begin(),
+                origboxtmp.end());
+       node->dof_lists.original_box.clear();
+      for (int i = 0; i < origboxtmp.size(); i++) {
+         node->dof_lists.original_box.push_back(origboxtmp[i].second);
+      }
+    }
+  }
+}
+
 
 
 void QuadTree::perturb(const Boundary & perturbed_boundary) {
@@ -504,6 +539,8 @@ void QuadTree::perturb(const Boundary & perturbed_boundary) {
     if (node->is_leaf
         && node->dof_lists.original_box.size() > MAX_LEAF_DOFS) {
       node_subdivide(node);
+    //TODO Is this necessary?
+      for (QuadTreeNode* child : node->children) mark_neighbors_and_parents(child);
     }
   }
   // If we can consolidate nodes into their parent, do that.
@@ -517,6 +554,8 @@ void QuadTree::perturb(const Boundary & perturbed_boundary) {
     }
   }
   compute_neighbor_lists();
+
+  sort_leaves();
 }
 
 

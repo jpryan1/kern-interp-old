@@ -32,6 +32,10 @@ void Sphere::initialize(int sz_param, BoundaryCondition bc) {
     }
     myfile.close();
   }
+  else{
+    std::cout<<"NO File"<<std::endl;
+    exit(0);
+  }
   num_outer_nodes = file_points.size() / 3;
 
   std::vector<double> file_hole_points, file_hole_weights;

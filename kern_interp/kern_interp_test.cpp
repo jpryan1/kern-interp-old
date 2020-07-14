@@ -345,14 +345,17 @@ TEST(IeSolverTest, LaplaceSphereAnalyticAgreementElectron) {
   srand(0);
   openblas_set_num_threads(1);
   int num_threads = 8;
-  double id_tol = 1e-6;
+  double id_tol = 1e-6;std::cout << "HERE" << std::endl;
+
   std::unique_ptr<Boundary> boundary =
     std::unique_ptr<Boundary>(new Sphere());
   Hole hole;
   hole.center = PointVec(0.5, 0.5, 0.5);
   hole.radius = 0.1;
   boundary->holes.push_back(hole);
-  boundary->initialize(pow(2, 13),  BoundaryCondition::LAPLACE_CHECK_3D);
+  int mode = 4;  std::cout << "HERE" << std::endl;
+
+  boundary->initialize(mode,  BoundaryCondition::LAPLACE_CHECK_3D);
 
   QuadTree quadtree;
   quadtree.initialize_tree(boundary.get(), 1, 3);
@@ -372,7 +375,6 @@ TEST(IeSolverTest, LaplaceSphereAnalyticAgreementElectron) {
   Kernel kernel(1, 3, Kernel::Pde::LAPLACE, boundary.get(), domain_points);
 
   kernel.compute_diag_entries_3dlaplace(boundary.get());
-
   ki_Mat sol = boundary_integral_solve(kernel, *(boundary.get()), &quadtree,
                                        id_tol, num_threads, domain_points);
 
@@ -395,7 +397,9 @@ TEST(IeSolverTest, StokesSphereAnalyticAgreement) {
   hole3d.center = PointVec(0.5, 0.5, 0.5);
   hole3d.radius = 0.1;
   boundary3d->holes.push_back(hole3d);
-  boundary3d->initialize(pow(2, 13) * 3,  BoundaryCondition::STOKES_3D_MIX);
+  int mode = 4;
+
+  boundary3d->initialize(mode,  BoundaryCondition::STOKES_3D_MIX);
 
   QuadTree quadtree3d;
   quadtree3d.initialize_tree(boundary3d.get(), 3, 3);

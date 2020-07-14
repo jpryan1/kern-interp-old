@@ -3,6 +3,7 @@
 #include <cmath>
 #include <iostream>
 #include <cassert>
+#include <algorithm>
 #include "kern_interp/kernel/kernel.h"
 
 namespace kern_interp {
@@ -455,34 +456,68 @@ ki_Mat Kernel::get_id_mat(const QuadTree* tree,
     return mat;
   }
   // If at level 2, grab active from all on level, plus from leaves of level 1
-  if (node->level == 2 && domain_dimension < 3) {
-    for (QuadTreeNode* level_node : tree->levels[node->level]->nodes) {
-      if (level_node != node) {
-        for (int matrix_index :
-             level_node->dof_lists.active_box) {
-          outside_box.push_back(matrix_index);
-        }
-      }
-    }
-    for (int lvl = node->level - 1; lvl >= 0; lvl--) {
-      for (QuadTreeNode* level_node : tree->levels[lvl]->nodes) {
-        if (level_node->is_leaf) {
-          for (int matrix_index :
-               level_node->dof_lists.original_box) {
-            outside_box.push_back(matrix_index);
-          }
-        }
-      }
-    }
+  // Commented to allow exact updating
+  // if (node->level ==  && domain_dimension < 3) {
+  //   for (QuadTreeNode* level_node : tree->levels[node->level]->nodes) {
+  //     if (level_node != node) {
+  //       for (int matrix_index :
+  //            level_node->dof_lists.active_box) {
+  //         outside_box.push_back(matrix_index);
+  //       }
+  //     }
+  //   }
+  //   for (int lvl = node->level - 1; lvl >= 0; lvl--) {
+  //     for (QuadTreeNode* level_node : tree->levels[lvl]->nodes) {
+  //       //TODO shouldnt this check for compression?
+  //       if (level_node->is_leaf) {
+  //         for (int matrix_index :
+  //              level_node->dof_lists.original_box) {
 
-    ki_Mat mat(2 * outside_box.size(), active_box.size());
-    mat.set_submatrix(0, outside_box.size(), 0, active_box.size(),
-                      (*this)(outside_box, active_box), false, true);
-    mat.set_submatrix(outside_box.size(), 2 * outside_box.size(),
-                      0, active_box.size(),
-                      (*this)(active_box, outside_box), true, true);
-    return mat;
-  }
+  //           outside_box.push_back(matrix_index);
+  //         }
+  //       }
+  //     }
+  //   }
+
+  //   std::vector<std::pair<double, int>> outboxtmp;
+  //   for (int i = 0; i < outside_box.size(); i++) {
+  //     int points_vec_index = domain_dimension * (outside_box[i] / solution_dimension);
+  //     double x = boundary_points_[points_vec_index];
+  //     double y = boundary_points_[points_vec_index + 1];
+  //     double dist = 0.;
+  //     for (int d = 0; d < domain_dimension; d++) {
+  //       dist += pow(node->center[d] - boundary_points_[points_vec_index + d], 2);
+  //     }
+  //     dist = sqrt(dist);
+  //     outboxtmp.push_back(std::pair<double, int>(dist,
+  //                         outside_box[i]));
+  //   }
+  //   std::sort(outboxtmp.begin(),
+  //             outboxtmp.end());
+  //   outside_box.clear();
+  //   for (int i = 0; i < outboxtmp.size(); i++) {
+  //     outside_box.push_back(outboxtmp[i].second);
+
+
+  //     // if ((std::abs(node->center[0]+0.6453917096) < 1e-5) &&
+  //     //     (std::abs(node->center[1] -0.11820276) < 1e-5)) {
+  //     //    int points_vec_index = domain_dimension * (outside_box[i] / solution_dimension);
+  //     //   double x = boundary_points_[points_vec_index];
+  //     // double y = boundary_points_[points_vec_index + 1];
+  //     //   std::cout << "outside " << outboxtmp[i].first << " "<<outboxtmp[i].second<<" "<<x<<" "<<y<<
+  //     // std::endl;
+  //     // }
+  //   }
+  //   ki_Mat mat(2 * outside_box.size(), active_box.size());
+  //   mat.set_submatrix(0, outside_box.size(), 0, active_box.size(),
+  //                     (*this)(outside_box, active_box), false, true);
+  //   mat.set_submatrix(outside_box.size(), 2 * outside_box.size(),
+  //                     0, active_box.size(),
+  //                     (*this)(active_box, outside_box), true, true);
+
+  //   return mat;
+  // }
+
   for (int matrix_index : node->dof_lists.near) {
     int point_index = matrix_index / solution_dimension;
     int points_vec_index = point_index * domain_dimension;
@@ -497,6 +532,30 @@ ki_Mat Kernel::get_id_mat(const QuadTree* tree,
       inner_circle.push_back(matrix_index);
     }
   }
+
+  std::vector<std::pair<double, int>> innercirctmp;
+  for (int i = 0; i < inner_circle.size(); i++) {
+    int points_vec_index = domain_dimension * (inner_circle[i] /
+                           solution_dimension);
+    double x = boundary_points_[points_vec_index];
+    double y = boundary_points_[points_vec_index + 1];
+    double dist = 0.;
+    for (int d = 0; d < domain_dimension; d++) {
+      dist += pow(node->center[d] - boundary_points_[points_vec_index + d], 2);
+    }
+    dist = sqrt(dist);
+    innercirctmp.push_back(std::pair<double, int>(dist,
+                           inner_circle[i]));
+  }
+  std::sort(innercirctmp.begin(),
+            innercirctmp.end());
+  inner_circle.clear();
+  for (int i = 0; i < innercirctmp.size(); i++) {
+    inner_circle.push_back(innercirctmp[i].second);
+
+  }
+
+
   ki_Mat pxy = get_proxy_mat(node->center, node->side_length
                              * RADIUS_RATIO, tree, active_box);
   // Now all the matrices are gathered, put them into mat.
@@ -586,7 +645,7 @@ ki_Mat Kernel::get_proxy_mat3d(std::vector<double> center,
                                const std::vector<int>& box_inds) const {
 
   // each row is a pxy point, cols are box dofs
-  r *= 2;
+  // r *= 2;
   std::vector<double> pxy_p, pxy_n, pxy_w;
   for (int i = 0; i < pxy_thetas.size(); i++) {
     double theta = pxy_thetas[i];

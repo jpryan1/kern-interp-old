@@ -99,7 +99,6 @@ void SkelFactorization::decouple(const Kernel& kernel, QuadTreeNode* node) {
 void SkelFactorization::skeletonize(const Kernel& kernel, QuadTree* tree) {
   int node_counter = 0;
   int lvls = tree->levels.size();
-
   double start, end;
   start = omp_get_wtime();
 

@@ -48,6 +48,7 @@ void run_experiment2() {
                 pde, boundary.get(), domain_points);
   ki_Mat solution = boundary_integral_solve(kernel, *(boundary.get()),
                     &quadtree, id_tol, fact_threads, domain_points);
+  SkelFactorization skel_factorization(id_tol, fact_threads);
 
   int FRAME_CAP = 100;
   for (int frame = 0; frame < FRAME_CAP; frame++) {
@@ -57,8 +58,39 @@ void run_experiment2() {
     boundary->initialize(num_boundary_points, BoundaryCondition::DEFAULT);
     quadtree.perturb(*boundary.get());
     kernel.update_data(boundary.get());
-    solution = boundary_integral_solve(kernel,  *(boundary.get()), &quadtree,
-                                       id_tol, fact_threads, domain_points);
+    ki_Mat sol = boundary_integral_solve(kernel, *(boundary.get()), &quadtree,
+                                         id_tol, fact_threads, domain_points);
+
+    ki_Mat U = initialize_U_mat(kernel.pde, boundary->holes, boundary->points,
+                                kernel.domain_dimension);
+    ki_Mat Psi = initialize_Psi_mat(kernel.pde, boundary->holes, *(boundary.get()),
+                                    kernel.domain_dimension);
+    quadtree.U = U;
+    quadtree.Psi = Psi;
+    skel_factorization.skeletonize(kernel, &quadtree);
+    ki_Mat mu, alpha;
+    linear_solve(skel_factorization, quadtree, boundary->boundary_values, &mu,
+                 &alpha);
+    ki_Mat stacked1(mu.height() + alpha.height(), 1);
+    stacked1.set_submatrix(0, mu.height(), 0, 1, mu);
+    stacked1.set_submatrix(mu.height(), stacked1.height(), 0, 1, alpha);
+
+    QuadTree fresh;
+    fresh.initialize_tree(boundary.get(), 2,  2);
+    fresh.U = U;
+    fresh.Psi = Psi;
+    skel_factorization.skeletonize(kernel, &fresh);
+    ki_Mat mu2, alpha2;
+    linear_solve(skel_factorization, fresh, boundary->boundary_values, &mu2,
+                 &alpha2);
+    ki_Mat stacked2(mu2.height() + alpha2.height(), 1);
+    stacked2.set_submatrix(0, mu2.height(), 0, 1, mu2);
+    stacked2.set_submatrix(mu2.height(), stacked2.height(), 0, 1, alpha2);
+
+    ki_Mat num = (stacked2 - stacked1);
+    std::cout << num.vec_two_norm() /
+              stacked2.vec_two_norm() << std::endl;
+
   }
 
   // std::ofstream sol_out;
@@ -86,8 +118,7 @@ void run_experiment2() {
 
 int main(int argc, char** argv) {
   srand(0);
-    openblas_set_num_threads(1);
-
+  openblas_set_num_threads(1);
   kern_interp::run_experiment2();
   return 0;
 }

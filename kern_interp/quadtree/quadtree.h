@@ -97,6 +97,7 @@ class QuadTree {
   void copy_into(QuadTree* new_tree) const;
   void mark_neighbors_and_parents(QuadTreeNode* node);
   void perturb(const Boundary& new_boundary);
+  void sort_leaves();
 
   void remove_inactive_dofs_at_level(int level);
   void remove_inactive_dofs_at_all_boxes();
