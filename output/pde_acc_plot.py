@@ -4,7 +4,7 @@ import numpy as np
 import sys
 
 
-font = {'size'   : 22}
+font = {'size'   : 30}
 
 LW=3
 MS=10
@@ -55,5 +55,5 @@ ax.invert_xaxis()
 
 
 # axs[0].savefig("output/pde_acc_plot.eps", format="eps")
-plt.savefig("pde_acc_plot.eps", format="eps")
+plt.savefig("new_pde_acc_plot.eps", format="eps")
 # plt.show()

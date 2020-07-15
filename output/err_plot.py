@@ -150,5 +150,5 @@ if(is_channel_plot):
 else:
 	ax.set_ylim((l - (r+l)/2.)/ZOOM + (r+l)/2., (r - (r+l)/2.)/ZOOM + (r+l)/2.)
 
-plt.savefig("err_plot.eps", bbox_inches="tight", format="eps")
+# plt.savefig("err_plot.eps", bbox_inches="tight", format="eps")
 plt.show()
